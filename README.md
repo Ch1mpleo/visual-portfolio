@@ -12,8 +12,6 @@ This isn't a formal portfolio. It's a playground.
 
 I'm a **Gamer and Developer** who codes by day and games by night. This site is where those two worlds collide — a space to try out wild animations, experiment with design, and keep a piece of the internet that feels like *me*.
 
-Games I love: Arc Raider, Red Dead Redemption 2, Elden Ring, Dark Souls, God of War, Bloodborne, and plenty more.
-
 ---
 
 ## Stack

@@ -118,10 +118,9 @@ const frames = [
     <div class="s__catcher__distorted-wrapper">
       <div class="s__catcher__distorted">
         <div class="s__catcher__text s__catcher__text--distorted">
-          Remember <br />
-          not to <br />
-          steal <br />
-          this
+          Don't be <br />
+          sorry <br />
+          be better
         </div>
       </div><!-- .s__catcher__distorted -->
     </div><!-- .s__catcher__distorted-wrapper -->
@@ -129,10 +128,9 @@ const frames = [
     <div class="s__catcher__normal-wrapper">
       <div class="s__catcher__normal">
         <div class="s__catcher__text s__catcher__text--normal">
-          Remember <br />
-          not to <br />
-          steal <br />
-          this
+          Don't be <br />
+          sorry <br />
+          be better
         </div>
       </div><!-- .s__catcher__normal -->
     </div><!-- .s__catcher__normal-wrapper -->
@@ -284,7 +282,7 @@ const frames = [
         object.el.addEventListener('mousedown', this.objectDragStart.bind(this))
         object.el.addEventListener(
           'touchstart',
-          this.objectDragStart.bind(this)
+          this.objectDragStart.bind(this),
         )
       })
       this.el.addEventListener('mouseup', this.objectDragEnd.bind(this))
@@ -292,7 +290,7 @@ const frames = [
 
       this.objectsWrapper.addEventListener(
         'touchmove',
-        this.onTouchMove.bind(this)
+        this.onTouchMove.bind(this),
       )
 
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
@@ -462,7 +460,7 @@ const frames = [
 
       this.el.style.setProperty(
         '--distortion',
-        String(Math.hypot(dx, dy) * 0.14)
+        String(Math.hypot(dx, dy) * 0.14),
       )
 
       // Side lines
@@ -509,7 +507,7 @@ const frames = [
       if (this.objects.length > 0) {
         const object = this.objects.splice(
           Math.floor(Math.random() * this.objects.length),
-          1
+          1,
         )[0]
 
         object.set()
@@ -527,12 +525,15 @@ const frames = [
      * Initial objects
      */
     firstObjects() {
-      const totalObjects =  Math.max(Math.min(Math.round(window.safeWidth * 0.025), 5), 2)
+      const totalObjects = Math.max(
+        Math.min(Math.round(window.safeWidth * 0.025), 5),
+        2,
+      )
 
       for (let i = 0; i < totalObjects; i++) {
         const object = this.objects.splice(
           Math.floor(Math.random() * this.objects.length),
-          1
+          1,
         )[0]
 
         object.set(false)
@@ -1293,6 +1294,10 @@ const frames = [
 
         perspective: calc(var(--distortion) * 1.05em);
         font-size: calc(var(--padding) * 0.75);
+      }
+
+      @include mq(phone) {
+        font-size: calc(var(--padding) * 0.5);
       }
 
       &__distorted-wrapper {

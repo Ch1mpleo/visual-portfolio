@@ -1,22 +1,23 @@
----
-// Awards are nice, but they’re not the goal.
-// Focus on building quality websites, enjoying the process, and making your clients happy—that’s what really matters.
-// Some amazing sites never win anything, while mediocre ones sometimes do. Awards are a niche, not a universal measure of value.
-// Stay sharp, stay honest, and keep having fun.
+﻿---
+/**
+ * SAbout.astro
+ *
+ * The About section of the portfolio, featuring a personal bio and a skills showcase.
+ * Skills data is defined here in the frontmatter and rendered dynamically below.
+ * Animation and smiley-throw interactions are handled by the inline script block.
+ */
 const awards = {
   counters: {
-    awwwards: ['SOTD x 16', 'Honors x 1'],
-    fwa: ['SOTD x 4', 'MOTD x 2'],
-    cssda: ['WOTD x 18', 'WOTM x 1'],
+    frontend: ['React', 'Astro', 'Next.js', 'React Native'],
+    backend: ['.NET', 'Microservices'],
+    tools: ['Docker', 'Redis', 'Git', 'Figma'],
   },
   texts: {
-    webby2025: '2025 Webby Awards Winner <br/>Best Home Page',
-    commArt2017: 'Comm Arts Mag Interactive  Annual Competition Winner 2017',
-    netMag2016: 'Net Mag SOTM Summer 2016',
-    gsapOct2024: 'GSAP SOTM October 2024',
-    gsapNov2024: 'GSAP SOTM November 2024',
-    CSSDA2016: 'CSSDA Best Front-End <br/>Developer 2016',
-    CSSDA2015: 'CSSDA Best Front-End <br/>Developer 2015',
+    rpg2023: 'Top 2 — RPG <br/>Game Maker Competition',
+    business: 'Business Systems <br/>(Cinema · Pharma · Auction)',
+    mobile: 'Mobile Dev <br/>React Native & Kotlin',
+    uiux: 'UI / UX Design <br/>Figma & Creative Dev',
+    gamer: 'Story Game & <br/>Multiplayer Enjoyer',
   },
 }
 ---
@@ -28,29 +29,29 @@ const awards = {
 
       <div class="s__content">
         <p>
-         Curiosity and the drive to learn are the most valuable skills for any creative developer. That hunger to understand how things work, to find clever workarounds, and to constantly push boundaries—that’s what makes this craft so rewarding.
+          I’m Đỗ Hữu Việt Anh — Ch1mple — a final-year student at FPT
+          University. My nickname pays homage to the legendary S1mple from NaVi;
+          I aspire to that same level of dedication in everything I do.
         </p>
 
         <p>
-          Over the years, I’ve learned more from studying other people’s code than from any course or tutorial. Digging through Codrops experiments, exploring CodePen creations, and analyzing real-world projects—that’s how I leveled up. And it’s still part of my daily routine.
+          My journey started at an RPG game-maker competition where I placed Top
+          2. That moment flipped a switch — I went from wanting to be a designer
+          to becoming a developer, though I still deeply appreciate art and
+          visual craft.
         </p>
 
         <p>
-          This portfolio brought me more recognition than I ever expected. What started as a quiet relaunch of my digital presence ended up winning a Webby Award. Now it’s time to give back.
+          Since then I’ve shipped a range of business systems — a movie-theater
+          platform, a pharma management system, an auction-trade marketplace —
+          and explored mobile development along the way. Each project fed my
+          curiosity and pushed me toward something new.
         </p>
-
-        <p>
-          I’m open-sourcing this site to share the knowledge behind it. If you’re a junior developer, I hope it helps you learn faster, build smarter, and gain confidence in your own journey.
-        </p>
-
-        <p>
-          If you’re tempted to copy/paste it and make it yours as-is—don’t. The community will call you out, and you’ll doom yourself to eternal mediocrity.
-        </p>
-      </div><!-- .s__content -->
-    </div><!-- .s__block -->
+      </div>
+    </div>
 
     <div class="s__block s__block--awards">
-      <h2 class="s__title">Awards</h2>
+      <h2 class="s__title">Skills</h2>
 
       <ul class="s__awards">
         {
@@ -210,8 +211,8 @@ const awards = {
       this.inner = this.el.querySelector('.js-inner')
       this.svg = this.el.querySelector('.js-grid')
       this.path = this.el.querySelector('.js-path')
-      ;(this.canvas = document.querySelector('.js-canvas')),
-        (this.ctx = this.canvas.getContext('2d'))
+      ;((this.canvas = document.querySelector('.js-canvas')),
+        (this.ctx = this.canvas.getContext('2d')))
       this.awards = this.el.querySelectorAll('.js-award')
 
       // Properties
@@ -265,7 +266,7 @@ const awards = {
         },
         {
           threshold: 0.5,
-        }
+        },
       )
 
       this.awards.forEach((award) => {
@@ -596,7 +597,7 @@ const awards = {
       const { el, ctx, smileyImages, smileys } = this
 
       const image = document.documentElement.classList.contains(
-        'theme-contrasted'
+        'theme-contrasted',
       )
         ? smileyImages.contrasted
         : smileyImages.main
@@ -734,14 +735,14 @@ const awards = {
 
       ctx.translate(
         this.x + this.width * 0.5 * this.a,
-        this.y + this.height * 0.5 * this.a
+        this.y + this.height * 0.5 * this.a,
       )
 
       ctx.rotate((this.r * Math.PI) / 180)
 
       ctx.translate(
         -this.x - this.width * 0.5 * this.a,
-        -this.y - this.height * 0.5 * this.a
+        -this.y - this.height * 0.5 * this.a,
       )
 
       ctx.drawImage(
@@ -749,7 +750,7 @@ const awards = {
         this.x,
         this.y,
         this.width * this.a,
-        this.height * this.a
+        this.height * this.a,
       )
 
       ctx.restore()
@@ -869,7 +870,7 @@ const awards = {
       padding: 0;
       display: grid;
       grid-template-columns: repeat(4, calc(var(--width) / 4));
-      grid-template-rows: repeat(8, calc(var(--width) / 4 / 0.751));
+      grid-template-rows: repeat(6, calc(var(--width) / 4 / 0.751));
 
       background: repeating-linear-gradient(
         -45deg,
@@ -886,7 +887,7 @@ const awards = {
 
       @include mq(tablet-sm) {
         grid-template-columns: repeat(4, calc(var(--width) / 4));
-        grid-template-rows: repeat(10, calc(var(--width) / 4 / 0.75));
+        grid-template-rows: repeat(12, calc(var(--width) / 4 / 0.75));
       }
 
       @at-root :global(.theme-contrasted) & {
@@ -1042,74 +1043,116 @@ const awards = {
           }
         }
 
-        &--webby2025 {
-          grid-column: 1 / 5;
-          grid-row: 1 / 2;
-        }
+        // ── Counter skill tiles ─────────────────────────────────────────────
 
-        &--awwwards {
+        // FRONTEND — large hero tile, 2 cols × 2 rows (Left)
+        &--frontend {
           grid-column: 1 / 3;
-          grid-row: 2 / 4;
+          grid-row: 1 / 3;
 
           @include mq(tablet-sm) {
             grid-column: 1 / 3;
-            grid-row: 2 / 4;
+            grid-row: 1 / 3;
           }
 
           .s__award__name {
-            font-size: 8.625rem;
+            font-size: 7rem;
+            letter-spacing: -0.02em;
+            line-height: 0.9;
 
             @include mq(desktop-xs) {
-              font-size: 6.5rem;
-            }
-
-            @include mq(tablet-sm) {
               font-size: 5.5rem;
             }
-
-            @include mq(phone) {
-              font-size: 4rem;
+            @include mq(tablet-sm) {
+              font-size: 4.5rem;
             }
-
+            @include mq(phone) {
+              font-size: 3.5rem;
+            }
             @include mq(phone-sm) {
+              font-size: 3rem;
+            }
+          }
+          // Added spacing for list items
+          .s__award__counter {
+            margin-top: 0.25rem;
+            font-size: 1.35rem;
+          }
+        }
+
+        // BACKEND — wide tile, 2 cols × 1 row (Top Right)
+        &--backend {
+          grid-column: 3 / 5;
+          grid-row: 1 / 2;
+
+          @include mq(tablet-sm) {
+            grid-column: 3 / 5;
+            grid-row: 3 / 4;
+          }
+
+          .s__award__name {
+            font-size: 4rem;
+            letter-spacing: -0.02em;
+
+            @include mq(desktop-xs) {
+              font-size: 3.5rem;
+            }
+            @include mq(tablet-sm) {
+              font-size: 3rem;
+            }
+            @include mq(phone) {
+              font-size: 2.5rem;
+            }
+          }
+
+          .s__award__inner {
+            padding: 1rem;
+            justify-content: center;
+          }
+        }
+
+        // TOOLS — wide tile, 2 cols × 1 row (Bottom Right)
+        &--tools {
+          grid-column: 3 / 5;
+          grid-row: 2 / 3;
+
+          @include mq(tablet-sm) {
+            grid-column: 1 / 3;
+            grid-row: 3 / 4;
+          }
+
+          .s__award__name {
+            font-size: 4rem;
+            letter-spacing: -0.02em;
+
+            @include mq(desktop-xs) {
               font-size: 3.5rem;
             }
           }
-        }
 
-      &--netMag2016 {
-        grid-column: 3 / 5;
-        grid-row: 2 / 3;
-
-        @include mq(tablet-sm) {
-          grid-column: 3 / 5;
-          grid-row: 2 / 3;
-        }
-      }
-
-        &--commArt2017 {
-          grid-column: 1 / 5;
-          grid-row: 4 / 5;
-
-          @include mq(tablet-sm) {
-            grid-column: 1 / 5;
-            grid-row: 8 / 9;
+          .s__award__inner {
+            padding: 1rem;
+            justify-content: center;
           }
         }
 
-        &--fwa {
-          grid-column: 4 / 5;
+        // ── Text achievement tiles ──────────────────────────────────────────
+
+        // Business systems — wide tile (Row 3 Left)
+        &--business {
+          grid-column: 1 / 3;
           grid-row: 3 / 4;
 
           @include mq(tablet-sm) {
-            grid-column: 3 / 6;
-            grid-row: 4 / 6;
+            grid-column: 3 / 5;
+            grid-row: 4 / 5;
           }
         }
 
-        &--gsapOct2024 {
-          grid-column: 1 / 3;
-          grid-row: 6 / 7;
+        // Mobile dev (Row 3 Right)
+        &--mobile {
+          grid-column: 3 / 5;
+          grid-row: 3 / 4;
 
           @include mq(tablet-sm) {
             grid-column: 1 / 3;
@@ -1117,9 +1160,32 @@ const awards = {
           }
         }
 
-        &--gsapNov2024 {
+        // RPG competition — full-width banner (Row 4)
+        &--rpg2023 {
+          grid-column: 1 / 5;
+          grid-row: 4 / 5;
+
+          @include mq(tablet-sm) {
+            grid-column: 1 / 5;
+            grid-row: 5 / 6;
+          }
+        }
+
+        // UI/UX (Row 5 Left)
+        &--uiux {
+          grid-column: 1 / 3;
+          grid-row: 5 / 6;
+
+          @include mq(tablet-sm) {
+            grid-column: 1 / 3;
+            grid-row: 6 / 7;
+          }
+        }
+
+        // Gamer identity (Row 5 Right)
+        &--gamer {
           grid-column: 3 / 5;
-          grid-row: 6 / 7;
+          grid-row: 5 / 6;
 
           @include mq(tablet-sm) {
             grid-column: 3 / 5;
@@ -1127,46 +1193,13 @@ const awards = {
           }
         }
 
-        &--cssda {
-          grid-column: 2 / 4;
-          grid-row: 5 / 6;
+        // Blank (Row 6 Left)
+        &--blank {
+          grid-column: 1 / 3;
+          grid-row: 6 / 7;
 
           @include mq(tablet-sm) {
             grid-column: 1 / 3;
-            grid-row: 6 / 8;
-          }
-        }
-
-        &--CSSDA2016 {
-          grid-column: 2 / 5;
-          grid-row: 7 / 8;
-
-          @include mq(tablet-sm) {
-            grid-column: 1 / 4;
-            grid-row: 9 / 10;
-          }
-        }
-
-        &--CSSDA2015 {
-          grid-column: 1 / 4;
-          grid-row: 8 / 9;
-
-          @include mq(tablet-sm) {
-            grid-column: 2 / 5;
-            grid-row: 10 / 11;
-          }
-
-          &:before {
-            bottom: -1px;
-          }
-        }
-
-        &--blank {
-          grid-column: 1 / 2;
-          grid-row: 5 / 6;
-
-          @include mq(tablet-sm) {
-            grid-column: 3 / 5;
             grid-row: 7 / 8;
           }
 

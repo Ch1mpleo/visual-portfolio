@@ -19,7 +19,7 @@ Games I love: Arc Raider, Red Dead Redemption 2, Elden Ring, Dark Souls, God of 
 ## Stack
 
 - [Astro](https://astro.build) — static site framework
-- [GSAP](https://greensock.com/gsap/) — animations
+- [GSAP](https://gsap.com/) — animations
 - [Lenis](https://lenis.darkroom.engineering/) — smooth scrolling
 - Vanilla SCSS — styling
 

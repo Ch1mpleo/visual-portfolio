@@ -259,7 +259,11 @@ const works = goatVideos.map((video) => {
      * Set size
      */
     setSize() {
-      this.el.style.setProperty('--height', this.works.length * 50 + 'lvh')
+      // Use at least 30× multiplier so a small number of items still gets enough scroll room
+      this.el.style.setProperty(
+        '--height',
+        Math.max(this.works.length, 30) * 50 + 'lvh',
+      )
 
       const bounding = this.container.getBoundingClientRect()
 
@@ -570,6 +574,11 @@ const works = goatVideos.map((video) => {
         0.75,
       )
 
+      // Extend animationProgress to cover the full worksEl duration PLUS a 1-unit buffer
+      // so the outro tweens (which all use '-=1') start cleanly after the last item finishes.
+      const worksEnd = 0.75 + (worksEl.length - 1) * 0.25 + 0.5 // stagger × (n-1) + default duration
+      const animDuration = Math.max(tl.totalDuration(), worksEnd) + 1
+
       tl.fromTo(
         this,
         {
@@ -577,7 +586,7 @@ const works = goatVideos.map((video) => {
         },
         {
           animationProgress: 10000,
-          duration: tl.totalDuration(),
+          duration: animDuration,
           ease: 'power1.out',
         },
         0.75,

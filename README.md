@@ -1,8 +1,12 @@
+---
+trigger: always_on
+---
+
 # Ch1mpleo – Visual Portfolio
 
 A personal corner of the internet where I have fun, experiment with creative dev stuff, and show off my love for video games.
 
-Orginal idea come from [Antoine Wodniack] — remixed and made my own.
+Orginal idea come from [Wodniack] — remixed and made my own.
 
 ---
 

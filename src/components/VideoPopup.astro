@@ -1,0 +1,359 @@
+---
+// VideoPopup.astro — global fullscreen video popup with GSAP animations
+---
+
+<div class="vp js-vp" aria-modal="true" role="dialog" aria-hidden="true">
+  <div class="vp__backdrop js-vp-backdrop"></div>
+
+  <div class="vp__frame js-vp-frame">
+    <!-- Grid lines for visual style consistency -->
+    <div class="vp__lines" aria-hidden="true">
+      <div class="vp__line"></div>
+      <div class="vp__line"></div>
+      <div class="vp__line"></div>
+      <div class="vp__line"></div>
+    </div>
+
+    <button
+      class="vp__close js-vp-close"
+      type="button"
+      aria-label="Close video"
+    >
+      <span class="vp__close__icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="vp__video-wrap js-vp-video-wrap">
+      <video class="vp__video js-vp-video" playsinline controls></video>
+    </div>
+
+    <div class="vp__caption js-vp-caption"></div>
+  </div>
+</div>
+
+<script>
+  import { gsap } from 'gsap'
+
+  class VideoPopup {
+    el: HTMLElement
+    backdrop: HTMLElement
+    frame: HTMLElement
+    videoWrap: HTMLElement
+    video: HTMLVideoElement
+    caption: HTMLElement
+    closeBtn: HTMLElement
+
+    isOpen: boolean
+    tl: gsap.core.Timeline | null
+
+    constructor() {
+      this.el = document.querySelector('.js-vp')
+      this.backdrop = this.el.querySelector('.js-vp-backdrop')
+      this.frame = this.el.querySelector('.js-vp-frame')
+      this.videoWrap = this.el.querySelector('.js-vp-video-wrap')
+      this.video = this.el.querySelector('.js-vp-video')
+      this.caption = this.el.querySelector('.js-vp-caption')
+      this.closeBtn = this.el.querySelector('.js-vp-close')
+
+      this.isOpen = false
+      this.tl = null
+
+      this.bindEvents()
+    }
+
+    bindEvents() {
+      document.addEventListener('open-video-popup', (e: any) => {
+        this.open(e.detail.src, e.detail.caption)
+      })
+
+      this.closeBtn.addEventListener('click', () => this.close())
+      this.backdrop.addEventListener('click', () => this.close())
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen) this.close()
+      })
+    }
+
+    open(src: string, captionText: string) {
+      if (this.isOpen) return
+      this.isOpen = true
+
+      // Block scroll
+      if (window.lenis) window.lenis.stop()
+      document.documentElement.classList.add('vp-open')
+
+      // Set content
+      this.video.src = src
+      this.caption.textContent = captionText
+      this.el.setAttribute('aria-hidden', 'false')
+
+      // Kill any running tween
+      if (this.tl) this.tl.kill()
+
+      this.tl = gsap.timeline()
+
+      // Initial states
+      this.tl.set(this.el, { display: 'flex', pointerEvents: 'all' })
+      this.tl.set(this.backdrop, { opacity: 0 })
+      this.tl.set(this.frame, { clipPath: 'inset(100% 0% 0% 0%)', opacity: 1 })
+      this.tl.set(this.videoWrap, { scale: 0.9, opacity: 0 })
+      this.tl.set(this.caption, { y: 16, opacity: 0 })
+      this.tl.set(this.closeBtn, { opacity: 0, y: -10 })
+
+      // Animate in
+      this.tl.to(
+        this.backdrop,
+        {
+          opacity: 1,
+          duration: 0.45,
+          ease: 'power2.out',
+        },
+        0,
+      )
+
+      this.tl.to(
+        this.frame,
+        {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          duration: 0.75,
+          ease: 'expo.out',
+        },
+        0,
+      )
+
+      this.tl.to(
+        this.videoWrap,
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.65,
+          ease: 'expo.out',
+        },
+        0.2,
+      )
+
+      this.tl.to(
+        this.caption,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: 'power3.out',
+        },
+        0.35,
+      )
+
+      this.tl.to(
+        this.closeBtn,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out',
+        },
+        0.3,
+      )
+
+      this.tl.call(() => {
+        this.video.play()
+      })
+    }
+
+    close() {
+      if (!this.isOpen) return
+      this.isOpen = false
+
+      this.video.pause()
+
+      if (this.tl) this.tl.kill()
+
+      this.tl = gsap.timeline({
+        onComplete: () => {
+          this.el.setAttribute('aria-hidden', 'true')
+          gsap.set(this.el, { display: 'none', pointerEvents: 'none' })
+          this.video.src = ''
+          document.documentElement.classList.remove('vp-open')
+          if (window.lenis) window.lenis.start()
+        },
+      })
+
+      this.tl.to(
+        [this.videoWrap, this.caption, this.closeBtn],
+        {
+          opacity: 0,
+          scale: 0.95,
+          duration: 0.3,
+          ease: 'power2.in',
+          stagger: 0,
+        },
+        0,
+      )
+
+      this.tl.to(
+        this.frame,
+        {
+          clipPath: 'inset(0% 0% 100% 0%)',
+          duration: 0.6,
+          ease: 'expo.in',
+        },
+        0.1,
+      )
+
+      this.tl.to(
+        this.backdrop,
+        {
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+        },
+        0.1,
+      )
+    }
+  }
+
+  new VideoPopup()
+</script>
+
+<style lang="scss" is:global>
+  .vp-open {
+    overflow: hidden;
+  }
+</style>
+
+<style lang="scss">
+  .vp {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+
+    align-items: center;
+    justify-content: center;
+
+    &__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(22, 0, 0, 0.92);
+      backdrop-filter: blur(4px);
+    }
+
+    &__frame {
+      position: relative;
+      z-index: 2;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      width: min(90vw, 1100px);
+      max-height: 92vh;
+      padding: 1rem;
+
+      background: color(primary);
+      border: 1px solid color(secondary);
+
+      overflow: hidden;
+      clip-path: inset(0% 0% 0% 0%);
+    }
+
+    &__lines {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.06;
+    }
+
+    &__line {
+      flex: 1;
+      border-right: 1px solid color(secondary);
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+
+    &__close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 4;
+
+      @include flex(row, center, center);
+
+      width: 2.5rem;
+      height: 2.5rem;
+
+      appearance: none;
+      background: color(secondary);
+      border: 0;
+      border-radius: 0;
+      cursor: pointer;
+
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: color(primary);
+
+        .vp__close__icon span {
+          background: color(secondary);
+        }
+      }
+
+      &__icon {
+        position: relative;
+        width: 1rem;
+        height: 1rem;
+
+        span {
+          position: absolute;
+          top: 50%;
+          left: 0;
+
+          display: block;
+          width: 100%;
+          height: 1.5px;
+
+          background: color(primary);
+          transition: background 0.2s ease;
+
+          &:first-child {
+            transform: translateY(-50%) rotate(45deg);
+          }
+
+          &:last-child {
+            transform: translateY(-50%) rotate(-45deg);
+          }
+        }
+      }
+    }
+
+    &__video-wrap {
+      position: relative;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    &__video {
+      display: block;
+      width: 100%;
+      max-height: 75vh;
+      background: #000;
+      outline: none;
+    }
+
+    &__caption {
+      width: 100%;
+      padding: 0.75rem 0.5rem 0.25rem;
+
+      color: color(secondary);
+      font: 700 11px / 1 font-family(fraktion);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+  }
+</style>

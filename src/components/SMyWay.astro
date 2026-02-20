@@ -3,6 +3,10 @@ import { Image } from 'astro:assets'
 
 import uyImg from '/src/assets/frames/uy.png'
 
+const base = import.meta.env.BASE_URL
+const spriteVanishUrl = `url('${base}images/sprite-vanish.png')`
+const assetStarUrl = `url('${base}images/asset-star.svg')`
+
 const frames = Array(14).fill({ caption: '', src: uyImg })
 ---
 
@@ -738,7 +742,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
   new Section()
 </script>
 
-<style lang="scss">
+<style lang="scss" define:vars={{ spriteVanishUrl, assetStarUrl }}>
   .s-my-way {
     --padding: 40rem;
     --smiley-size: 5.625rem;
@@ -882,7 +886,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
       will-change: transform;
 
       &:before {
-        mask: url('/images/sprite-vanish.png');
+        mask: var(--spriteVanishUrl);
       }
 
       &.is-waiting {
@@ -1026,7 +1030,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           width: 100%;
           height: 100%;
 
-          background: url('/images/asset-star.svg') center / cover no-repeat;
+          background: var(--assetStarUrl) center / cover no-repeat;
 
           content: '';
         }
@@ -1197,7 +1201,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
 
         &,
         .a__inner {
-          mask: url('/images/sprite-vanish.png') left/3000% 100%;
+          mask: var(--spriteVanishUrl) left/3000% 100%;
           animation: vanish 0.75s steps(29, end) 1 both;
         }
 

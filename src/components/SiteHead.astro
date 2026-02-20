@@ -117,14 +117,6 @@ const menu = [
         </span>
       </p>
     </aside><!-- .sb-availability -->
-
-    <a
-      href="mailto:vietanh051203@gmail.com"
-      class="sb-qr-code js-qr-code"
-      title="Contact me!"
-    >
-      <img src="/images/qr-code.svg" alt="QR Code" width="72" height="72" />
-    </a><!-- .sb-qr-code -->
   </div><!-- .site-head__container -->
 </header>
 
@@ -268,7 +260,6 @@ const menu = [
     intro() {
       const logo = this.el.querySelector('.js-logo')
       const menuItems = this.el.querySelectorAll('.js-menu-item')
-      const qrCode = this.el.querySelector('.js-qr-code')
 
       const items = [logo, ...menuItems]
 
@@ -298,20 +289,6 @@ const menu = [
         },
         1.5,
       )
-
-      tl.fromTo(
-        qrCode,
-        {
-          '--bg-p': '0%',
-        },
-        {
-          '--bg-p': '100%',
-          duration: 1.5,
-          ease: 'expo.out',
-        },
-        1.75,
-      )
-
       tl.call(
         () => {
           this.canWrite = true

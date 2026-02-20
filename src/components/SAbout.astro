@@ -19,7 +19,7 @@ const awards = {
     gamer: 'Story Game & <br/>Multiplayer Enjoyer',
   },
 }
-const assetStarUrl = `url('${import.meta.env.BASE_URL}images/asset-star.svg')`
+const assetStarUrl = `url('${import.meta.env.BASE_URL}/images/asset-star.svg')`
 ---
 
 <section id="about" class="s-about" data-intersect>
@@ -346,11 +346,11 @@ const assetStarUrl = `url('${import.meta.env.BASE_URL}images/asset-star.svg')`
      */
     createSmiley() {
       const mainImg = new Image(100, 100)
-      mainImg.src = import.meta.env.BASE_URL + 'images/asset-smiley--main.svg'
+      mainImg.src = import.meta.env.BASE_URL + '/images/asset-smiley--main.svg'
 
       const contrastedImg = new Image(100, 100)
       contrastedImg.src =
-        import.meta.env.BASE_URL + 'images/asset-smiley--contrasted.svg'
+        import.meta.env.BASE_URL + '/images/asset-smiley--contrasted.svg'
 
       this.smileyImages = {
         main: mainImg,

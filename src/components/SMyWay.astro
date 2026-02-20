@@ -4,8 +4,8 @@ import { Image } from 'astro:assets'
 import uyImg from '/src/assets/frames/uy.png'
 
 const base = import.meta.env.BASE_URL
-const spriteVanishUrl = `url('${base}images/sprite-vanish.png')`
-const assetStarUrl = `url('${base}images/asset-star.svg')`
+const spriteVanishUrl = `url('${base}/images/sprite-vanish.png')`
+const assetStarUrl = `url('${base}/images/asset-star.svg')`
 
 const frames = Array(14).fill({ caption: '', src: uyImg })
 ---

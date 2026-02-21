@@ -8,7 +8,8 @@ const __dirname = dirname(__filename);
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ch1mpleo.github.io',
-  base: '/visual-portfolio',
+  // Only prefix with /visual-portfolio in production; dev server serves public/ from root
+  base: process.env.NODE_ENV === 'production' ? '/visual-portfolio' : '/',
 
   scopedStyleStrategy: 'class',
 

@@ -3,17 +3,24 @@ import AWork from './AWork.astro'
 
 const goatVideos = await Astro.glob<{ default: any }>('/src/assets/goats/*.mp4')
 
-// Map each goat video to a work entry. Caption is derived from the filename.
-const works = goatVideos.map((video) => {
-  const src = video.default
-  // e.g. "/_astro/ArcRaider.abc123.mp4" -> "ArcRaider"
-  const filename = src.split('/').pop().split('.')[0]
-  // Split CamelCase into words: "ArcRaider" -> "Arc Raider"
-  const caption = filename
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-  return { caption, src, site: null }
-})
+// Map each goat video to a work entry. Caption derived from filename in the built URL.
+const works = goatVideos
+  .map((video) => {
+    const src = video.default
+    // Built URL: "/_astro/ArcRaider.abc123.mp4" → first segment before '.' = "ArcRaider"
+    const filename = src.split('/').pop().split('.')[0]
+    // Split CamelCase into words: "ArcRaider" -> "Arc Raider"
+    const caption = filename
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    return { caption, src, filename, site: null }
+  })
+  // Sort alphabetically, but always put GOW last
+  .sort((a, b) => {
+    if (a.filename === 'GOW') return 1
+    if (b.filename === 'GOW') return -1
+    return a.filename.localeCompare(b.filename)
+  })
 ---
 
 <section id="work" class="s-work" data-intersect>

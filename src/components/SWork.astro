@@ -581,10 +581,13 @@ const works = goatVideos
         0.75,
       )
 
-      // Extend animationProgress to cover the full worksEl duration PLUS a 1-unit buffer
-      // so the outro tweens (which all use '-=1') start cleanly after the last item finishes.
-      const worksEnd = 0.75 + (worksEl.length - 1) * 0.25 + 0.5 // stagger × (n-1) + default duration
-      const animDuration = Math.max(tl.totalDuration(), worksEnd) + 1
+      // Calculate where the works stagger actually ends
+      const worksDuration = 0.5 // default GSAP tween duration
+      const worksEnd = 0.75 + (worksEl.length - 1) * 0.25 + worksDuration
+      // Total timeline duration: works end + 1 unit buffer for outros to breathe
+      const totalDur = worksEnd + 1
+      // Outro tweens start 1 unit before the end so they overlap the buffer
+      const outroStart = totalDur - 1
 
       tl.fromTo(
         this,
@@ -593,24 +596,21 @@ const works = goatVideos
         },
         {
           animationProgress: 10000,
-          duration: animDuration,
+          duration: totalDur,
           ease: 'power1.out',
         },
         0.75,
       )
 
-      tl.fromTo(
+      // Outro: state collapses back — use 'to' not 'fromTo' to avoid conflicting from-value
+      tl.to(
         this,
-        {
-          state: 1,
-        },
         {
           state: 0,
           duration: 0.75,
           ease: 'power4.inOut',
-          immediateRender: false,
         },
-        '-=1',
+        outroStart,
       )
 
       tl.fromTo(
@@ -624,7 +624,7 @@ const works = goatVideos
           ease: 'power4.inOut',
           immediateRender: false,
         },
-        '-=1',
+        outroStart,
       )
 
       tl.fromTo(
@@ -638,7 +638,7 @@ const works = goatVideos
           ease: 'power3.inOut',
           immediateRender: false,
         },
-        '-=1',
+        outroStart,
       )
 
       tl.fromTo(
@@ -652,7 +652,7 @@ const works = goatVideos
           ease: 'power3.inOut',
           immediateRender: false,
         },
-        '-=1',
+        outroStart,
       )
 
       tl.fromTo(
@@ -665,7 +665,7 @@ const works = goatVideos
           duration: 1,
           ease: 'power4.inOut',
         },
-        '-=1',
+        outroStart,
       )
     }
 

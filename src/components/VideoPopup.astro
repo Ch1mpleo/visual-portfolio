@@ -35,6 +35,8 @@
 
 <script>
   import { gsap } from 'gsap'
+  import { ScrollTrigger } from 'gsap/ScrollTrigger'
+  gsap.registerPlugin(ScrollTrigger)
 
   class VideoPopup {
     el: HTMLElement
@@ -80,8 +82,13 @@
       if (this.isOpen) return
       this.isOpen = true
 
-      // Block scroll
-      if (window.lenis) window.lenis.stop()
+      // Block scroll — preserve scrollbar width to prevent layout shift
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth
+      document.documentElement.style.setProperty(
+        '--vp-scrollbar-width',
+        scrollbarWidth + 'px',
+      )
       document.documentElement.classList.add('vp-open')
 
       // Set content
@@ -175,7 +182,9 @@
           gsap.set(this.el, { display: 'none', pointerEvents: 'none' })
           this.video.src = ''
           document.documentElement.classList.remove('vp-open')
-          if (window.lenis) window.lenis.start()
+          document.documentElement.style.removeProperty('--vp-scrollbar-width')
+          // Recalculate ScrollTrigger positions after layout restores
+          ScrollTrigger.refresh()
         },
       })
 
@@ -219,6 +228,8 @@
 <style lang="scss" is:global>
   .vp-open {
     overflow: hidden;
+    /* Preserve scrollbar gutter so layout doesn't shift when scrollbar disappears */
+    padding-right: var(--vp-scrollbar-width, 0px);
   }
 </style>
 

@@ -107,6 +107,20 @@ import '../styles/global.scss'
       type="font/woff2"
       crossorigin="anonymous"
     />
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-RH2J4YXLP3"
+    >
+    </script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-RH2J4YXLP3')
+    </script>
   </head>
 
   <body>

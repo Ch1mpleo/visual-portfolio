@@ -84,7 +84,10 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
      * Gets in view
      */
     inView() {
-      this.video.play()
+      this.video.play().catch((err) => {
+        // AbortError fires when load() interrupts a pending play() — safe to ignore
+        if (err.name !== 'AbortError') throw err
+      })
       this.isPlaying = true
 
       this.classList.add('is-inview')

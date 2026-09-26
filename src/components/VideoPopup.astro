@@ -47,8 +47,6 @@
     status: HTMLElement
     closeBtn: HTMLElement
     lastFocus: HTMLElement | null
-    pendingSeek: number | null
-    activeSrc: string | null
 
     isOpen: boolean
     tl: gsap.core.Timeline | null
@@ -66,15 +64,13 @@
       this.isOpen = false
       this.tl = null
       this.lastFocus = null
-      this.pendingSeek = null
-      this.activeSrc = null
 
       this.bindEvents()
     }
 
     bindEvents() {
       document.addEventListener('open-video-popup', (e: any) => {
-        this.open(e.detail.src, e.detail.caption, e.detail.time)
+        this.open(e.detail.src, e.detail.caption)
       })
 
       this.closeBtn.addEventListener('click', () => this.close())
@@ -88,19 +84,13 @@
       this.el.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false })
       this.video.addEventListener('playing', () => { this.status.hidden = true })
       this.video.addEventListener('waiting', () => { this.status.hidden = false })
-      this.video.addEventListener('loadedmetadata', () => {
-        if (this.pendingSeek !== null && this.pendingSeek > 0) {
-          this.video.currentTime = Math.min(this.pendingSeek, Math.max(0, this.video.duration - 0.1))
-        }
-        this.pendingSeek = null
-      })
       this.video.addEventListener('error', () => {
         this.status.textContent = 'Video could not be loaded.'
         this.status.hidden = false
       })
     }
 
-    open(src: string, captionText: string, startTime = 0) {
+    open(src: string, captionText: string) {
       if (this.isOpen) return
       this.isOpen = true
       this.lastFocus = document.activeElement as HTMLElement
@@ -111,8 +101,6 @@
       document.dispatchEvent(new Event('pause-goat-videos'))
 
       // Set content
-      this.activeSrc = src
-      this.pendingSeek = Number.isFinite(startTime) ? startTime : 0
       this.video.muted = false
       this.video.src = src
       this.video.load()
@@ -201,10 +189,6 @@
       this.isOpen = false
 
       this.video.pause()
-      const src = this.activeSrc
-      const time = this.video.currentTime
-      this.pendingSeek = null
-      this.activeSrc = null
 
       if (this.tl) this.tl.kill()
 
@@ -215,9 +199,7 @@
           this.video.removeAttribute('src')
           this.video.load()
           window.lenis?.start()
-          document.dispatchEvent(new CustomEvent('resume-goat-videos', {
-            detail: { src, time },
-          }))
+          document.dispatchEvent(new Event('resume-goat-videos'))
           this.lastFocus?.focus()
         },
       })

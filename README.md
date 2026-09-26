@@ -31,7 +31,7 @@ npm run dev
 
 ## GOAT video assets
 
-The original edits live in `src/assets/goats/`. The site serves the smaller, streaming-friendly full videos in `public/goats/full/`. Each card plays its entire video silently while in view; opening it continues from that point with sound and controls. Videos load as their cards enter the scene, and posters cover the short wait before playback begins.
+The original edits live in `src/assets/goats/` and play at their original quality in the popup. The smaller, streaming-friendly copies in `public/goats/full/` play silently on the gallery cards. Opening a card starts the original video from the beginning with sound and controls; closing it resumes the card where it paused. Card videos load as they enter the scene, and posters cover the short wait before playback begins.
 
 To regenerate the delivery files after adding or replacing a source video, install FFmpeg and run:
 

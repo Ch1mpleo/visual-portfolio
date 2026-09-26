@@ -1,5 +1,5 @@
 ---
-const { caption, cssClass, index, src, total, popup } = Astro.props
+const { caption, cssClass, index, src, poster, total, popup } = Astro.props
 
 // A random string with the syntax '[a-z][0-9]{3}-index-total'
 const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
@@ -12,10 +12,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
   data-popup={popup ? 'true' : 'false'}
 >
   <div class="a__inner">
-    <button class="a__btn" type="button" aria-label={`Play ${caption}`}>
+    <button class="a__btn" type="button" aria-label={`Watch ${caption} with sound`}>
       <video
-        data-src={src}
         class="a__video js-video"
+        poster={poster}
+        preload="none"
         loop
         muted
         playsinline
@@ -59,6 +60,14 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
       // Events
       this.btn.addEventListener('click', this.onClick.bind(this))
+      document.addEventListener('pause-goat-videos', () => this.video.pause())
+      document.addEventListener('resume-goat-videos', (e: Event) => {
+        const { src, time } = (e as CustomEvent).detail
+        if (src === this.dataset.src && Number.isFinite(time)) {
+          this.video.currentTime = time
+        }
+        if (this.isPlaying) this.playVideo()
+      })
     }
 
     /**
@@ -84,13 +93,19 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
      * Gets in view
      */
     inView() {
-      this.video.play().catch((err) => {
-        // AbortError fires when load() interrupts a pending play() — safe to ignore
-        if (err.name !== 'AbortError') throw err
-      })
       this.isPlaying = true
-
       this.classList.add('is-inview')
+      this.playVideo()
+    }
+
+    playVideo() {
+      if (!this.video.hasAttribute('src')) {
+        this.video.src = this.dataset.src
+        this.video.load()
+      }
+      this.video.play().catch(() => {
+        // The poster remains visible if muted autoplay is unavailable.
+      })
     }
 
     /**
@@ -114,6 +129,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
             detail: {
               src: this.dataset.src,
               caption: this.dataset.caption,
+              time: this.video.currentTime,
             },
           }),
         )

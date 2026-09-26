@@ -26,7 +26,8 @@
     </button>
 
     <div class="vp__video-wrap js-vp-video-wrap">
-      <video class="vp__video js-vp-video" playsinline controls></video>
+      <video class="vp__video js-vp-video" playsinline controls loop preload="none"></video>
+      <span class="vp__status js-vp-status" role="status">Loading video…</span>
     </div>
 
     <div class="vp__caption js-vp-caption"></div>
@@ -35,8 +36,6 @@
 
 <script>
   import { gsap } from 'gsap'
-  import { ScrollTrigger } from 'gsap/ScrollTrigger'
-  gsap.registerPlugin(ScrollTrigger)
 
   class VideoPopup {
     el: HTMLElement
@@ -45,7 +44,11 @@
     videoWrap: HTMLElement
     video: HTMLVideoElement
     caption: HTMLElement
+    status: HTMLElement
     closeBtn: HTMLElement
+    lastFocus: HTMLElement | null
+    pendingSeek: number | null
+    activeSrc: string | null
 
     isOpen: boolean
     tl: gsap.core.Timeline | null
@@ -57,17 +60,21 @@
       this.videoWrap = this.el.querySelector('.js-vp-video-wrap')
       this.video = this.el.querySelector('.js-vp-video')
       this.caption = this.el.querySelector('.js-vp-caption')
+      this.status = this.el.querySelector('.js-vp-status')
       this.closeBtn = this.el.querySelector('.js-vp-close')
 
       this.isOpen = false
       this.tl = null
+      this.lastFocus = null
+      this.pendingSeek = null
+      this.activeSrc = null
 
       this.bindEvents()
     }
 
     bindEvents() {
       document.addEventListener('open-video-popup', (e: any) => {
-        this.open(e.detail.src, e.detail.caption)
+        this.open(e.detail.src, e.detail.caption, e.detail.time)
       })
 
       this.closeBtn.addEventListener('click', () => this.close())
@@ -76,25 +83,44 @@
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && this.isOpen) this.close()
       })
+
+      this.el.addEventListener('wheel', (e) => e.preventDefault(), { passive: false })
+      this.el.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false })
+      this.video.addEventListener('playing', () => { this.status.hidden = true })
+      this.video.addEventListener('waiting', () => { this.status.hidden = false })
+      this.video.addEventListener('loadedmetadata', () => {
+        if (this.pendingSeek !== null && this.pendingSeek > 0) {
+          this.video.currentTime = Math.min(this.pendingSeek, Math.max(0, this.video.duration - 0.1))
+        }
+        this.pendingSeek = null
+      })
+      this.video.addEventListener('error', () => {
+        this.status.textContent = 'Video could not be loaded.'
+        this.status.hidden = false
+      })
     }
 
-    open(src: string, captionText: string) {
+    open(src: string, captionText: string, startTime = 0) {
       if (this.isOpen) return
       this.isOpen = true
+      this.lastFocus = document.activeElement as HTMLElement
 
-      // Block scroll — preserve scrollbar width to prevent layout shift
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth
-      document.documentElement.style.setProperty(
-        '--vp-scrollbar-width',
-        scrollbarWidth + 'px',
-      )
-      document.documentElement.classList.add('vp-open')
+      // Keep the document's geometry unchanged: the GOAT intro/outro uses
+      // viewport measurements and a scrubbed ScrollTrigger timeline.
+      window.lenis?.stop()
+      document.dispatchEvent(new Event('pause-goat-videos'))
 
       // Set content
+      this.activeSrc = src
+      this.pendingSeek = Number.isFinite(startTime) ? startTime : 0
+      this.video.muted = false
       this.video.src = src
+      this.video.load()
       this.caption.textContent = captionText
+      this.status.textContent = 'Loading video…'
+      this.status.hidden = false
       this.el.setAttribute('aria-hidden', 'false')
+      this.closeBtn.focus()
 
       // Kill any running tween
       if (this.tl) this.tl.kill()
@@ -164,7 +190,9 @@
       )
 
       this.tl.call(() => {
-        this.video.play()
+        this.video.play().catch(() => {
+          // Native controls still let the visitor start playback manually.
+        })
       })
     }
 
@@ -173,6 +201,10 @@
       this.isOpen = false
 
       this.video.pause()
+      const src = this.activeSrc
+      const time = this.video.currentTime
+      this.pendingSeek = null
+      this.activeSrc = null
 
       if (this.tl) this.tl.kill()
 
@@ -180,11 +212,13 @@
         onComplete: () => {
           this.el.setAttribute('aria-hidden', 'true')
           gsap.set(this.el, { display: 'none', pointerEvents: 'none' })
-          this.video.src = ''
-          document.documentElement.classList.remove('vp-open')
-          document.documentElement.style.removeProperty('--vp-scrollbar-width')
-          // Recalculate ScrollTrigger positions after layout restores
-          ScrollTrigger.refresh()
+          this.video.removeAttribute('src')
+          this.video.load()
+          window.lenis?.start()
+          document.dispatchEvent(new CustomEvent('resume-goat-videos', {
+            detail: { src, time },
+          }))
+          this.lastFocus?.focus()
         },
       })
 
@@ -224,14 +258,6 @@
 
   new VideoPopup()
 </script>
-
-<style lang="scss" is:global>
-  .vp-open {
-    overflow: hidden;
-    /* Preserve scrollbar gutter so layout doesn't shift when scrollbar disappears */
-    padding-right: var(--vp-scrollbar-width, 0px);
-  }
-</style>
 
 <style lang="scss">
   .vp {
@@ -355,6 +381,22 @@
       max-height: 75vh;
       background: #000;
       outline: none;
+    }
+
+    &__status {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 0.5rem 0.75rem;
+      background: rgba(22, 0, 0, 0.8);
+      color: #fff;
+      font: 700 11px / 1.4 font-family(fraktion);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      pointer-events: none;
+
+      &[hidden] { display: none; }
     }
 
     &__caption {

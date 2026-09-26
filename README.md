@@ -29,6 +29,18 @@ npm install
 npm run dev
 ```
 
+## GOAT video assets
+
+The original edits live in `src/assets/goats/`. The site serves the smaller, streaming-friendly full videos in `public/goats/full/`. Each card plays its entire video silently while in view; opening it continues from that point with sound and controls. Videos load as their cards enter the scene, and posters cover the short wait before playback begins.
+
+To regenerate the delivery files after adding or replacing a source video, install FFmpeg and run:
+
+```bash
+node scripts/optimize-goat-videos.mjs
+```
+
+The script accepts an FFmpeg executable path as its first argument if it is not on `PATH`. Keep the video list in `scripts/optimize-goat-videos.mjs` and `src/components/SWork.astro` in sync.
+
 ---
 
 *Made with ☕, late nights, and too many game references.*

@@ -13,7 +13,7 @@ import ASeparator from './ASeparator.astro'
     />
 
     <h1 class="s__title">
-      <span class="s__title__word js-word">Game</span>
+      <span class="s__title__word js-word">Software</span>
       <img
         class="s__title__asset js-star"
         src={`${import.meta.env.BASE_URL}/images/asset-star.svg`}
@@ -23,6 +23,8 @@ import ASeparator from './ASeparator.astro'
       />
       <span class="s__title__word js-word">Engineer</span>
     </h1>
+
+    <p class="s__intro">Building web and mobile apps. A gamer at heart.</p>
 
     <ASeparator
       class="s__separator js-separator"
@@ -388,11 +390,11 @@ import ASeparator from './ASeparator.astro'
 
       cursor: default;
 
-      font: 700 min(15vw, 18.5rem) / 0.8 font-family(bigger);
+      font: 700 min(13vw, 16rem) / 0.8 font-family(bigger);
       text-transform: uppercase;
 
       @include mq(desktop-xs) {
-        font-size: 14vw;
+        font-size: 13vw;
       }
 
       @include mq(tablet) {
@@ -401,11 +403,11 @@ import ASeparator from './ASeparator.astro'
         flex-wrap: wrap;
         justify-content: flex-start;
 
-        font-size: calc(31vw - 1rem);
+        font-size: calc(27vw - 1rem);
       }
 
       @include mq(phone) {
-        font-size: calc(31vw - 0.75rem);
+        font-size: calc(27vw - 0.75rem);
       }
 
       &__word {
@@ -551,6 +553,23 @@ import ASeparator from './ASeparator.astro'
 
       :global(.to-left .char__inner) {
         animation: s-hero-move-to-left 1s ease(in-out-quint) 1 forwards;
+      }
+    }
+
+    .s__intro {
+      margin: 0;
+      padding: 0 1.5rem 1.5rem;
+      color: color(secondary);
+      font: 200 1.25rem / 1.4 font-family(editorial);
+      text-align: center;
+
+      @include mq(tablet) {
+        text-align: left;
+        padding: 0 1rem 1rem;
+      }
+
+      @include mq(phone) {
+        font-size: 1.1rem;
       }
     }
   }

@@ -12,19 +12,24 @@ import ASeparator from './ASeparator.astro'
       strings={['Ant', 'oi', 'ne', 'Wo', 'dn', 'ia', 'ck']}
     />
 
-    <h1 class="s__title">
-      <span class="s__title__word js-word">Software</span>
-      <img
-        class="s__title__asset js-star"
-        src={`${import.meta.env.BASE_URL}/images/asset-star.svg`}
-        alt=""
-        width="48"
-        height="48"
-      />
-      <span class="s__title__word js-word">Engineer</span>
-    </h1>
+    <div class="s__identity">
+      <h1 class="s__title">
+        <span class="s__title__word js-word">Software</span>
+        <img
+          class="s__title__asset js-star"
+          src={`${import.meta.env.BASE_URL}/images/asset-star.svg`}
+          alt=""
+          width="48"
+          height="48"
+        />
+        <span class="s__title__word js-word">Engineer</span>
+      </h1>
 
-    <p class="s__intro">Building web and mobile apps. A gamer at heart.</p>
+      <p class="s__intro">
+        <span>Building web and mobile apps.</span>
+        <span>A gamer at heart.</span>
+      </p>
+    </div>
 
     <ASeparator
       class="s__separator js-separator"
@@ -556,20 +561,38 @@ import ASeparator from './ASeparator.astro'
       }
     }
 
-    .s__intro {
-      margin: 0;
-      padding: 0 1.5rem 1.5rem;
-      color: color(secondary);
-      font: 200 1.25rem / 1.4 font-family(editorial);
-      text-align: center;
+    .s__identity {
+      width: fit-content;
+      max-width: 100%;
+      margin-inline: auto;
 
       @include mq(tablet) {
-        text-align: left;
-        padding: 0 1rem 1rem;
+        width: 100%;
+      }
+    }
+
+    .s__intro {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 0;
+      padding: 0.875rem 0 1.25rem;
+      border-top: 1px solid color(secondary);
+      color: color(secondary);
+      font: 400 11px / 1.5 font-family(fraktion);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+
+      @include mq(tablet) {
+        margin-inline: 1rem;
+        padding-bottom: 1rem;
       }
 
       @include mq(phone) {
-        font-size: 1.1rem;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 10px;
       }
     }
   }

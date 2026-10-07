@@ -10,7 +10,7 @@ const output = join(root, 'public', 'goats')
 const names = [
   'ArcRaider', 'Arthur', 'Arthur2', 'Choso', 'Cowboy', 'EldenRing',
   'Greatness', 'GurrenLagann', 'Maki', 'Marathon1', 'Marathon2',
-  'MyHero', 'MyHero2', 'NYC', 'Vinland', 'GOW',
+  'MyHero', 'MyHero2', 'NYC', 'Vinland', 'Change', 'GOW',
 ]
 
 // The source clips above this range have enough bitrate to benefit from a

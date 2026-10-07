@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets'
 
 import uyImg from '/src/assets/frames/uy.png'
+import { vaMarkPaths, starMarkPath } from '../utils/brand-marks'
 
 const base = import.meta.env.BASE_URL
 const spriteVanishUrl = `url('${base}/images/sprite-vanish.png')`
@@ -12,17 +13,18 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
 
 <section class="s-my-way" data-intersect>
   <svg
-    class="s__smiley js-smiley"
+    class="s__emblem js-emblem"
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 77.8 77.8"
-    xml:space="preserve"
+    viewBox="0 0 100 100"
+    aria-hidden="true"
   >
-    <circle cx="38.9" cy="38.9" r="38.9"></circle>
-
-    <path
-      d="M38.9 77.8c-2 0-4.1-.2-6.2-.5C11.6 73.9-2.9 53.9.5 32.8 2.1 22.5 7.7 13.5 16.1 7.4c8.4-6.1 18.7-8.5 29-6.9 10.3 1.6 19.3 7.2 25.4 15.6 6.1 8.4 8.5 18.7 6.9 29-3.1 19.1-19.7 32.7-38.5 32.7zM38.8 1c-7.9 0-15.6 2.5-22.1 7.2C8.5 14.1 3.1 22.9 1.5 32.9-1.8 53.5 12.3 73 32.9 76.3 53.5 79.6 73 65.5 76.3 44.9l.5.1-.5-.1c1.6-10-.8-20-6.7-28.2S54.9 3.1 44.9 1.5c-2-.3-4.1-.5-6.1-.5zM25.5 23.1c-1.9 0-3.5 2-4.1 5.1l-.1.3 3 2.2-2.9 2.2.1.3c.6 2.5 1.5 5.1 4.1 5.1 2.4 0 4.2-3.3 4.2-7.6s-2.4-7.6-4.3-7.6zm26.6 0c-1.9 0-3.5 2-4.1 5.1v.3l3 2.2-3 2.2.1.3c.6 2.5 1.5 5.1 4.1 5.1 2.4 0 4.2-3.3 4.2-7.6s-2.3-7.6-4.3-7.6zM62 39c0-.3-.2-.5-.5-.5s-.5.2-.5.5c0 12.2-9.9 22.1-22.1 22.1-12.2 0-22.1-9.9-22.1-22.1 0-.3-.2-.5-.5-.5s-.5.2-.5.5c0 12.7 10.4 23.1 23.1 23.1S62 51.7 62 39z"
-    >
-    </path>
+    <circle class="s__emblem__disc" cx="50" cy="50" r="49" />
+    <circle class="s__emblem__ring" cx="50" cy="50" r="43" />
+    <g transform="translate(24.8 24.8) scale(0.18)">
+      {vaMarkPaths.map((path) => <path d={path} />)}
+    </g>
+    <path d={starMarkPath} transform="translate(9 47.06) scale(0.12)" />
+    <path d={starMarkPath} transform="translate(85.12 47.06) scale(0.12)" />
   </svg>
 
   <div class="s__objects js-objects">
@@ -107,7 +109,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
     thrownObjects: any[]
     draggedObject: any
 
-    smiley: {
+    emblem: {
       el: HTMLElement
       bounding: DOMRect
       rel: {
@@ -171,8 +173,8 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
       this.thrownObjects = []
       this.draggedObject = null
 
-      this.smiley = {
-        el: this.el.querySelector('.js-smiley'),
+      this.emblem = {
+        el: this.el.querySelector('.js-emblem'),
         bounding: null,
         rel: {
           x: 0,
@@ -342,15 +344,15 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
       this.svg.style.width = this.bounding.width + 'px'
       this.svg.style.height = this.bounding.height + 'px'
 
-      this.smiley.bounding = this.smiley.el.getBoundingClientRect()
-      this.smiley.rel.x =
-        this.smiley.bounding.left -
+      this.emblem.bounding = this.emblem.el.getBoundingClientRect()
+      this.emblem.rel.x =
+        this.emblem.bounding.left -
         this.bounding.left +
-        this.smiley.bounding.width / 2
-      this.smiley.rel.y =
-        this.smiley.bounding.top -
+        this.emblem.bounding.width / 2
+      this.emblem.rel.y =
+        this.emblem.bounding.top -
         this.bounding.top +
-        this.smiley.bounding.height / 2
+        this.emblem.bounding.height / 2
 
       this.mouse.oy = this.bounding.top + window.scrollY
 
@@ -381,7 +383,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
      * Set lines
      */
     setLines() {
-      const { lines, smiley, bounding } = this
+      const { lines, emblem, bounding } = this
 
       // Lines
       lines.lines = []
@@ -393,19 +395,19 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         // Top lines
         lines.lines.push({
           p1: { x: gapX * i, y: 0 },
-          p2: { x: smiley.rel.x, y: smiley.rel.y },
+          p2: { x: emblem.rel.x, y: emblem.rel.y },
         })
 
         // Bottom lines
         lines.lines.push({
           p1: { x: gapX * i, y: bounding.height },
-          p2: { x: smiley.rel.x, y: smiley.rel.y },
+          p2: { x: emblem.rel.x, y: emblem.rel.y },
         })
       }
 
       // Calculate angle
       const dx = bounding.width
-      const dy = (bounding.height - smiley.rel.y) / 2
+      const dy = (bounding.height - emblem.rel.y) / 2
 
       this.el.style.setProperty(
         '--distortion',
@@ -421,13 +423,13 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         // Left lines
         lines.lines.push({
           p1: { x: 0, y: offsetY + gapY * i },
-          p2: { x: smiley.rel.x, y: smiley.rel.y },
+          p2: { x: emblem.rel.x, y: emblem.rel.y },
         })
 
         // Right lines
         lines.lines.push({
           p1: { x: bounding.width, y: offsetY + gapY * i },
-          p2: { x: smiley.rel.x, y: smiley.rel.y },
+          p2: { x: emblem.rel.x, y: emblem.rel.y },
         })
       }
 
@@ -673,8 +675,8 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
       if (this.isWaiting) return
 
       if (this.isDragging) {
-        const x = this.parent.mouse.x - this.parent.smiley.rel.x
-        const y = this.parent.mouse.y - this.parent.smiley.rel.y * 1.5
+        const x = this.parent.mouse.x - this.parent.emblem.rel.x
+        const y = this.parent.mouse.y - this.parent.emblem.rel.y * 1.5
 
         this.vx += (x - this.x) * 0.075
         this.vy += (y - this.y) * 0.075
@@ -745,7 +747,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
 <style lang="scss" define:vars={{ spriteVanishUrl, assetStarUrl }}>
   .s-my-way {
     --padding: 40rem;
-    --smiley-size: 5.625rem;
+    --emblem-size: 5.625rem;
 
     @include flex(column, center, center);
 
@@ -793,13 +795,13 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         transform: rotate(360deg);
       }
     }
-    .s__smiley {
+    .s__emblem {
       position: relative;
       z-index: 2;
 
       display: block;
-      width: var(--smiley-size);
-      height: var(--smiley-size);
+      width: var(--emblem-size);
+      height: var(--emblem-size);
 
       background: color(primary);
       border-radius: 999rem;
@@ -811,8 +813,16 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         fill: color(secondary);
       }
 
-      circle {
+      &__disc {
         fill: color(primary);
+        stroke: color(secondary);
+        stroke-width: 1;
+      }
+
+      &__ring {
+        fill: none;
+        stroke: color(secondary);
+        stroke-width: 0.6;
       }
     }
 
@@ -1226,7 +1236,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
       z-index: 2;
 
       width: 100%;
-      height: calc(var(--padding) * 1.05 + var(--smiley-size) / 2);
+      height: calc(var(--padding) * 1.05 + var(--emblem-size) / 2);
 
       perspective: calc(var(--distortion) * 0.85em);
       user-select: none;
@@ -1271,7 +1281,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         left: -100%;
 
         width: 300%;
-        height: calc(var(--padding) * 1.05 + var(--smiley-size) / 2);
+        height: calc(var(--padding) * 1.05 + var(--emblem-size) / 2);
 
         transform-origin: 50% 100%;
         transform: matrix3d(

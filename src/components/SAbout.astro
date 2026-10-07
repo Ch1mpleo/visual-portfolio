@@ -33,6 +33,12 @@ import SkillsGrid from './SkillsGrid.astro'
 <script>
   import Emitter from '../utils/Emitter'
   import Ticker from '../utils/Ticker'
+  import { vaMarkPaths, starMarkPath } from '../utils/brand-marks'
+
+  type ParticleMark = {
+    paths: Path2D[]
+    size: number
+  }
 
   class Section {
     el: HTMLElement
@@ -43,10 +49,7 @@ import SkillsGrid from './SkillsGrid.astro'
     ctx: CanvasRenderingContext2D
     skills: NodeListOf<HTMLElement>
 
-    smileyImages: {
-      main: HTMLImageElement
-      contrasted: HTMLImageElement
-    }
+    marks: ParticleMark[]
 
     bounding: {
       left: number
@@ -66,7 +69,7 @@ import SkillsGrid from './SkillsGrid.astro'
     }
 
     lines: any[]
-    smileys: any[]
+    particles: Particle[]
 
     isPaused: boolean
     isForced: boolean
@@ -80,13 +83,13 @@ import SkillsGrid from './SkillsGrid.astro'
       this.inner = this.el.querySelector('.js-inner')
       this.svg = this.el.querySelector('.js-grid')
       this.path = this.el.querySelector('.js-path')
-      ;((this.canvas = document.querySelector('.js-canvas')),
+      ;((this.canvas = this.el.querySelector('.js-canvas')),
         (this.ctx = this.canvas.getContext('2d')))
       this.skills = this.el.querySelectorAll('.js-skill')
 
       // Properties
       this.lines = []
-      this.smileys = []
+      this.particles = []
 
       this.isPaused = true
       this.isForced = false
@@ -103,7 +106,7 @@ import SkillsGrid from './SkillsGrid.astro'
      * Init
      */
     init() {
-      this.createSmiley()
+      this.createMarks()
 
       this.setSize()
       this.setScroll()
@@ -203,7 +206,7 @@ import SkillsGrid from './SkillsGrid.astro'
     onSkillInteraction(skill) {
       skill.classList.add('is-active')
 
-      this.throwSmileys(skill)
+      this.throwParticles(skill)
 
       setTimeout(() => {
         skill.classList.remove('is-active')
@@ -211,20 +214,13 @@ import SkillsGrid from './SkillsGrid.astro'
     }
 
     /**
-     * Create smiley
+     * Create brand marks
      */
-    createSmiley() {
-      const publicBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
-      const mainImg = new Image(100, 100)
-      mainImg.src = `${publicBase}images/asset-smiley--main.svg`
-
-      const contrastedImg = new Image(100, 100)
-      contrastedImg.src = `${publicBase}images/asset-smiley--contrasted.svg`
-
-      this.smileyImages = {
-        main: mainImg,
-        contrasted: contrastedImg,
-      }
+    createMarks() {
+      this.marks = [
+        { paths: vaMarkPaths.map((path) => new Path2D(path)), size: 280 },
+        { paths: [new Path2D(starMarkPath)], size: 49 },
+      ]
     }
 
     /**
@@ -461,16 +457,12 @@ import SkillsGrid from './SkillsGrid.astro'
     }
 
     /**
-     * Throw smileys
+     * Throw particles
      */
-    throwSmileys(skill) {
-      const { el, ctx, smileyImages, smileys } = this
+    throwParticles(skill) {
+      const { el, ctx, marks, particles } = this
 
-      const image = document.documentElement.classList.contains(
-        'theme-contrasted',
-      )
-        ? smileyImages.contrasted
-        : smileyImages.main
+      const color = getComputedStyle(el).getPropertyValue('--color-secondary').trim()
 
       const elBounding = el.getBoundingClientRect()
       const skillBounding = skill.getBoundingClientRect()
@@ -478,25 +470,25 @@ import SkillsGrid from './SkillsGrid.astro'
       const x = skillBounding.left + skillBounding.width * 0.5 - elBounding.left
       const y = skillBounding.top + skillBounding.height * 0.5 - elBounding.top
 
-      const maxSmileys = window.safeWidth > 767 ? 10 : 5
-      for (let i = 0; i < maxSmileys; i++) {
-        const smiley = new Smiley(ctx, image, x, y)
+      const maxParticles = window.safeWidth > 767 ? 10 : 5
+      for (let i = 0; i < maxParticles; i++) {
+        const particle = new Particle(ctx, marks[i % marks.length], color, x, y)
 
-        smileys.push(smiley)
+        particles.push(particle)
       }
     }
 
     /**
-     * Move smileys
+     * Move particles
      */
-    moveSmileys() {
-      const { bounding, smileys } = this
+    moveParticles() {
+      const { bounding, particles } = this
 
-      smileys.forEach((smiley) => {
-        smiley.move()
+      particles.forEach((particle) => {
+        particle.move()
 
-        if (smiley.y > bounding.height) {
-          smileys.splice(smileys.indexOf(smiley), 1)
+        if (particle.y > bounding.height) {
+          particles.splice(particles.indexOf(particle), 1)
         }
       })
     }
@@ -505,14 +497,12 @@ import SkillsGrid from './SkillsGrid.astro'
      * Draw canvas
      */
     drawCanvas() {
-      const { bounding, ctx, smileys } = this
-
-      ctx.fillStyle = 'red'
+      const { bounding, ctx, particles } = this
 
       ctx.clearRect(0, 0, bounding.width, bounding.height)
 
-      smileys.forEach((smiley) => {
-        smiley.draw()
+      particles.forEach((particle) => {
+        particle.draw()
       })
     }
 
@@ -537,9 +527,9 @@ import SkillsGrid from './SkillsGrid.astro'
         this.drawLines()
       }
 
-      // Smileys
-      if (this.smileys.length) {
-        this.moveSmileys()
+      // Brand particles
+      if (this.particles.length) {
+        this.moveParticles()
         this.drawCanvas()
       }
 
@@ -547,9 +537,10 @@ import SkillsGrid from './SkillsGrid.astro'
     }
   }
 
-  class Smiley {
+  class Particle {
     ctx: CanvasRenderingContext2D
-    image: HTMLImageElement
+    mark: ParticleMark
+    color: string
 
     width: number
     height: number
@@ -565,10 +556,11 @@ import SkillsGrid from './SkillsGrid.astro'
     /**
      * Constructor
      */
-    constructor(ctx, image, x, y) {
+    constructor(ctx, mark, color, x, y) {
       // Elements
       this.ctx = ctx
-      this.image = image
+      this.mark = mark
+      this.color = color
 
       // Properties
       this.width = 48
@@ -584,7 +576,7 @@ import SkillsGrid from './SkillsGrid.astro'
     }
 
     /**
-     * Move smiley
+     * Move particle
      */
     move() {
       this.vy += 0.45
@@ -596,10 +588,10 @@ import SkillsGrid from './SkillsGrid.astro'
     }
 
     /**
-     * Draw smiley
+     * Draw particle
      */
     draw() {
-      const { ctx, image } = this
+      const { ctx, mark, color } = this
 
       ctx.save()
 
@@ -610,18 +602,10 @@ import SkillsGrid from './SkillsGrid.astro'
 
       ctx.rotate((this.r * Math.PI) / 180)
 
-      ctx.translate(
-        -this.x - this.width * 0.5 * this.a,
-        -this.y - this.height * 0.5 * this.a,
-      )
-
-      ctx.drawImage(
-        image,
-        this.x,
-        this.y,
-        this.width * this.a,
-        this.height * this.a,
-      )
+      ctx.scale(this.width * this.a / mark.size, this.height * this.a / mark.size)
+      ctx.translate(-mark.size * 0.5, -mark.size * 0.5)
+      ctx.fillStyle = color
+      mark.paths.forEach((path) => ctx.fill(path))
 
       ctx.restore()
     }

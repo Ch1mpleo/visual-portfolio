@@ -27,7 +27,7 @@
 
     <div class="vp__video-wrap js-vp-video-wrap">
       <video class="vp__video js-vp-video" playsinline controls loop preload="none"></video>
-      <span class="vp__status js-vp-status" role="status">Loading video…</span>
+      <span class="vp__status js-vp-status" role="status" hidden></span>
     </div>
 
     <div class="vp__caption js-vp-caption"></div>
@@ -83,7 +83,6 @@
       this.el.addEventListener('wheel', (e) => e.preventDefault(), { passive: false })
       this.el.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false })
       this.video.addEventListener('playing', () => { this.status.hidden = true })
-      this.video.addEventListener('waiting', () => { this.status.hidden = false })
       this.video.addEventListener('error', () => {
         this.status.textContent = 'Video could not be loaded.'
         this.status.hidden = false
@@ -105,8 +104,8 @@
       this.video.src = src
       this.video.load()
       this.caption.textContent = captionText
-      this.status.textContent = 'Loading video…'
-      this.status.hidden = false
+      this.status.textContent = ''
+      this.status.hidden = true
       this.el.setAttribute('aria-hidden', 'false')
       this.closeBtn.focus()
 

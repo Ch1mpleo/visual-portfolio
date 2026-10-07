@@ -1,0 +1,229 @@
+---
+const skills = [
+  {
+    id: 'ai',
+    title: 'AI workflow',
+    tools: ['Cursor', 'Claude Code', 'Codex', 'Orca ADE'],
+    harnesses: ['pi', 'omp'],
+  },
+  { id: 'web', title: 'Web', tools: ['TypeScript', 'React', 'Next.js', 'Astro', 'Tailwind CSS'] },
+  { id: 'backend', title: 'Backend', tools: ['C# / .NET', 'ASP.NET Core', 'EF Core', 'REST APIs'] },
+  { id: 'mobile', title: 'Mobile', tools: ['React Native', 'Expo', 'Kotlin', 'Jetpack Compose'] },
+  { id: 'data', title: 'Data', tools: ['PostgreSQL', 'Redis', 'AWS S3', 'JWT', 'Zod'] },
+  { id: 'creative', title: 'Creative', tools: ['GSAP', 'Three.js', 'Unity'] },
+  { id: 'delivery', title: 'Delivery', tools: ['Git', 'Docker', 'GitHub Actions'] },
+]
+const publicBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
+const assetStarUrl = `url('${publicBase}images/asset-star.svg')`
+---
+
+<ul class="skills-grid" aria-label="My development toolkit">
+  {
+    skills.map((skill, index) => (
+      <li class={`skill skill--${skill.id} js-skill`}>
+        <div class="skill__inner">
+          <div class="skill__heading">
+            <h3 class="skill__title">{skill.title}</h3>
+            <span class="skill__index" aria-hidden="true">{String(index + 1).padStart(2, '0')} /</span>
+          </div>
+          <ul class="skill__tools" aria-label={`${skill.title} tools`}>
+            {skill.tools.map((tool) => <li>{tool}</li>)}
+          </ul>
+          {skill.harnesses && (
+            <div class="skill__harnesses">
+              <span class="skill__label">Custom harnesses</span>
+              <ul aria-label="Custom harnesses">
+                {skill.harnesses.map((tool) => <li>{tool}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+        <span class="skill__mask" aria-hidden="true" />
+      </li>
+    ))
+  }
+</ul>
+
+<style lang="scss" define:vars={{ assetStarUrl }}>
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    background: color(secondary);
+    list-style: none;
+    overflow: hidden;
+  }
+
+  .skill {
+    position: relative;
+    min-width: 0;
+    padding: 1.5rem;
+    background: color(primary);
+    overflow: hidden;
+
+    &__inner {
+      position: relative;
+      translate: -25% 0;
+      transition: translate 0.8s ease(out-quint), scale 0.3s ease(out-quint);
+    }
+
+    &__heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    &__title {
+      margin: 0;
+      font: 700 clamp(2rem, 5.2vw, 3.5rem) / 0.95 font-family(bigger);
+      letter-spacing: -0.015em;
+      text-transform: uppercase;
+    }
+
+    &__index,
+    &__label {
+      font: 400 10px / 1.4 font-family(fraktion);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    &__index {
+      flex-shrink: 0;
+      padding-top: 0.25rem;
+    }
+
+    &__tools {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font: 200 1.25rem / 1.35 font-family(editorial);
+
+      li {
+        padding: 0.35rem 0;
+        border-top: 1px solid color(secondary);
+      }
+    }
+
+    &__harnesses {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid color(secondary);
+
+      ul {
+        display: flex;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font: 200 1.5rem / 1 font-family(editorial);
+      }
+    }
+
+    &__mask {
+      position: absolute;
+      inset: 0;
+      background: color(secondary);
+      clip-path: inset(0 0 0 0);
+      transition: clip-path 0.8s ease(in-out-quint);
+
+      &::before {
+        position: absolute;
+        inset: 0;
+        background: color(primary);
+        mask: var(--assetStarUrl) center / 1.5rem no-repeat;
+        transition: transform 0.8s ease(in-cubic);
+        content: '';
+      }
+    }
+
+    &--ai {
+      grid-column: 1 / -1;
+      padding: 1.75rem;
+
+      .skill__title {
+        font-size: clamp(3rem, 8vw, 5rem);
+      }
+
+      .skill__tools {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 1.5rem;
+        font-size: 1.6rem;
+
+        li {
+          padding: 0.5rem 0;
+        }
+      }
+    }
+
+    &.is-active .skill__inner {
+      scale: 0.97;
+    }
+
+    &.is-revealed {
+      .skill__inner {
+        translate: 0 0;
+      }
+
+      .skill__mask {
+        clip-path: inset(0 0 0 100%);
+
+        &::before {
+          transform: translateX(50%);
+        }
+      }
+    }
+
+    @include mq(phone) {
+      padding: 1.1rem 1rem;
+
+      &__heading {
+        margin-bottom: 1rem;
+      }
+
+      &__tools {
+        font-size: 1.05rem;
+      }
+
+      &--ai {
+        padding: 1.5rem;
+
+        .skill__tools {
+          column-gap: 1rem;
+          font-size: 1.3rem;
+        }
+      }
+
+      &__harnesses {
+        gap: 0.5rem;
+
+        ul {
+          gap: 1rem;
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skill__inner,
+      .skill__mask,
+      .skill__mask::before {
+        transition: none;
+      }
+    }
+
+    @include mq(phone-xs) {
+      &__index {
+        display: none;
+      }
+    }
+  }
+</style>

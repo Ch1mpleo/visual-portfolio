@@ -1,0 +1,46 @@
+// A single palette sweep, with the same direction and pacing as the original
+// color wipe. Both views retain their text, lines, and media throughout.
+html[data-theme-transition] {
+  &::view-transition-group(root) {
+    animation: none;
+  }
+
+  &::view-transition-image-pair(root) {
+    isolation: auto;
+  }
+
+  &::view-transition-old(root),
+  &::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  &::view-transition-old(root) {
+    z-index: 1;
+  }
+
+  &::view-transition-new(root) {
+    z-index: 2;
+    animation: theme-sweep-right 1s cubic-bezier(0.87, 0, 0.13, 1) both;
+  }
+
+  &[data-theme-transition='light']::view-transition-new(root) {
+    animation-name: theme-sweep-left;
+  }
+}
+
+@keyframes theme-sweep-right {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0); }
+}
+
+@keyframes theme-sweep-left {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-transition]::view-transition-new(root) {
+    animation: none;
+  }
+}

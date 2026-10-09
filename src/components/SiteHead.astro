@@ -130,7 +130,6 @@ const menu = [
     el: HTMLElement
     themeButton: HTMLButtonElement
     console: HTMLElement
-    themeMask: HTMLElement
     links: NodeListOf<HTMLElement>
 
     messages: string[]
@@ -151,7 +150,6 @@ const menu = [
       this.themeButton = document.querySelector('.js-theme')
       this.syncThemeButton()
       this.console = document.querySelector('.js-console')
-      this.themeMask = document.querySelector('.js-theme-mask')
       this.links = this.el.querySelectorAll('.js-menu-link')
 
       // Properties
@@ -305,7 +303,7 @@ const menu = [
       this.themeButton.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode')
     }
 
-    /** Switch beneath an opaque wipe; blending breaks video and SVG colors. */
+    /** Reveal the actual new palette across the old view, keeping content visible. */
     toggleTheme() {
       if (this.themeButton.disabled) return
       const dark = !document.documentElement.classList.contains('theme-dark')
@@ -319,18 +317,18 @@ const menu = [
         Emitter.emit('themechange', dark ? 'dark' : 'light')
       }
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         applyTheme()
         return
       }
 
       this.themeButton.disabled = true
-      this.themeMask.style.background = dark ? '#141618' : '#fff2ed'
-      gsap.timeline({ onComplete: () => { this.themeButton.disabled = false } })
-        .fromTo(this.themeMask, { x: '-100%' }, { x: '0%', duration: 0.45, ease: 'expo.inOut' })
-        .call(applyTheme)
-        .to(this.themeMask, { x: '100%', duration: 0.45, ease: 'expo.inOut' })
-        .set(this.themeMask, { x: '-100%' })
+      document.documentElement.dataset.themeTransition = dark ? 'dark' : 'light'
+      const transition = document.startViewTransition(applyTheme)
+      transition.finished.catch(() => {}).finally(() => {
+        this.themeButton.disabled = false
+        delete document.documentElement.dataset.themeTransition
+      })
     }
 
     /**

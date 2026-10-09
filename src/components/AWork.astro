@@ -146,7 +146,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     margin: 0;
     padding: 0.5rem 0.5rem 0;
 
-    background: color(secondary);
+    background: color(frame);
     content-visibility: hidden;
 
     transform-style: preserve-3d;
@@ -171,7 +171,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       text-align: left;
 
       &:focus-visible {
-        outline: 2px solid color(secondary);
+        outline: 2px solid color(accent);
         outline-offset: 2px;
       }
     }
@@ -201,7 +201,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
       padding: 0.5rem 0.5rem;
 
-      color: color(primary);
+      color: color(frame-ink);
       font: 700 11px / 1 font-family(fraktion);
       letter-spacing: 0.15em;
       text-align: right;

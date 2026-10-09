@@ -20,7 +20,7 @@
 html {
   @include t(base);
 
-  background-color: color(secondary);
+  background-color: color(line);
   scrollbar-width: none;
 
   color: color(secondary);
@@ -40,4 +40,10 @@ body {
   overflow-y: visible;
 
   font-family: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid color(accent);
+  outline-offset: 4px;
 }

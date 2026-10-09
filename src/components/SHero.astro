@@ -15,18 +15,20 @@ import ASeparator from './ASeparator.astro'
     <div class="s__identity">
       <h1 class="s__title">
         <span class="s__title__word js-word">Software</span>
-        <img
+        <svg
           class="s__title__asset js-star"
-          src={`${import.meta.env.BASE_URL}/images/asset-star.svg`}
-          alt=""
+          viewBox="0 0 49 49"
+          aria-hidden="true"
           width="48"
           height="48"
-        />
+        >
+          <path fill="currentColor" d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z" />
+        </svg>
         <span class="s__title__word js-word">Engineer</span>
       </h1>
 
       <p class="s__intro">
-        <span>Building web and mobile apps.</span>
+        <span>Bringing cool ideas to life.</span>
         <span>A gamer at heart.</span>
       </p>
     </div>
@@ -353,7 +355,7 @@ import ASeparator from './ASeparator.astro'
       width: 100%;
       height: 40 * 1rem;
 
-      background: color(secondary);
+      background: color(line);
       transform-origin: 50% 0;
 
       @include mq(phone) {
@@ -375,7 +377,7 @@ import ASeparator from './ASeparator.astro'
         width: 100%;
         height: 1px;
 
-        background: color(secondary);
+        background: color(line);
 
         content: '';
       }
@@ -432,6 +434,7 @@ import ASeparator from './ASeparator.astro'
       }
 
       &__asset {
+        color: color(accent);
         display: block;
         margin: 0 2rem;
 
@@ -578,8 +581,8 @@ import ASeparator from './ASeparator.astro'
       gap: 1rem;
       margin: 0;
       padding: 0.875rem 0 1.25rem;
-      border-top: 1px solid color(secondary);
-      color: color(secondary);
+      border-top: 1px solid color(line);
+      color: color(muted);
       font: 400 11px / 1.5 font-family(fraktion);
       letter-spacing: 0.06em;
       text-transform: uppercase;

@@ -9,9 +9,9 @@
         xmlns="http://www.w3.org/2000/svg"
       >
         <!-- V: upside-down A (U shape) — slot open at top, 16.8px bottom bar -->
-        <path d="M0 0 H40 V263.2 H75 V0 H115 V280 H0 Z" fill="#160000"></path>
+        <path d="M0 0 H40 V263.2 H75 V0 H115 V280 H0 Z" fill="currentColor"></path>
         <!-- A: rectangular arch style -->
-        <path d="M145 0 H280 V280 H240 V17 H185 V280 H145 V0 Z" fill="#160000">
+        <path d="M145 0 H280 V280 H240 V17 H185 V280 H145 V0 Z" fill="currentColor">
         </path>
       </svg>
 
@@ -29,13 +29,15 @@
 
     padding: 1.5rem;
 
-    border-top: 1px solid color(secondary);
+    border-top: 1px solid color(line);
 
     @include mq(phone) {
       padding: 1rem;
     }
 
     &__logo {
+      color: color(secondary);
+      a { color: inherit; }
       svg {
         display: block;
         width: 3rem;

@@ -99,7 +99,7 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
     gap: 1px;
     margin: 0;
     padding: 0;
-    background: color(secondary);
+    background: color(line);
     list-style: none;
     overflow: hidden;
   }
@@ -108,7 +108,8 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
     position: relative;
     min-width: 0;
     padding: 1.5rem;
-    background: color(primary);
+    background: color(surface);
+    transition: background 0.25s;
     overflow: hidden;
 
     &__inner {
@@ -140,6 +141,7 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
     }
 
     &__index {
+      color: color(accent);
       flex-shrink: 0;
       padding-top: 0.25rem;
     }
@@ -152,7 +154,7 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
 
       li {
         padding: 0.35rem 0;
-        border-top: 1px solid color(secondary);
+        border-top: 1px solid color(line);
       }
     }
 
@@ -182,13 +184,14 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
     }
 
     &__harnesses {
+      .skill__label { color: color(muted); }
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
       margin-top: 1rem;
       padding-top: 1rem;
-      border-top: 1px solid color(secondary);
+      border-top: 1px solid color(line);
 
       ul {
         display: flex;
@@ -242,6 +245,8 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
         height: 1.5rem;
       }
     }
+
+    &:hover { background: color(surface-raised); }
 
     &.is-active .skill__inner {
       scale: 0.97;
@@ -298,6 +303,7 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
       }
 
       &__harnesses {
+      .skill__label { color: color(muted); }
         gap: 0.5rem;
 
         ul {
@@ -317,6 +323,7 @@ const getIcon = (tool: string) => iconFiles[`../assets/skill-icons/${toolIcons[t
 
     @include mq(phone-xs) {
       &__index {
+      color: color(accent);
         display: none;
       }
     }

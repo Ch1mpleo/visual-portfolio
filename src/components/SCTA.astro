@@ -637,7 +637,7 @@ const lines = [
 
       cursor: pointer;
 
-      color: color(primary);
+      color: color(action-ink);
       font: 700 3.75rem / 6.85rem font-family(bigger);
       letter-spacing: 0.05em;
       text-align: center;
@@ -648,7 +648,7 @@ const lines = [
         width: 100%;
         height: 100%;
 
-        background: color(secondary);
+        background: color(action);
         border-radius: 999rem;
 
         transition: scale 1s ease(out-quint) 0.2s;
@@ -731,12 +731,12 @@ const lines = [
       width: var(--size);
       height: var(--size);
 
-      background: color(secondary);
+      background: color(action);
       border-radius: 999rem;
       clip-path: circle(0 at 50% 50%);
       overflow: hidden;
 
-      color: color(primary);
+      color: color(action-ink);
       font: 700 calc(var(--size) * 0.3743) / 1 font-family(bigger);
       text-align: center;
       text-transform: uppercase;
@@ -770,7 +770,7 @@ const lines = [
       }
 
       &:after {
-        border: calc(var(--size) * 0.5) solid color(secondary);
+        border: calc(var(--size) * 0.5) solid color(accent);
       }
 
       &__link {
@@ -782,11 +782,11 @@ const lines = [
         display: block;
         padding: 1em 1em 1em 2em;
 
-        background: color(secondary);
+        background: color(action);
         opacity: 0;
         transform: translate3d(-50%, 1em, 0);
 
-        color: color(primary);
+        color: color(action-ink);
         font: 700 14px / 1 font-family(fraktion);
         letter-spacing: 0.1em;
         text-decoration: none;
@@ -964,14 +964,14 @@ const lines = [
                 0deg,
                 transparent,
                 transparent 2px,
-                color(secondary) 3px,
-                color(secondary) 100%
+                color(action) 3px,
+                color(action) 100%
               )
               center / 48px 48px repeat,
             repeating-linear-gradient(
                 90deg,
-                color(primary),
-                color(primary) 2px,
+                color(action-ink),
+                color(action-ink) 2px,
                 transparent 3px,
                 transparent 48px
               )
@@ -1021,7 +1021,7 @@ const lines = [
         width: 0.15em;
         height: auto;
 
-        fill: color(primary);
+        fill: color(action-ink);
 
         animation: s-cta-star-float 10s infinite ease(in-out-quad);
         will-change: transform;
@@ -1137,7 +1137,7 @@ const lines = [
 
       &__path {
         fill: none;
-        stroke: color(secondary);
+        stroke: color(grid);
         stroke-width: 1px;
       }
     }

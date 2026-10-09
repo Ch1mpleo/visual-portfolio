@@ -646,7 +646,8 @@ import SkillsGrid from './SkillsGrid.astro'
       margin: 0 auto;
       width: var(--width);
 
-      border: 1px solid color(secondary);
+      background: color(surface);
+      border: 1px solid color(line);
 
       transform: translate3d(0, var(--offset-y), 0);
 
@@ -657,9 +658,9 @@ import SkillsGrid from './SkillsGrid.astro'
       margin: 0;
       padding: 0 0 2px;
 
-      background: color(secondary);
+      background: color(action);
 
-      color: color(primary);
+      color: color(action-ink);
       font: 700 12px / 24px font-family(fraktion);
       letter-spacing: 0.1em;
       text-align: center;
@@ -741,7 +742,7 @@ import SkillsGrid from './SkillsGrid.astro'
 
       path {
         fill: none;
-        stroke: color(secondary);
+        stroke: color(grid);
         stroke-width: 1px;
       }
     }

@@ -254,7 +254,7 @@
     &__backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(22, 0, 0, 0.92);
+      background: color(overlay);
       backdrop-filter: blur(4px);
     }
 
@@ -270,8 +270,8 @@
       max-height: 92vh;
       padding: 1rem;
 
-      background: color(primary);
-      border: 1px solid color(secondary);
+      background: color(surface);
+      border: 1px solid color(line);
 
       overflow: hidden;
       clip-path: inset(0% 0% 0% 0%);
@@ -307,7 +307,7 @@
       height: 2.5rem;
 
       appearance: none;
-      background: color(secondary);
+      background: color(action);
       border: 0;
       border-radius: 0;
       cursor: pointer;
@@ -318,7 +318,7 @@
         background: color(primary);
 
         .vp__close__icon span {
-          background: color(secondary);
+          background: color(action);
         }
       }
 
@@ -336,7 +336,7 @@
           width: 100%;
           height: 1.5px;
 
-          background: color(primary);
+          background: color(action-ink);
           transition: background 0.2s ease;
 
           &:first-child {
@@ -370,7 +370,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       padding: 0.5rem 0.75rem;
-      background: rgba(22, 0, 0, 0.8);
+      background: color(overlay);
       color: #fff;
       font: 700 11px / 1.4 font-family(fraktion);
       letter-spacing: 0.1em;

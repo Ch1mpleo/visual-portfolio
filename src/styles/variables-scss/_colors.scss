@@ -4,17 +4,43 @@
 @use 'sass:map';
 
 $theme-colors: (
-  default: (
-    primary: #f40c3f,
-    secondary: #160000,
-    shadow: #540000,
-    white: #fff0eb,
-  ),
-
-  contrasted: (
+  light: (
     primary: #fff2ed,
     secondary: #160000,
     shadow: #4d4040,
     white: #fff0eb,
+    line: #160000,
+    grid: #160000,
+    surface: #fff2ed,
+    surface-raised: #fff2ed,
+    muted: #4d4040,
+    accent: #160000,
+    frame: #160000,
+    frame-ink: #fff0eb,
+    stage: #160000,
+    stage-ink: #fff2ed,
+    action: #160000,
+    action-ink: #fff2ed,
+    overlay: rgba(22, 0, 0, 0.92),
+  ),
+
+  dark: (
+    primary: #141618,
+    secondary: #eee9df,
+    shadow: #050607,
+    white: #eee9df,
+    line: #484b4e,
+    grid: #34383b,
+    surface: #1c1f22,
+    surface-raised: #25292d,
+    muted: #b7b2a9,
+    accent: #d6c5a3,
+    frame: #25292d,
+    frame-ink: #eee9df,
+    stage: #0b0d0f,
+    stage-ink: #eee9df,
+    action: #25292d,
+    action-ink: #eee9df,
+    overlay: rgba(5, 7, 9, 0.94),
   ),
 );

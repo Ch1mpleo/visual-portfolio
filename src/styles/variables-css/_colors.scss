@@ -6,14 +6,16 @@
 
 /* CSS properties */
 :root {
+  color-scheme: light;
   // Colors
-  @each $variable, $color in map.get($theme-colors, 'default') {
+  @each $variable, $color in map.get($theme-colors, 'light') {
     --color-#{"" + $variable}: #{$color};
   }
 }
 
-.theme-contrasted {
-  @each $variable, $color in map.get($theme-colors, 'contrasted') {
+.theme-dark {
+  color-scheme: dark;
+  @each $variable, $color in map.get($theme-colors, 'dark') {
     --color-#{"" + $variable}: #{$color};
   }
 }

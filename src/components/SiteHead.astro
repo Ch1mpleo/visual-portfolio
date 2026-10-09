@@ -28,11 +28,11 @@ const menu = [
           xmlns="http://www.w3.org/2000/svg"
         >
           <!-- V: upside-down A (U shape) — slot open at top, 16.8px bottom bar -->
-          <path d="M0 0 H40 V263.2 H75 V0 H115 V280 H0 Z" fill="#160000"></path>
+          <path d="M0 0 H40 V263.2 H75 V0 H115 V280 H0 Z" fill="currentColor"></path>
           <!-- A: same rectangular arch style as original -->
           <path
             d="M145 0 H280 V280 H240 V17 H185 V280 H145 V0 Z"
-            fill="#160000"
+            fill="currentColor"
           >
           </path>
         </svg>
@@ -94,15 +94,15 @@ const menu = [
       </li>
     </ul><!-- .sb-socials -->
 
-    <button class="sb-contrast js-contrast" type="button">
-      <span
-        class="sb__icon"
-        style="--path: path('M10.0996 20C8.71628 20 7.41628 19.7373 6.19961 19.212C4.98294 18.6867 3.92461 17.9743 3.02461 17.075C2.12461 16.1757 1.41228 15.1173 0.887611 13.9C0.362944 12.6827 0.100277 11.3827 0.0996106 10C0.098944 8.61733 0.361611 7.31733 0.887611 6.1C1.41361 4.88267 2.12594 3.82433 3.02461 2.925C3.92328 2.02567 4.98161 1.31333 6.19961 0.788C7.41761 0.262667 8.71761 0 10.0996 0C11.4816 0 12.7816 0.262667 13.9996 0.788C15.2176 1.31333 16.2759 2.02567 17.1746 2.925C18.0733 3.82433 18.7859 4.88267 19.3126 6.1C19.8393 7.31733 20.1016 8.61733 20.0996 10C20.0976 11.3827 19.8349 12.6827 19.3116 13.9C18.7883 15.1173 18.0759 16.1757 17.1746 17.075C16.2733 17.9743 15.2149 18.687 13.9996 19.213C12.7843 19.739 11.4843 20.0013 10.0996 20ZM11.0996 17.925C13.0829 17.675 14.7456 16.804 16.0876 15.312C17.4296 13.82 18.1003 12.0493 18.0996 10C18.0989 7.95067 17.4279 6.18 16.0866 4.688C14.7453 3.196 13.0829 2.325 11.0996 2.075V17.925Z');"
-      >
-      </span>
-
-      <span class="u-sr-only">Change contrast</span>
-    </button><!-- .sb-contrast -->
+    <button class="sb-theme js-theme" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="sb__icon sb__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M20.5 14A8.8 8.8 0 0 1 10 3.5 8.8 8.8 0 1 0 20.5 14Z" />
+      </svg>
+      <svg class="sb__icon sb__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5" />
+      </svg>
+    </button><!-- .sb-theme -->
 
     <aside class="sb-availability">
       <p>
@@ -128,9 +128,9 @@ const menu = [
 
   class Section {
     el: HTMLElement
-    contrastButton: HTMLElement
+    themeButton: HTMLButtonElement
     console: HTMLElement
-    contrastMask: HTMLElement
+    themeMask: HTMLElement
     links: NodeListOf<HTMLElement>
 
     messages: string[]
@@ -148,9 +148,10 @@ const menu = [
     constructor() {
       // Elements
       this.el = document.querySelector('.site-head')
-      this.contrastButton = document.querySelector('.js-contrast')
+      this.themeButton = document.querySelector('.js-theme')
+      this.syncThemeButton()
       this.console = document.querySelector('.js-console')
-      this.contrastMask = document.querySelector('.js-contrast-mask')
+      this.themeMask = document.querySelector('.js-theme-mask')
       this.links = this.el.querySelectorAll('.js-menu-link')
 
       // Properties
@@ -224,9 +225,9 @@ const menu = [
      * Bind events
      */
     bindEvents() {
-      this.contrastButton.addEventListener(
+      this.themeButton.addEventListener(
         'click',
-        this.toggleContrast.bind(this),
+        this.toggleTheme.bind(this),
         { passive: true },
       )
 
@@ -298,49 +299,38 @@ const menu = [
       )
     }
 
-    /**
-     * Toggle contrast
-     */
-    toggleContrast() {
-      let fromX = '0'
-      let toX = '-100%'
+    syncThemeButton() {
+      const dark = document.documentElement.classList.contains('theme-dark')
+      this.themeButton.setAttribute('aria-pressed', String(dark))
+      this.themeButton.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode')
+    }
 
-      if (document.documentElement.classList.contains('theme-contrasted')) {
-        fromX = '-100%'
-        toX = '0'
+    /** Switch beneath an opaque wipe; blending breaks video and SVG colors. */
+    toggleTheme() {
+      if (this.themeButton.disabled) return
+      const dark = !document.documentElement.classList.contains('theme-dark')
+      const applyTheme = () => {
+        document.documentElement.classList.toggle('theme-dark', dark)
+        document.querySelector<HTMLMetaElement>('meta[name="theme-color"]').content = dark ? '#141618' : '#fff2ed'
+        this.syncThemeButton()
+        try {
+          localStorage.setItem('portfolio-theme', dark ? 'dark' : 'light')
+        } catch {}
+        Emitter.emit('themechange', dark ? 'dark' : 'light')
       }
 
-      gsap.fromTo(
-        this.contrastMask,
-        {
-          x: fromX,
-        },
-        {
-          x: toX,
-          duration: 1,
-          ease: 'expo.inOut',
-          onComplete: () => {
-            this.contrastMask.style.transform = ''
-
-            if (toX === '0') {
-              document.documentElement.classList.remove('theme-contrasted')
-            } else {
-              document.documentElement.classList.add('theme-contrasted')
-            }
-
-            Emitter.emit(
-              'contrastchange',
-              document.documentElement.classList.contains('theme-contrasted')
-                ? 'contrasted'
-                : 'default',
-            )
-          },
-        },
-      )
-
-      if (toX !== '0') {
-        document.documentElement.classList.add('theme-contrasted')
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        applyTheme()
+        return
       }
+
+      this.themeButton.disabled = true
+      this.themeMask.style.background = dark ? '#141618' : '#fff2ed'
+      gsap.timeline({ onComplete: () => { this.themeButton.disabled = false } })
+        .fromTo(this.themeMask, { x: '-100%' }, { x: '0%', duration: 0.45, ease: 'expo.inOut' })
+        .call(applyTheme)
+        .to(this.themeMask, { x: '100%', duration: 0.45, ease: 'expo.inOut' })
+        .set(this.themeMask, { x: '-100%' })
     }
 
     /**
@@ -435,7 +425,7 @@ const menu = [
 
     width: 100%;
 
-    border-bottom: 1px solid color(secondary);
+    border-bottom: 1px solid color(line);
     opacity: 0;
 
     &__container {
@@ -450,11 +440,13 @@ const menu = [
     }
 
     .sb-logo {
+      color: color(secondary);
+      a { color: inherit; }
       padding: 1.5rem;
       width: 6rem;
       height: 6rem;
 
-      border-right: 1px solid color(secondary);
+      border-right: 1px solid color(line);
 
       @include mq(tablet) {
         order: 1;
@@ -516,7 +508,7 @@ const menu = [
     }
 
     .sb-menu {
-      border-left: 1px solid color(secondary);
+      border-left: 1px solid color(line);
 
       @include mq(desktop-xs) {
         padding: 0 1rem;
@@ -610,11 +602,11 @@ const menu = [
       background: linear-gradient(
         0deg,
         transparent calc(50% - 1px),
-        color(secondary) calc(50% - 1px),
-        color(secondary) 50%,
+        color(line) calc(50% - 1px),
+        color(line) 50%,
         transparent 50%
       );
-      border-left: 1px solid color(secondary);
+      border-left: 1px solid color(line);
       list-style: none;
 
       @include mq(tablet) {
@@ -641,7 +633,7 @@ const menu = [
 
           height: 100%;
 
-          border-left: 1px solid color(secondary);
+          border-left: 1px solid color(line);
         }
       }
 
@@ -723,95 +715,51 @@ const menu = [
       }
     }
 
-    .sb-contrast {
+    .sb-theme {
       @include flex(row, center, center);
-
       position: relative;
-
       width: 48px;
       height: 96px;
-
+      flex-shrink: 0;
       appearance: none;
       background: none;
       border: 0;
-      border-left: 1px solid color(secondary);
+      border-left: 1px solid color(line);
       border-radius: 0;
+      color: color(secondary);
       cursor: pointer;
+      transition: background 0.2s, color 0.2s;
 
-      @include mq(tablet) {
-        order: 5;
-      }
-
-      @include mq(phone) {
-        height: 100%;
-      }
-
-      &:before {
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        width: 100%;
-        height: 100%;
-
-        background: color(secondary);
-        scale: 0 1;
-        transform-origin: 0 50%;
-
-        content: '';
-      }
+      @include mq(tablet) { order: 5; }
+      @include mq(phone) { height: 100%; }
 
       .sb__icon {
         width: 20px;
         height: 20px;
-
-        background: color(secondary);
-        clip-path: var(--path);
-
-        &:before {
-          position: absolute;
-          top: 0;
-          left: 0;
-
-          display: block;
-          width: 100%;
-          height: 100%;
-
-          background: color(primary);
-          scale: 0 1;
-          transform-origin: 0 50%;
-
-          content: '';
-        }
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
-
-      &:hover {
-        &:before {
-          scale: 1 1;
-        }
-
-        .sb__icon {
-          &:before {
-            scale: 1 1;
-          }
-        }
+      .sb__icon--sun { display: none; }
+      &[aria-pressed='true'] {
+        .sb__icon--moon { display: none; }
+        .sb__icon--sun { display: block; }
       }
-
-      &:before,
-      .sb__icon:before {
-        transition: scale 0.3s ease(in-out-expo);
-      }
+      &:hover { background: color(action); color: color(action-ink); }
+      &:focus-visible { outline-offset: -5px; }
+      &:disabled { cursor: wait; }
     }
 
     .sb-availability {
       background: linear-gradient(
         0deg,
         transparent calc(50% - 1px),
-        color(secondary) calc(50% - 1px),
-        color(secondary) 50%,
+        color(line) calc(50% - 1px),
+        color(line) 50%,
         transparent 50%
       );
-      border-left: 1px solid color(secondary);
+      border-left: 1px solid color(line);
 
       font: 200 1.25rem / 48px font-family(editorial);
 
@@ -831,7 +779,7 @@ const menu = [
         flex-grow: 0;
 
         background: none;
-        border-left: 1px solid color(secondary);
+        border-left: 1px solid color(line);
         order: 3;
       }
 
@@ -893,7 +841,7 @@ const menu = [
       display: block;
       padding: 0.75rem;
 
-      border-left: 1px solid color(secondary);
+      border-left: 1px solid color(line);
 
       @include mq(desktop-sm) {
         display: none;

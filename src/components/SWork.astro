@@ -235,7 +235,7 @@ const works = videoNames.map((filename) => ({
      * Bind events
      */
     bindEvents() {
-      Emitter.on('contrastchange', this.setCtxStyle, this)
+      Emitter.on('themechange', this.setCtxStyle, this)
       Emitter.on('resize', this.onResize, this)
 
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
@@ -277,7 +277,7 @@ const works = videoNames.map((filename) => ({
      */
     setCtxStyle() {
       const color = getComputedStyle(this.el).getPropertyValue(
-        '--color-primary',
+        '--color-stage-ink',
       )
 
       Ticker.nextTick(() => {
@@ -892,14 +892,14 @@ const works = videoNames.map((filename) => ({
       &__path-outer {
         fill: color(primary);
         fill-rule: evenodd;
-        stroke: color(secondary);
+        stroke: color(line);
         stroke-width: 1px;
       }
 
       &__path-inner {
         fill: color(primary);
         fill-rule: evenodd;
-        stroke: color(secondary);
+        stroke: color(line);
         stroke-width: 1px;
 
         transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
@@ -909,7 +909,7 @@ const works = videoNames.map((filename) => ({
 
       &__path-lines {
         fill: none;
-        stroke: color(secondary);
+        stroke: color(line);
         stroke-width: 1px;
       }
     }
@@ -932,10 +932,10 @@ const works = videoNames.map((filename) => ({
       width: 100%;
       height: 100%;
 
-      background: color(secondary);
+      background: color(stage);
       transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
-      color: color(primary);
+      color: color(stage-ink);
 
       will-change: clip-path, transform;
 

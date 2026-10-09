@@ -845,6 +845,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
     }
 
     .s__emblem {
+      color: color(accent);
       position: relative;
       z-index: 2;
 
@@ -867,7 +868,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
 
       &__ring {
         fill: none;
-        stroke: color(secondary);
+        stroke: color(accent);
         stroke-width: 0.6;
       }
 
@@ -994,7 +995,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           margin: 0;
           padding: 1.5rem 1.5rem 0;
 
-          background: color(secondary);
+          background: color(frame);
         }
 
         .a__img {
@@ -1008,7 +1009,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           display: block;
           padding: 1.2rem 0;
 
-          color: color(white);
+          color: color(frame-ink);
           font: 400 12px / 1 font-family(fraktion);
           text-align: center;
           text-transform: uppercase;
@@ -1022,7 +1023,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           width: 100%;
           height: 100%;
 
-          background: color(secondary);
+          background: color(frame);
           transform: translateZ(calc(var(--depth) * -1 + 1px)) rotateY(180deg);
 
           content: '';
@@ -1117,7 +1118,8 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           width: 100%;
           height: 100%;
 
-          background: var(--assetStarUrl) center / cover no-repeat;
+          background: color(secondary);
+          mask: var(--assetStarUrl) center / cover no-repeat;
 
           content: '';
         }
@@ -1140,7 +1142,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
           &:after {
             position: absolute;
 
-            background: color(secondary);
+            background: color(frame);
             backface-visibility: visible;
 
             content: '';
@@ -1444,7 +1446,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
 
       &__circular-path {
         fill: none;
-        stroke: color(secondary);
+        stroke: color(grid);
         stroke-width: 1px;
       }
 
@@ -1452,7 +1454,7 @@ const frames = Array(14).fill({ caption: '', src: uyImg })
         position: relative;
         z-index: 2;
         fill: color(primary);
-        stroke: color(secondary);
+        stroke: color(grid);
         stroke-width: 1px;
       }
     }

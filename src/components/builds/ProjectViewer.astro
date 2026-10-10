@@ -6,12 +6,17 @@ import GraphPaperExperience from './GraphPaperExperience.astro'
 import MuseumsExperience from './MuseumsExperience.astro'
 import GraphPaperUnderHood from './GraphPaperUnderHood.astro'
 import MuseumsUnderHood from './MuseumsUnderHood.astro'
-import ProjectArtwork from './ProjectArtwork.astro'
 import '../../styles/components/project-content.scss'
 ---
 
 <dialog id="project-viewer" class="project-viewer" aria-labelledby="project-viewer-title" data-lenis-prevent>
-  <div class="project-viewer__transition" data-viewer-transition hidden aria-hidden="true">{projects.map((project) => <div class="project-viewer__transition-art" data-transition-art={project.id} hidden><ProjectArtwork projectId={project.id} description={project.artworkDescription} instance="transition" /></div>)}</div>
+  <div class="project-viewer__transition" data-viewer-transition hidden aria-hidden="true">
+    {projects.map((project) => <div class="project-viewer__cover" data-transition-art={project.id} hidden>
+      <div class="project-viewer__cover-meta"><span>Selected builds / {project.category}</span><span>{project.index} — 03</span></div>
+      <div class="project-viewer__cover-window"><p class="project-viewer__cover-title" data-cover-title>{project.title}</p></div>
+      <div class="project-viewer__cover-foot"><span>Experience<br />Under the Hood</span><span class="project-viewer__cover-arrow">↗</span></div>
+    </div>)}
+  </div>
   <div class="project-viewer__sheet">
     <header class="project-viewer__header">
       <div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div>
@@ -57,10 +62,16 @@ import '../../styles/components/project-content.scss'
     height: min(960px, calc(100dvh - 48px)); max-height: calc(100dvh - 48px);
     margin: auto; padding: 0; border: 1px solid color(line);
     color: color(secondary); background: color(primary); overflow: clip;
-    &::backdrop { background: color(overlay); }
+    &::backdrop { background: color(overlay); opacity: var(--viewer-backdrop, 1); }
     [hidden] { display: none !important; }
-    &__transition { position: absolute; inset: 0; display: grid; place-items: center; background: color(primary); pointer-events: none; }
-    &__transition-art { width: min(80%, 700px); height: min(70%, 560px); }
+    &__transition { position: absolute; inset: -1px; z-index: 5; background: color(secondary); color: color(primary); pointer-events: none; }
+    &__cover { height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1.25rem, 4vw, 4rem); }
+    &__cover-meta, &__cover-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font: 400 11px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: .06em; }
+    &__cover-meta { border-bottom: 1px solid currentColor; padding-bottom: 1.25rem; }
+    &__cover-window { overflow: hidden; padding-block: .3rem; }
+    &__cover-title { margin: 0; max-width: 14ch; font: 700 min(clamp(4rem, 14vw, 12rem), 20dvh) / .85 font-family(bigger); text-transform: uppercase; letter-spacing: -.01em; }
+    &__cover-foot { border-top: 1px solid currentColor; padding-top: 1.25rem; }
+    &__cover-arrow { font: 400 min(clamp(3rem, 8vw, 6rem), 10dvh) / 1 font-family(editorial); }
     &__sheet { position: relative; }
     &__sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
     &__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 2rem; border-bottom: 1px solid color(line); }

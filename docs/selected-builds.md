@@ -196,6 +196,33 @@ Decorative cues stay outside artwork copy, and the inspection button retains its
 original accessible name. Production build and TypeScript pass; inspected the
 active artwork and caption at desktop and 390px without horizontal overflow.
 
+## Follow-up: directional viewer covers
+
+The scale morph is replaced by a printed, inverse-color project cover. A mask
+opens from the right; the oversized title enters as the cover sweeps left to
+uncover the sheet. Header, tabs, content, and footer enter in a short sequence.
+Closing brings the cover back from the left and withdraws the mask to the right.
+The backdrop fades with the sequence. Text/artwork never stretches; phones use
+the same direction with a shorter sweep. Cover type also scales with viewport
+height to fit short landscape windows. Project/tab changes use a restrained
+directional reveal. No dependencies or continuous animation were added.
+
+Interruption preserves the cover's current position before reversing. Resize
+finishes the active sequence; reduced motion remains instant. Cleanup removes
+mask, backdrop variable, part/title transforms, and panel styles. Modal state,
+scroll isolation, Escape, and focus restoration remain in the controller.
+
+Build and TypeScript pass. The motion suite now has eight passing tests covering
+direction, absence of nonuniform scale, interruption, phone timing, reduced
+motion, resize, and rapid panel changes. Production browser checks covered all
+three desktop projects, repeated Escape during opening, resize during opening,
+rapid tabs/project changes, dark phone composition, and light 360×800,
+844×390, and 1024×768 layouts. No horizontal overflow, stale motion styles,
+scroll lock, or console errors remained. Browser reduced-motion emulation is
+still unavailable; those branches are verified by tests and CSS review.
+`engaging-gallery-final.jpg` and the `viewer-sweep-*.jpg` frames in the proof
+directory above capture the completed gallery and the transition sequence.
+
 ## Content references
 
 The original planning inspection used the local OboxSTEAM API product overview

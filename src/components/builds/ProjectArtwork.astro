@@ -1,0 +1,156 @@
+---
+import type { ProjectId } from '../../data/projects'
+
+interface Props {
+  projectId: ProjectId
+  description: string
+  instance?: string
+}
+
+const { projectId, description, instance = 'gallery' } = Astro.props
+const titleId = `${instance}-${projectId}-art-title`
+---
+
+{projectId === 'oboxsteam' && (
+  <svg class="project-art project-art--obox" viewBox="0 0 700 500" role="img" aria-labelledby={titleId}>
+    <title id={titleId}>{description}</title>
+    <g class="art-grid" fill="none">
+      <path d="M28 94H672M28 194H672M28 294H672M28 394H672M98 28V472M198 28V472M298 28V472M398 28V472M498 28V472M598 28V472" />
+    </g>
+    <g class="art-line" fill="none">
+      <path d="M36 36h16m-8-8v16M648 36h16m-8-8v16M36 464h16m-8-8v16M648 464h16m-8-8v16" />
+      <path d="M254 260v74h-34v40M518 348v26H370M298 426v28" stroke-dasharray="5 5" />
+      <path d="m214 365 6 9 6-9m135 3 9 6-9 6" />
+    </g>
+    <g transform="translate(72 64) rotate(-6 180 110)">
+      <path class="art-side" d="M0 228v12h366V12l-12-12v228Z" />
+      <rect class="art-plane" width="354" height="228" />
+      <path class="art-line" d="M0 34h354M82 34v194" />
+      <text class="art-mono" x="16" y="22">OBOX / LEARNING PLATFORM</text>
+      <circle class="art-ink" cx="322" cy="17" r="3" />
+      <circle class="art-line" fill="none" cx="336" cy="17" r="3" />
+      <text class="art-mono art-muted" x="14" y="63">PROGRAMS</text>
+      <text class="art-mono art-muted" x="14" y="89">CLASSES</text>
+      <text class="art-mono" x="14" y="115">PROGRESS</text>
+      <text class="art-mono art-muted" x="14" y="141">PORTFOLIO</text>
+      <rect class="art-ink" x="12" y="154" width="20" height="2" />
+      <text class="art-serif" x="102" y="74">A learning journey.</text>
+      <text class="art-mono art-muted" x="103" y="98">BUILD / LEARN / DISCOVER</text>
+      <rect class="art-panel" x="103" y="116" width="109" height="86" />
+      <path class="art-line" fill="none" d="m116 169 19-19 18 6 22-24 23 11M116 186h81" />
+      <text class="art-mono" x="116" y="133">PROGRESS</text>
+      <rect class="art-panel" x="225" y="116" width="109" height="86" />
+      <text class="art-mono" x="238" y="133">PORTFOLIO</text>
+      <rect class="art-ink" x="238" y="147" width="37" height="29" />
+      <path class="art-line" d="M283 151h38m-38 10h29m-45 26h54" />
+    </g>
+    <g transform="translate(454 144) rotate(8 64 108)">
+      <path class="art-side" d="M128 0l10 10v218H10L0 218h128Z" />
+      <rect class="art-plane" width="128" height="218" />
+      <path class="art-line" d="M44 12h40M10 193h108" />
+      <text class="art-mono" x="14" y="41">OBOX / MOBILE</text>
+      <text class="art-serif" x="14" y="70">Up next.</text>
+      <rect class="art-panel" x="14" y="85" width="100" height="58" />
+      <text class="art-mono" x="22" y="104">SCHEDULE</text>
+      <path class="art-line" d="M22 116h65m-65 12h43" />
+      <text class="art-mono" x="14" y="165">CHILD PROGRESS</text>
+      <path class="art-line" d="M14 177h100" />
+      <path class="art-strong" d="M14 177h69" />
+      <circle class="art-ink" cx="64" cy="205" r="3" />
+    </g>
+    <g>
+      <path class="art-side" d="M126 426v10h250v-52l-10-10v52Z" />
+      <rect class="art-ink" x="126" y="374" width="240" height="52" />
+      <text class="art-mono art-inverse" x="144" y="396">SHARED API</text>
+      <text class="art-mono art-inverse" x="144" y="413">ONE SOURCE OF PRODUCT RULES</text>
+      <path class="art-line" d="M283 455h94m-94 7h94" />
+      <text class="art-mono art-muted" x="390" y="463">DATA + FILES</text>
+    </g>
+    <text class="art-mono" x="43" y="321">01 / WEB</text>
+    <text class="art-mono" x="548" y="401">02 / MOBILE</text>
+    <text class="art-mono art-muted" x="43" y="484">SYSTEM STUDY — THREE CONNECTED APPLICATIONS</text>
+  </svg>
+)}
+
+{projectId === 'graphpaper' && (
+  <svg class="project-art" viewBox="0 0 600 250" role="img" aria-labelledby={titleId}>
+    <title id={titleId}>{description}</title>
+    <path class="art-grid" fill="none" d="M24 125h552M300 20v210" />
+    <g transform="translate(95 28) rotate(-9 80 92)">
+      <path class="art-side" d="M-12 12h170v186H-12Z" />
+      <path class="art-plane" d="M0 0h130l28 28v158H0Z" />
+      <path class="art-line" fill="none" d="M130 0v28h28" />
+      <text class="art-mono" x="17" y="31">RESEARCH / 001</text>
+      <text class="art-serif" x="17" y="63">Paper to</text>
+      <text class="art-serif" x="17" y="87">possibility.</text>
+      <path class="art-line" d="M17 106h118m-118 11h94m-94 26h118m-118 11h73m-73 11h103" />
+      <rect class="art-ink" x="17" y="125" width="86" height="7" />
+    </g>
+    <g class="art-line" fill="none">
+      <path d="M248 147h52l49-36M349 111l58-58 77 31-46 87-89-60 12 94 77-34 84 24M484 84l38 111" />
+      <path d="M273 136v22M285 140v14" />
+    </g>
+    <circle class="art-ink" cx="349" cy="111" r="12" />
+    <circle class="art-node" cx="407" cy="53" r="7" />
+    <circle class="art-node" cx="484" cy="84" r="7" />
+    <circle class="art-node" cx="438" cy="171" r="9" />
+    <circle class="art-node" cx="361" cy="205" r="6" />
+    <circle class="art-ink" cx="522" cy="195" r="5" />
+    <text class="art-mono" x="326" y="90">CONCEPT</text>
+    <text class="art-mono art-muted" x="419" y="45">METHOD</text>
+    <text class="art-mono art-muted" x="457" y="151">FINDING</text>
+    <text class="art-mono art-muted" x="36" y="236">GRAPHRAG / ILLUSTRATED CONCEPT</text>
+  </svg>
+)}
+
+{projectId === 'museums' && (
+  <svg class="project-art" viewBox="0 0 600 250" role="img" aria-labelledby={titleId}>
+    <title id={titleId}>{description}</title>
+    <g transform="translate(74 22) rotate(-7 126 98)">
+      <rect class="art-plane" width="248" height="195" />
+      <path class="art-line" d="M14 30h220M125 30v150M14 180h220" />
+      <text class="art-mono" x="14" y="20">MLN131 / DIGITAL EXHIBIT</text>
+      <text class="art-display" x="13" y="80">DÂN</text>
+      <text class="art-display" x="13" y="125">CHỦ</text>
+      <path class="art-museum-rule" d="M14 148h95" />
+      <path class="art-line" d="M142 47h87m-87 9h68m-68 9h78" />
+      <rect class="art-panel" x="142" y="80" width="87" height="80" />
+      <path class="art-line" fill="none" d="m150 150 22-33 15 13 21-31 13 51M153 94h15" />
+      <text class="art-mono" x="14" y="190">DEMOS + KRATOS</text>
+    </g>
+    <g transform="translate(300 30) rotate(7 118 100)">
+      <rect class="art-plane" width="235" height="195" />
+      <rect class="art-ink" x="12" y="12" width="211" height="26" />
+      <text class="art-mono art-inverse" x="21" y="30">VNR202 / VIETNAM</text>
+      <text class="art-display" x="14" y="92">1945</text>
+      <text class="art-display" x="101" y="142">1954</text>
+      <path class="art-museum-rule" d="M17 108h62M17 166h198" />
+      <path class="art-line" d="M24 159v14m41-14v14m47-14v14m49-14v14m46-14v14" />
+      <text class="art-mono" x="14" y="188">HISTORY, IN MOTION.</text>
+    </g>
+  </svg>
+)}
+
+<style lang="scss">
+  .project-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    color: color(secondary);
+    .art-grid { stroke: color(grid); opacity: 0.16; stroke-width: 1; }
+    .art-line { stroke: color(secondary); stroke-width: 1; }
+    .art-strong { stroke: color(secondary); stroke-width: 3; }
+    .art-plane { fill: color(surface); stroke: color(secondary); stroke-width: 1; }
+    .art-side { fill: color(surface-raised); stroke: color(secondary); stroke-width: 1; }
+    .art-panel { fill: color(surface-raised); stroke: color(line); stroke-width: 1; }
+    .art-node { fill: color(surface); stroke: color(secondary); stroke-width: 1.5; }
+    .art-ink { fill: color(secondary); }
+    .art-mono { fill: currentColor; font: 400 11px font-family(fraktion); letter-spacing: 0.035em; }
+    .art-serif { fill: currentColor; font: 400 26px font-family(editorial); }
+    .art-display { fill: currentColor; font: 700 60px font-family(bigger); }
+    .art-muted { fill: color(muted); }
+    .art-inverse { fill: color(primary); }
+    .art-museum-rule { stroke: #a44738; stroke-width: 4; }
+  }
+</style>

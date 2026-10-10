@@ -4,6 +4,7 @@ import { oboxAnatomy, type AnatomyId } from '../../data/oboxAnatomy'
 import { oboxWorkflows, type WorkflowId, type WorkflowNodeId } from '../../data/oboxWorkflows'
 import { OPEN_PROJECT } from './viewerEvents'
 import { graphStages, museumLayers, type GraphStageId, type MuseumLayerId } from '../../data/projectInteriors'
+import { ProjectViewerMotion } from './ProjectViewerMotion'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
 const tabs: ProjectTab[] = ['experience', 'under-the-hood']
@@ -27,8 +28,10 @@ export class ProjectViewerController {
   private closeButton: HTMLButtonElement
   private tabButtons: HTMLButtonElement[]
   private panels: HTMLElement[]
+  private motion: ProjectViewerMotion
 
   constructor(private dialog: HTMLDialogElement) {
+    this.motion = new ProjectViewerMotion(dialog)
     this.scroller = dialog.querySelector('[data-viewer-scroller]')!
     this.closeButton = dialog.querySelector('[data-viewer-close]')!
     this.tabButtons = Array.from(dialog.querySelectorAll('[data-project-tab]'))
@@ -133,16 +136,17 @@ export class ProjectViewerController {
     window.lenis?.scrollTo(this.pagePosition.y, { immediate: true, force: true })
     document.dispatchEvent(new Event('pause-goat-videos'))
     this.closeButton.focus({ preventScroll: true })
-    this.state = 'open'
+    this.motion.open(trigger, projectId, () => { if (this.state === 'opening') this.state = 'open' })
   }
 
   private close() {
     if (this.state === 'closed' || this.state === 'closing') return
     this.state = 'closing'
-    this.dialog.close()
+    this.motion.close(this.trigger, this.projectId, () => this.dialog.close())
   }
 
   private restorePage() {
+    this.motion.clear()
     document.documentElement.classList.remove('is-project-viewer-open')
     // Restore the native and smooth-scroll positions before restarting Lenis.
     window.scrollTo(this.pagePosition.x, this.pagePosition.y)
@@ -156,9 +160,12 @@ export class ProjectViewerController {
   }
 
   private switchProject(direction: number) {
+    if (this.state === 'closing') return
+    this.motion.finish()
     const index = projects.findIndex((project) => project.id === this.projectId)
     this.projectId = projects[(index + direction + projects.length) % projects.length].id
     this.resetProject()
+    this.fadeActivePanel()
   }
 
   private resetProject() {
@@ -174,10 +181,13 @@ export class ProjectViewerController {
   }
 
   private switchTab(tab: ProjectTab) {
+    if (this.state === 'closing') return
     if (tab === this.activeTab) return
+    this.motion.finish()
     this.tabScroll[this.activeTab] = this.scroller.scrollTop
     this.activeTab = tab
     this.render()
+    this.fadeActivePanel()
   }
 
   private selectExhibit(exhibit: MuseumExhibitId) {
@@ -286,5 +296,10 @@ export class ProjectViewerController {
       panel.hidden = panel.dataset.viewerProject !== this.projectId || panel.dataset.viewerTab !== this.activeTab
     })
     this.scroller.scrollTop = this.tabScroll[this.activeTab]
+  }
+
+  private fadeActivePanel() {
+    const panel = this.panels.find((panel) => !panel.hidden)
+    if (panel) this.motion.fade(panel)
   }
 }

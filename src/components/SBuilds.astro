@@ -17,6 +17,12 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
   <div class="s-builds__footnote" aria-hidden="true"><span>Selected work / 01 — 03</span><span>Built with curiosity.</span></div>
 </section>
 
+<script>
+  import { revealBuilds } from './builds/GalleryMotion'
+  const gallery = document.querySelector<HTMLElement>('.s-builds__gallery')
+  if (gallery) revealBuilds(gallery)
+</script>
+
 <style lang="scss">
   .s-builds {
     position: relative;

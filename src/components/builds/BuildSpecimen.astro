@@ -51,6 +51,10 @@ const { project } = Astro.props
     &__trigger { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
     &__trigger:focus-visible { outline-offset: -4px; }
     &:hover &__inspect, &:focus-within &__inspect { color: color(secondary); text-decoration: underline; text-underline-offset: 4px; }
+    :global([data-specimen-layer]) { transition: translate 180ms ease; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='web']), &:is(:hover, :focus-within) :global([data-specimen-layer='paper']), &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-a']) { translate: -6px -4px; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='mobile']), &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-b']) { translate: 6px 4px; }
+    @media (prefers-reduced-motion: reduce) { :global([data-specimen-layer]) { transition: none; translate: none !important; } }
 
     &--oboxsteam { grid-column: 1 / 8; grid-row: 1 / 3; }
     &--graphpaper { grid-column: 8 / 13; grid-row: 1; }

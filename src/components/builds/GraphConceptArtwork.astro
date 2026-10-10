@@ -21,7 +21,8 @@ const layers = [
 </svg>
 <style lang="scss">
   .graph-concept { display: block; width: 100%; height: auto; overflow: visible; color: color(secondary);
-    &__layer { transform: translate(var(--layer-x), var(--layer-y)); opacity: 0.5; &.is-selected { transform: translate(var(--layer-x), calc(var(--layer-y) - 8px)); opacity: 1; } }
+    &__layer { transform: translate(var(--layer-x), var(--layer-y)); opacity: 0.5; transition: transform 180ms ease, opacity 180ms ease; &.is-selected { transform: translate(var(--layer-x), calc(var(--layer-y) - 8px)); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { &__layer { transition: none; } }
     .paper { fill: color(primary); stroke: color(line); } .back { fill: color(surface-raised); stroke: color(line); }
     .rule, .route { stroke: color(secondary); stroke-width: 1.5; } .route { opacity: 0.3; }
     .ink { fill: color(secondary); } .node { fill: color(primary); stroke: color(secondary); stroke-width: 1.5; }

@@ -25,8 +25,8 @@ positions, museum/anatomy/workflow selection, and the original trigger/page posi
   its persistent header/footer. Only its content region scrolls.
 - Scroller reset occurs after `showModal()`, when the dialog has layout.
 
-No new dependencies, live project requests, URL/history state, or viewer motion
-are introduced. Artwork IDs are prefixed so gallery/viewer instances coexist.
+No new dependencies, live project requests, or URL/history state are introduced.
+Artwork IDs are prefixed so gallery/viewer/transition instances coexist.
 
 ### Verification
 
@@ -115,9 +115,34 @@ tablet, and 360px layouts. No horizontal overflow was observed. GraphPaper
 foundations were checked against local Semester8 sources. Museum content follows
 the earlier README inspection; a fresh GitHub fetch was unavailable this session.
 
+## Packet 6: motion and visual polish
+
+`GalleryMotion.ts` reveals specimens once with a 20px lift, 500ms duration, and
+80ms stagger. Keyboard focus immediately reveals its specimen. Gallery artwork
+separates by less than 8px on hover/focus, retaining its authored SVG transforms.
+`ProjectViewerMotion.ts` owns the GSAP geometry and fades while the shared
+controller retains modal state and focus. Desktop opening expands an illustrated
+shell from the trigger rectangle in 450ms; closing returns in 300ms. Phone sheets
+use a short fade and 16px movement. Project/tab fades last 180ms. Graph and museum
+layer selection now has restrained transitions.
+
+Timelines and fade styles are canceled/cleared on interruption. Resize finishes
+an active transition; Escape during opening closes reliably. A preference change
+to reduced motion finishes the current transition, and subsequent actions are
+instant. CSS hover/layer motion also respects the media query. Native scrolling,
+focus restoration, and the GOAT pause/resume lifecycle stay in the controller.
+
+Build and TypeScript passed. Browser checks covered interrupted opening for all
+three projects, repeated Escape, rapid tab/project changes, resize during opening,
+and phone closing. No stale shell, transform, opacity, or scroll lock remained.
+`node --test tests/project-viewer-motion.test.mjs` passes five lifecycle tests,
+including reduced-motion defaults/changes and cancellation. These tests control
+timeline completion; production-browser checks verify actual geometry. The in-app
+browser does not expose a reduced-motion emulation control, so preference branches
+were verified in tests and CSS media rules were reviewed.
+
 ## Next packets
 
-6. Add gallery and viewer motion, including reduced-motion alternatives.
 7. Perform final full-feature acceptance checks and fix discovered issues.
 
 ## Content references

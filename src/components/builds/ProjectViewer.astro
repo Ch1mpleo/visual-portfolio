@@ -6,10 +6,12 @@ import GraphPaperExperience from './GraphPaperExperience.astro'
 import MuseumsExperience from './MuseumsExperience.astro'
 import GraphPaperUnderHood from './GraphPaperUnderHood.astro'
 import MuseumsUnderHood from './MuseumsUnderHood.astro'
+import ProjectArtwork from './ProjectArtwork.astro'
 import '../../styles/components/project-content.scss'
 ---
 
 <dialog id="project-viewer" class="project-viewer" aria-labelledby="project-viewer-title" data-lenis-prevent>
+  <div class="project-viewer__transition" data-viewer-transition hidden aria-hidden="true">{projects.map((project) => <div class="project-viewer__transition-art" data-transition-art={project.id} hidden><ProjectArtwork projectId={project.id} description={project.artworkDescription} instance="transition" /></div>)}</div>
   <div class="project-viewer__sheet">
     <header class="project-viewer__header">
       <div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div>
@@ -57,6 +59,9 @@ import '../../styles/components/project-content.scss'
     color: color(secondary); background: color(primary); overflow: clip;
     &::backdrop { background: color(overlay); }
     [hidden] { display: none !important; }
+    &__transition { position: absolute; inset: 0; display: grid; place-items: center; background: color(primary); pointer-events: none; }
+    &__transition-art { width: min(80%, 700px); height: min(70%, 560px); }
+    &__sheet { position: relative; }
     &__sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
     &__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 2rem; border-bottom: 1px solid color(line); }
     &__label { margin: 0 0 0.5rem; font: 400 11px / 1.4 font-family(fraktion); color: color(muted); text-transform: uppercase; letter-spacing: 0.06em; }

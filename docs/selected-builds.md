@@ -141,9 +141,48 @@ timeline completion; production-browser checks verify actual geometry. The in-ap
 browser does not expose a reduced-motion emulation control, so preference branches
 were verified in tests and CSS media rules were reviewed.
 
-## Next packets
+## Packet 7: final acceptance and handoff
 
-7. Perform final full-feature acceptance checks and fix discovered issues.
+All seven packets are complete. Final acceptance standardized OboxSTEAM's public
+link label to “Visit website.” The production build, TypeScript check, and five
+motion lifecycle tests pass:
+
+```sh
+npm run build
+node node_modules/typescript/bin/tsc --noEmit
+node --test tests/project-viewer-motion.test.mjs
+```
+
+Checked 72 project/tab layouts: three projects, two tabs, two themes, and six
+viewports (1440×900, 1024×768, 768×1024, 390×844, 360×800, and 844×390).
+No horizontal overflow was observed. Header, tabs, footer, and internal scrolling
+remain usable in the short landscape viewport. An additional 720×450 layout
+check covers the effective CSS viewport of a 1440×900 window at 200% zoom;
+the in-app browser's zoom shortcuts did not change its scale, so actual browser
+zoom was not verified. Reduced-motion branches are covered by the five tests
+and CSS review; browser preference emulation is unavailable here.
+
+Keyboard opening, tab navigation, selector states, project/reset behavior,
+Escape, backdrop dismissal, and dragging from the sheet onto the backdrop were
+checked. Closing restores the original gallery trigger. Opening and internal
+scrolling retain page height; closing retains the page position within 0.5px
+of subpixel rounding. Rapid transitions and resizing leave no stale shell,
+inline motion styles, or scroll lock. GOAT's Arc Raider popup subsequently
+opened with a ready, playing video and closed with playback paused.
+
+All 61 local production asset references resolve under the configured
+`/visual-portfolio/` base. DOM IDs are unique, the final browser console has no
+errors, and source inspection confirms these components introduce no live
+project-service calls. Existing Sass/Browserslist build warnings remain.
+
+Proof images and the 72-case JSON record are saved in
+`C:/Users/vieta/.codex/visualizations/2026/10/10/01a126a6-37c3-7321-b6e4-9f5720877a98/`:
+`final-gallery.jpg`, `final-obox-experience.jpg`, `final-obox-anatomy.jpg`,
+`final-obox-workflow.jpg`, `final-graphpaper-experience.jpg`,
+`final-graphpaper-interior.jpg`, `final-museums-experience.jpg`,
+`final-museums-interior.jpg`, and `selected-builds-acceptance.json`.
+
+Each packet is committed separately. Pushing remains with the user.
 
 ## Content references
 

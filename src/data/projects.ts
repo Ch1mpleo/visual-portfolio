@@ -25,7 +25,7 @@ export const projects = [
     contribution: 'Built across API, web, and mobile',
     stack: ['.NET', 'PostgreSQL', 'Next.js', 'Expo'],
     links: [
-      { label: 'Website', href: 'https://oboxsteam.website/' },
+      { label: 'Visit website', href: 'https://oboxsteam.website/' },
       { label: 'API', href: 'https://github.com/OboxSTEAM/OboxSTEAM.API' },
       { label: 'Web', href: 'https://github.com/OboxSTEAM/OboxSTEAM.FE' },
       { label: 'Mobile', href: 'https://github.com/OboxSTEAM/OboxSTEAM.Mobile' },

@@ -1,6 +1,7 @@
 import { projects, type ProjectId, type ProjectTab } from '../../data/projects'
 import type { MuseumExhibitId } from '../../data/museumExhibits'
 import { oboxAnatomy, type AnatomyId } from '../../data/oboxAnatomy'
+import { oboxWorkflows, type WorkflowId, type WorkflowNodeId } from '../../data/oboxWorkflows'
 import { OPEN_PROJECT } from './viewerEvents'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
@@ -12,6 +13,8 @@ export class ProjectViewerController {
   private activeTab: ProjectTab = 'experience'
   private exhibit: MuseumExhibitId = 'mln131'
   private anatomy: AnatomyId = 'api'
+  private workflow: WorkflowId = 'join'
+  private workflowStep = 0
   private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
@@ -70,6 +73,18 @@ export class ProjectViewerController {
     })
     dialog.querySelectorAll<HTMLButtonElement>('[data-anatomy-select]').forEach((button) => {
       button.addEventListener('click', () => this.selectAnatomy(button.dataset.anatomySelect as AnatomyId))
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-workflow-select]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.dataset.workflowSelect === this.workflow) return
+        this.selectWorkflow(button.dataset.workflowSelect as WorkflowId)
+      })
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-workflow-step]').forEach((button) => {
+      button.addEventListener('click', () => this.selectWorkflowStep(Number(button.dataset.workflowStep)))
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-step-direction]').forEach((button) => {
+      button.addEventListener('click', () => this.selectWorkflowStep(this.workflowStep + Number(button.dataset.stepDirection)))
     })
 
     // A drag that begins in the sheet must never dismiss the dialog.
@@ -142,6 +157,7 @@ export class ProjectViewerController {
     this.tabScroll = { experience: 0, 'under-the-hood': 0 }
     this.selectExhibit('mln131')
     this.selectAnatomy('api')
+    this.selectWorkflow('join')
     this.dialog.querySelectorAll<HTMLDetailsElement>('[data-obox-decision]').forEach((note) => { note.open = false })
     this.render()
   }
@@ -177,6 +193,42 @@ export class ProjectViewerController {
     })
     this.dialog.querySelectorAll<SVGElement>('[data-anatomy-edge]').forEach((edge) => {
       edge.classList.toggle('is-connected', edge.dataset.anatomyEdge!.split(' ').includes(this.anatomy))
+    })
+  }
+
+  private selectWorkflow(id: WorkflowId) {
+    if (!oboxWorkflows.some((workflow) => workflow.id === id)) return
+    this.workflow = id
+    this.workflowStep = 0
+    this.dialog.querySelectorAll<HTMLButtonElement>('[data-workflow-select]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.workflowSelect === this.workflow))
+    })
+    this.dialog.querySelectorAll<HTMLElement>('[data-workflow-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.workflowPanel !== this.workflow
+    })
+    this.selectWorkflowStep(0)
+  }
+
+  private selectWorkflowStep(index: number) {
+    const workflow = oboxWorkflows.find((item) => item.id === this.workflow)!
+    const panel = this.dialog.querySelector<HTMLElement>(`[data-workflow-panel="${this.workflow}"]`)!
+    this.workflowStep = Math.max(0, Math.min(index, workflow.steps.length - 1))
+    const step = workflow.steps[this.workflowStep]
+    panel.querySelectorAll<HTMLButtonElement>('[data-workflow-step]').forEach((button) => {
+      if (Number(button.dataset.workflowStep) === this.workflowStep) button.setAttribute('aria-current', 'step')
+      else button.removeAttribute('aria-current')
+    })
+    panel.querySelectorAll<HTMLElement>('[data-workflow-readout]').forEach((readout) => {
+      readout.hidden = Number(readout.dataset.workflowReadout) !== this.workflowStep
+    })
+    panel.querySelectorAll<HTMLElement>('[data-flow-node]').forEach((node) => {
+      node.classList.toggle('is-active', step.highlightedNodeIds.includes(node.dataset.flowNode as WorkflowNodeId))
+    })
+    panel.querySelectorAll<SVGElement>('[data-flow-edge]').forEach((edge) => {
+      edge.classList.toggle('is-active', step.highlightedEdgeIds.includes(edge.dataset.flowEdge!))
+    })
+    panel.querySelectorAll<HTMLButtonElement>('[data-step-direction]').forEach((button) => {
+      button.disabled = Number(button.dataset.stepDirection) < 0 ? this.workflowStep === 0 : this.workflowStep === workflow.steps.length - 1
     })
   }
 

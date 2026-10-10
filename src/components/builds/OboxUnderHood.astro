@@ -1,6 +1,7 @@
 ---
 import { oboxAnatomy } from '../../data/oboxAnatomy'
 import OboxSystemMap from './OboxSystemMap.astro'
+import OboxWorkflows from './OboxWorkflows.astro'
 const decisions = [
   { title: 'One backend, different client responsibilities', text: 'Web and mobile share identity, permissions, and product rules through the API. Their interfaces differ by role and device: the web supports deeper learning and management work; mobile focuses on parent visibility and in-session actions.' },
   { title: 'Save records before notifying', text: 'The notification publisher persists inbox records before attempting real-time delivery. The durable inbox remains authoritative: a SignalR delivery failure does not erase a saved notification.' },
@@ -28,8 +29,9 @@ const decisions = [
       </div>
     </div>
   </section>
+  <OboxWorkflows />
   <section class="project-content__section" aria-labelledby="obox-decisions-title">
-    <p class="project-content__label">02 / Engineering decisions</p><h4 id="obox-decisions-title">The choices behind the system</h4>
+    <p class="project-content__label">03 / Engineering decisions</p><h4 id="obox-decisions-title">The choices behind the system</h4>
     <div class="obox-hood__decisions">{decisions.map((decision) => <details data-obox-decision><summary>{decision.title}<span aria-hidden="true">+</span></summary><p>{decision.text}</p></details>)}</div>
   </section>
 </div>

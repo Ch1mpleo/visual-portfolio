@@ -8,7 +8,7 @@ project components. `ProjectOverview.astro` provides static Under the Hood
 summaries for GraphPaper and Museums. OboxSTEAM uses its own detailed component.
 
 `ProjectViewerController.ts` owns modal state, project/tab selection, tab scroll
-positions, museum selection, and the original trigger/page position. The typed
+positions, museum/anatomy/workflow selection, and the original trigger/page position. The typed
 `open-project-viewer` event carries a project ID and the gallery button.
 
 - Open and project changes reset to Experience and the top of the scroller.
@@ -59,9 +59,46 @@ light/dark layouts at desktop, tablet, and 360–390px phone sizes. Source check
 used the backend architecture/product docs and attendance/notification services.
 No live requests or motion were added.
 
+## Packet 4: OboxSTEAM workflows
+
+`oboxWorkflows.ts` defines the three walkthroughs and their 19 steps, descriptions,
+takeaways, scope notes, and highlighted node/edge IDs. `OboxWorkflows.astro`
+renders workflow selectors, numbered native step buttons, a polite step readout,
+Previous/Next controls, and source-backed takeaways. `OboxWorkflowMap.astro`
+owns the three fixed diagrams and an abstract QR motif. This is an explanation
+of the product, with no checkout, camera, tokens, upload, or publication actions.
+
+- Join a class: pending hold, Stripe checkout/webhook, confirmed enrollment,
+  and shared reads/notifications. Failed/expired attempts release pending state.
+- Check in: mentor credential rotation, student scan, backend validation,
+  attendance persistence, and the first successful check-in notification.
+- Capture to portfolio: video capture/storage/processing, conditional face
+  matching, completed highlights, web draft import, and separate publication.
+  Class moments and session evidence remain distinct; this follows the video path.
+
+The shared controller owns workflow and step state. Changing workflows starts
+at step 1; selecting the current workflow leaves its step intact. Tabs preserve
+the workflow, step, anatomy, disclosures, and independent scroll positions.
+Project changes/reopening restore Join a class, step 1, Shared API, and collapsed
+decisions. Step navigation disables at the first/last boundary and never plays
+automatically. Phone layouts put the step explanation and controls before the
+diagram. Unselected routes are dimmed in both diagrams for clear contrast in
+the light theme. Lenis's shared Window type now lives in `src/env.d.ts`, where
+TypeScript can see it outside the Astro page script.
+
+### Verification
+
+Production build and `node node_modules/typescript/bin/tsc --noEmit` passed.
+Exercised all 19 step buttons and checked the visible readout, active nodes/routes,
+and boundary states. Checked Previous/Next, Enter/Space activation, tab memory,
+workflow switching/reset, project reset, reopen defaults, and dialog focus wrap.
+Inspected desktop, 768px tablet, and 360–390px phones in light/dark themes;
+phone diagrams/copy have no horizontal overflow. GraphPaper and the Museums
+exhibit selector still work through shared project navigation. Final preview
+recorded no runtime errors. Existing build warnings described above remain.
+
 ## Next packets
 
-4. Add OboxSTEAM's Join a class, Check in, and Capture to portfolio walkthroughs.
 5. Add GraphPaper's four-stage concept and the museum layer breakdown. The
    Experience exhibit selector and paired links are already complete; retain
    its state in the controller and synchronize the new museum breakdown.

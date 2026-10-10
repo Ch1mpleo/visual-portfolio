@@ -12,14 +12,15 @@ const { project } = Astro.props
     <span aria-hidden="true">{project.id === 'oboxsteam' ? 'API + WEB + MOBILE' : project.id === 'graphpaper' ? 'DOCUMENT → GRAPH' : 'TWO EXHIBITS'}</span>
   </div>
   <div class="build-specimen__art">
-    <ProjectArtwork projectId={project.id} description={project.artworkDescription} />
+    <span class="build-specimen__folio" aria-hidden="true">{project.index}</span>
+    <div class="build-specimen__scene"><ProjectArtwork projectId={project.id} description={project.artworkDescription} /></div>
   </div>
   <div class="build-specimen__caption">
     <div>
       <h3 id={`build-${project.id}-title`}>{project.title}</h3>
       <p>{project.summary}</p>
     </div>
-    <span class="build-specimen__inspect" aria-hidden="true">Inspect project <span>↗</span></span>
+    <span class="build-specimen__inspect" aria-hidden="true"><span class="build-specimen__action-label"><span class="build-specimen__default-label">Inspect project</span><span class="build-specimen__cue">{project.id === 'oboxsteam' ? 'Trace the system' : project.id === 'graphpaper' ? 'Unfold the ideas' : 'Enter the exhibition'}</span></span><span class="build-specimen__arrow">↗</span></span>
   </div>
   <button class="build-specimen__trigger" type="button" data-open-project={project.id} aria-haspopup="dialog" aria-controls="project-viewer" aria-label={`Inspect ${project.title}`}>
     <span class="u-sr-only">Inspect {project.title}</span>
@@ -47,14 +48,21 @@ const { project } = Astro.props
     min-width: 0;
     border: 1px solid color(line);
     background: color(surface);
+    transition: border-color 300ms ease;
 
     &__trigger { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
     &__trigger:focus-visible { outline-offset: -4px; }
-    &:hover &__inspect, &:focus-within &__inspect { color: color(secondary); text-decoration: underline; text-underline-offset: 4px; }
-    :global([data-specimen-layer]) { transition: translate 180ms ease; }
-    &:is(:hover, :focus-within) :global([data-specimen-layer='web']), &:is(:hover, :focus-within) :global([data-specimen-layer='paper']), &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-a']) { translate: -6px -4px; }
-    &:is(:hover, :focus-within) :global([data-specimen-layer='mobile']), &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-b']) { translate: 6px 4px; }
-    @media (prefers-reduced-motion: reduce) { :global([data-specimen-layer]) { transition: none; translate: none !important; } }
+    &:is(:hover, :focus-within) { border-color: color(secondary); }
+    :global([data-specimen-layer]) { transform-box: fill-box; transform-origin: center; transition: translate 650ms cubic-bezier(.22, 1, .36, 1), rotate 650ms cubic-bezier(.22, 1, .36, 1); }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='web']) { translate: -10px -9px; rotate: -2deg; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='mobile']) { translate: 12px -8px; rotate: 3deg; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='paper']) { translate: -12px -4px; rotate: -4deg; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-a']) { translate: -12px -3px; rotate: -5deg; }
+    &:is(:hover, :focus-within) :global([data-specimen-layer='exhibit-b']) { translate: 12px 3px; rotate: 5deg; }
+    &:is(:hover, :focus-within) :global(.art-connector), &:is(:hover, :focus-within) :global([data-graph-routes]) { animation: build-trace 900ms ease-out both; }
+    &:is(:hover, :focus-within) :global([data-graph-node]) { animation: build-node 650ms ease-out both; animation-delay: calc(var(--node-order) * 65ms); transform-box: fill-box; transform-origin: center; }
+    @keyframes build-trace { from { stroke-dasharray: 12 10; stroke-dashoffset: 66; opacity: .35; } to { stroke-dasharray: 12 10; stroke-dashoffset: 0; opacity: 1; } }
+    @keyframes build-node { 0% { scale: .65; } 65% { scale: 1.3; } 100% { scale: 1; } }
 
     &--oboxsteam { grid-column: 1 / 8; grid-row: 1 / 3; }
     &--graphpaper { grid-column: 8 / 13; grid-row: 1; }
@@ -74,17 +82,36 @@ const { project } = Astro.props
     }
 
     &__art {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
       display: flex;
       align-items: center;
       flex: 1;
       padding: 0.5rem 1rem;
       min-height: 180px;
-      :global(.project-art) { height: auto; }
+      background-image: linear-gradient(color-mix(in srgb, color(secondary) 7%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, color(secondary) 7%, transparent) 1px, transparent 1px);
+      background-size: 48px 48px;
+      background-position: center;
+      :global(.project-art) { height: auto; transition: scale 650ms cubic-bezier(.22, 1, .36, 1); }
     }
+    &__scene { position: relative; width: 100%; }
+    &__folio { position: absolute; left: .75rem; top: .5rem; font: 700 clamp(4rem, 9vw, 9rem) / 1 font-family(bigger); -webkit-text-stroke: 1px color-mix(in srgb, color(secondary) 20%, transparent); color: transparent; opacity: .6; transition: translate 650ms cubic-bezier(.22, 1, .36, 1), opacity 400ms ease; }
+    &__action-label { display: grid; > span { grid-area: 1 / 1; transition: opacity 250ms ease, translate 500ms cubic-bezier(.22, 1, .36, 1); } }
+    &__cue { opacity: 0; translate: 0 10px; }
+    &:is(:hover, :focus-within) &__folio { translate: 8px 0; opacity: 1; }
+    &:is(:hover, :focus-within) &__cue { opacity: 1; translate: 0 0; }
+    &:is(:hover, :focus-within) &__default-label { opacity: 0; translate: 0 -10px; }
+    &:is(:hover, :focus-within) :global(.project-art) { scale: 1.035; }
 
     &--oboxsteam &__art { padding: 1.25rem; min-height: 370px; }
 
     &__caption {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      transition: color 350ms ease;
+      &::before { content: ''; position: absolute; inset: 0; z-index: -1; background: color(secondary); scale: 0 1; transform-origin: left; transition: scale 550ms cubic-bezier(.22, 1, .36, 1); }
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -106,11 +133,20 @@ const { project } = Astro.props
       display: inline-flex;
       gap: 0.75rem;
       align-items: center;
-      color: color(muted);
+      color: inherit;
       font: 400 11px / 1.4 font-family(fraktion);
       text-transform: uppercase;
       letter-spacing: 0.035em;
-      > span { font-size: 18px; line-height: 1; }
+      .build-specimen__arrow { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color(line); border-radius: 50%; font-size: 18px; line-height: 1; transition: rotate 500ms cubic-bezier(.22, 1, .36, 1), border-color 300ms ease; }
+    }
+    &:is(:hover, :focus-within) &__caption { color: color(primary); &::before { scale: 1 1; } }
+    &:is(:hover, :focus-within) &__arrow { rotate: 45deg; border-color: currentColor; }
+    @media (prefers-reduced-motion: reduce) {
+      &, &__caption, &__caption::before, &__folio, &__action-label > span, &__arrow, :global(.project-art), :global([data-specimen-layer]) { transition: none; }
+      &__folio, &__cue, &__default-label { translate: none !important; }
+      :global(.project-art) { scale: none !important; }
+      :global([data-specimen-layer]) { translate: none !important; rotate: none !important; }
+      :global(.art-connector), :global([data-graph-routes]), :global([data-graph-node]) { animation: none !important; }
     }
 
     &--oboxsteam h3 { font-size: clamp(3rem, 5.5vw, 5.25rem); }
@@ -134,6 +170,7 @@ const { project } = Astro.props
         aspect-ratio: 4 / 3;
         :global(.project-art) { height: 100%; object-fit: contain; }
       }
+      &__scene { height: 100%; display: flex; align-items: center; }
       &__caption, &--oboxsteam &__caption { padding: 1.25rem 1rem; gap: 1rem; }
       h3, &--oboxsteam h3 { font-size: clamp(2rem, 8vw, 3rem); }
       p, &--oboxsteam p { font-size: 1.125rem; }

@@ -184,6 +184,18 @@ Proof images and the 72-case JSON record are saved in
 
 Each packet is committed separately. Pushing remains with the user.
 
+## Follow-up: engaging gallery specimens
+
+Each specimen now has a quiet drafting grid and outlined folio, a directional
+inverse-caption wipe, and a project-specific inspection cue. Obox client planes
+separate, GraphPaper routes trace with staggered node emphasis, and museum pages
+fan outward. Fine-pointer movement adds a restrained, eased scene parallax;
+touch devices skip pointer tracking. Keyboard focus gets the same visual state.
+Reduced motion disables tracing, fanning, scaling, parallax, and transitions.
+Decorative cues stay outside artwork copy, and the inspection button retains its
+original accessible name. Production build and TypeScript pass; inspected the
+active artwork and caption at desktop and 390px without horizontal overflow.
+
 ## Content references
 
 The original planning inspection used the local OboxSTEAM API product overview

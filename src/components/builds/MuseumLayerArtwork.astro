@@ -1,0 +1,22 @@
+---
+import type { MuseumExhibitId } from '../../data/museumExhibits'
+interface Props { exhibit: MuseumExhibitId }
+const { exhibit } = Astro.props
+const layers = [{ id: 'content', x: 42, y: 245, title: 'Content structure' }, { id: 'visual', x: 66, y: 135, title: 'Visual language' }, { id: 'interaction', x: 90, y: 25, title: 'Interaction' }]
+---
+<svg class="museum-layers" viewBox="0 0 640 475" role="img" aria-labelledby={`museum-layers-${exhibit}-title`}>
+  <title id={`museum-layers-${exhibit}-title`}>{exhibit === 'mln131' ? 'MLN131 democracy' : 'VNR202 Vietnam 1945–1954'} editorial study separating content structure, visual language, and interaction.</title>
+  {layers.map((layer) => <g data-museum-art-layer={layer.id} class:list={['museum-layers__layer', { 'is-selected': layer.id === 'content' }]} style={`--layer-x:${layer.x}px;--layer-y:${layer.y}px`}>
+    <rect class="paper" width="490" height="170" /><path class="rule" d="M18 46h454" /><text class="label" x="18" y="30">{layer.title}</text>
+    {layer.id === 'content' && <><text class="serif" x="18" y="87">{exhibit === 'mln131' ? 'Concepts to chapters.' : 'A route through a decade.'}</text><path class="rule" d="M18 110h270m-270 13h242m-242 13h284" /><text class="small" x="335" y="88">{exhibit.toUpperCase()}</text><text class="small" x="335" y="120">{exhibit === 'mln131' ? 'DEMOS / KRATOS' : '1945 / 1954'}</text></>}
+    {layer.id === 'visual' && <><text class:list={[exhibit === 'mln131' ? 'vietnamese' : 'display']} lang={exhibit === 'mln131' ? 'vi' : undefined} x="18" y="136">{exhibit === 'mln131' ? 'DÂN CHỦ' : '1945—1954'}</text><path class="accent" d="M18 150h454" /></>}
+    {layer.id === 'interaction' && <><text class="serif" x="18" y="86">Follow the story.</text><path class="rule" d="M18 124h454" />{[18, 130, 244, 358, 472].map((x) => <circle class="node" cx={x} cy="124" r="5" />)}<text class="small" x="18" y="154">REVEAL / TIMELINE / TRANSITION</text></>}
+  </g>)}
+</svg>
+<style lang="scss">
+  .museum-layers { display: block; width: 100%; height: auto; overflow: visible; color: color(secondary);
+    &__layer { transform: translate(var(--layer-x), var(--layer-y)); opacity: 0.55; &.is-selected { transform: translate(calc(var(--layer-x) + 8px), calc(var(--layer-y) - 8px)); opacity: 1; } }
+    .paper { fill: color(surface-raised); stroke: color(line); } .rule { stroke: color(secondary); } .accent { stroke: #a44738; stroke-width: 4; } .node { fill: color(secondary); }
+    text { fill: currentColor; } .label { font: 400 25px font-family(fraktion); } .small { font: 400 17px font-family(fraktion); } .serif { font: 400 32px font-family(editorial); } .display { font: 700 80px font-family(bigger); } .vietnamese { font: 700 64px Arial, sans-serif; }
+  }
+</style>

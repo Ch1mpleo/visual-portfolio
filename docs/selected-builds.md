@@ -4,8 +4,7 @@
 
 The gallery opens one native modal dialog mounted outside `.site-wrapper` in
 `src/pages/index.astro`. Experience content is rendered at build time in three
-project components. `ProjectOverview.astro` provides static Under the Hood
-summaries for GraphPaper and Museums. OboxSTEAM uses its own detailed component.
+project components. Every project has a dedicated Under the Hood component.
 
 `ProjectViewerController.ts` owns modal state, project/tab selection, tab scroll
 positions, museum/anatomy/workflow selection, and the original trigger/page position. The typed
@@ -97,11 +96,27 @@ phone diagrams/copy have no horizontal overflow. GraphPaper and the Museums
 exhibit selector still work through shared project navigation. Final preview
 recorded no runtime errors. Existing build warnings described above remain.
 
+## Packet 5: GraphPaper and Museums interiors
+
+`projectInteriors.ts` contains four GraphPaper stages and three museum layers.
+Dedicated Under the Hood components replace the static overview.
+`GraphConceptArtwork.astro` separates four illustrated document/graph planes;
+its scope block distinguishes verified interfaces/models/embedding service from
+the intended extraction, orchestration, and grounded-answer pipeline.
+`MuseumLayerArtwork.astro` presents a three-layer editorial stack, with the
+selected layer brought forward. Vietnamese titles retain an accented font.
+Both museum tabs share the exhibit choice, artwork, and paired Experience links.
+The controller preserves stage/layer selection across tabs and resets it on
+project changes/reopening. No project services or new dependencies are used.
+
+Production build and TypeScript passed. Checked all four stages, three layers,
+exhibit synchronization, VNR202 link pairing, and responsive light/dark desktop,
+tablet, and 360px layouts. No horizontal overflow was observed. GraphPaper
+foundations were checked against local Semester8 sources. Museum content follows
+the earlier README inspection; a fresh GitHub fetch was unavailable this session.
+
 ## Next packets
 
-5. Add GraphPaper's four-stage concept and the museum layer breakdown. The
-   Experience exhibit selector and paired links are already complete; retain
-   its state in the controller and synchronize the new museum breakdown.
 6. Add gallery and viewer motion, including reduced-motion alternatives.
 7. Perform final full-feature acceptance checks and fix discovered issues.
 

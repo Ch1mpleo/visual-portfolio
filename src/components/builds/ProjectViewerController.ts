@@ -3,6 +3,7 @@ import type { MuseumExhibitId } from '../../data/museumExhibits'
 import { oboxAnatomy, type AnatomyId } from '../../data/oboxAnatomy'
 import { oboxWorkflows, type WorkflowId, type WorkflowNodeId } from '../../data/oboxWorkflows'
 import { OPEN_PROJECT } from './viewerEvents'
+import { graphStages, museumLayers, type GraphStageId, type MuseumLayerId } from '../../data/projectInteriors'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
 const tabs: ProjectTab[] = ['experience', 'under-the-hood']
@@ -15,6 +16,8 @@ export class ProjectViewerController {
   private anatomy: AnatomyId = 'api'
   private workflow: WorkflowId = 'join'
   private workflowStep = 0
+  private graphStage: GraphStageId = 'document'
+  private museumLayer: MuseumLayerId = 'content'
   private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
@@ -85,6 +88,12 @@ export class ProjectViewerController {
     })
     dialog.querySelectorAll<HTMLButtonElement>('[data-step-direction]').forEach((button) => {
       button.addEventListener('click', () => this.selectWorkflowStep(this.workflowStep + Number(button.dataset.stepDirection)))
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-graph-stage]').forEach((button) => {
+      button.addEventListener('click', () => this.selectGraphStage(button.dataset.graphStage as GraphStageId))
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-museum-layer]').forEach((button) => {
+      button.addEventListener('click', () => this.selectMuseumLayer(button.dataset.museumLayer as MuseumLayerId))
     })
 
     // A drag that begins in the sheet must never dismiss the dialog.
@@ -158,6 +167,8 @@ export class ProjectViewerController {
     this.selectExhibit('mln131')
     this.selectAnatomy('api')
     this.selectWorkflow('join')
+    this.selectGraphStage('document')
+    this.selectMuseumLayer('content')
     this.dialog.querySelectorAll<HTMLDetailsElement>('[data-obox-decision]').forEach((note) => { note.open = false })
     this.render()
   }
@@ -193,6 +204,30 @@ export class ProjectViewerController {
     })
     this.dialog.querySelectorAll<SVGElement>('[data-anatomy-edge]').forEach((edge) => {
       edge.classList.toggle('is-connected', edge.dataset.anatomyEdge!.split(' ').includes(this.anatomy))
+    })
+  }
+
+  private selectGraphStage(id: GraphStageId) {
+    if (!graphStages.some((stage) => stage.id === id)) return
+    this.graphStage = id
+    this.dialog.querySelectorAll<HTMLButtonElement>('[data-graph-stage]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.graphStage === this.graphStage))
+    })
+    this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => { panel.hidden = panel.dataset.graphStagePanel !== this.graphStage })
+    this.dialog.querySelectorAll<SVGElement>('[data-graph-layer]').forEach((layer) => { layer.classList.toggle('is-selected', layer.dataset.graphLayer === this.graphStage) })
+  }
+
+  private selectMuseumLayer(id: MuseumLayerId) {
+    if (!museumLayers.some((layer) => layer.id === id)) return
+    this.museumLayer = id
+    this.dialog.querySelectorAll<HTMLButtonElement>('[data-museum-layer]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.museumLayer === this.museumLayer))
+    })
+    this.dialog.querySelectorAll<HTMLElement>('[data-museum-layer-panel]').forEach((panel) => { panel.hidden = panel.dataset.museumLayerPanel !== this.museumLayer })
+    this.dialog.querySelectorAll<SVGElement>('[data-museum-art-layer]').forEach((layer) => {
+      const selected = layer.dataset.museumArtLayer === this.museumLayer
+      layer.classList.toggle('is-selected', selected)
+      if (selected) layer.parentElement!.append(layer)
     })
   }
 

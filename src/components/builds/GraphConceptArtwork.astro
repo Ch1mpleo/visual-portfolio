@@ -1,0 +1,30 @@
+---
+const layers = [
+  { id: 'document', x: 28, y: 28, label: 'Document' },
+  { id: 'chunks', x: 374, y: 28, label: 'Chunks' },
+  { id: 'entities', x: 28, y: 254, label: 'Entities' },
+  { id: 'graph', x: 374, y: 254, label: 'Graph' },
+]
+---
+<svg class="graph-concept" viewBox="0 0 700 470" role="img" aria-labelledby="graph-concept-title">
+  <title id="graph-concept-title">An illustrated concept: a document, passage chunks, connected entities, and a small graph labeled Document, Concept, Method, and Finding.</title>
+  <path class="route" fill="none" d="M328 113h46M524 218v20H178v16M328 339h46" />
+  {layers.map((layer, index) => <g data-graph-layer={layer.id} class:list={['graph-concept__layer', { 'is-selected': index === 0 }]} style={`--layer-x:${layer.x}px;--layer-y:${layer.y}px`}>
+    <rect class="back" x="7" y="7" width="290" height="180" />
+    <rect class="paper" width="290" height="180" />
+    <text class="title" x="16" y="34">{layer.label}</text><text class="number" x="251" y="34">0{index + 1}</text>
+    {layer.id === 'document' && <><path class="rule" d="M16 51h258M16 75h210m-210 16h235m-235 16h189m-189 34h245m-245 16h181" /><rect class="ink" x="16" y="117" width="165" height="7" /></>}
+    {layer.id === 'chunks' && <>{[0, 1, 2].map((i) => <g transform={`translate(16 ${58 + i * 36})`}><rect class="paper" width="155" height="27" /><path class="rule" d="M8 9h132m-132 9h106" /><path class="rule" d="M171 6v15m12-18v21m12-13v10m12-22v22m12-16v16m12-25v25m12-12v12" /></g>)}</>}
+    {layer.id === 'entities' && <><path class="rule" fill="none" d="M64 90h161M64 90l81 61 80-61" /><circle class="ink" cx="64" cy="90" r="12" /><circle class="node" cx="225" cy="90" r="12" /><circle class="node" cx="145" cy="151" r="12" /><text class="small" x="18" y="67">Concept</text><text class="small" x="180" y="67">Method</text><text class="small" x="177" y="156">Finding</text></>}
+    {layer.id === 'graph' && <><path class="rule" fill="none" d="M45 94l97-17 97 26M45 94l99 51 95-42M142 77l2 68" /><circle class="ink" cx="45" cy="94" r="10" /><circle class="node" cx="142" cy="77" r="8" /><circle class="node" cx="239" cy="103" r="8" /><circle class="node" cx="144" cy="145" r="8" /><text class="small" x="16" y="76">Document</text><text class="small" x="107" y="59">Concept</text><text class="small" x="188" y="84">Method</text><text class="small" x="175" y="151">Finding</text></>}
+  </g>)}
+</svg>
+<style lang="scss">
+  .graph-concept { display: block; width: 100%; height: auto; overflow: visible; color: color(secondary);
+    &__layer { transform: translate(var(--layer-x), var(--layer-y)); opacity: 0.5; &.is-selected { transform: translate(var(--layer-x), calc(var(--layer-y) - 8px)); opacity: 1; } }
+    .paper { fill: color(primary); stroke: color(line); } .back { fill: color(surface-raised); stroke: color(line); }
+    .rule, .route { stroke: color(secondary); stroke-width: 1.5; } .route { opacity: 0.3; }
+    .ink { fill: color(secondary); } .node { fill: color(primary); stroke: color(secondary); stroke-width: 1.5; }
+    text { fill: currentColor; font-family: font-family(fraktion); } .title { font-size: 26px; } .number { font-size: 16px; } .small { font: 400 21px font-family(editorial); }
+  }
+</style>

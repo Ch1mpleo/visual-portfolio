@@ -1,0 +1,11 @@
+---
+import { graphStages } from '../../data/projectInteriors'
+import GraphConceptArtwork from './GraphConceptArtwork.astro'
+---
+<div class="project-content">
+  <p class="project-content__label">GraphPaper / GraphRAG experiment</p><h3>Documents,<br />connected by ideas.</h3>
+  <p class="project-content__intro">Explore the intended route from a research paper to a graph. Each stage has foundations in the project, with a complete pipeline still to connect them.</p>
+  <div class="interior-selectors" role="group" aria-label="GraphPaper concept stages">{graphStages.map((stage, index) => <button type="button" data-graph-stage={stage.id} aria-pressed={index === 0} aria-controls={`graph-stage-${stage.id}`}><span aria-hidden="true">0{index + 1}</span>{stage.label}</button>)}</div>
+  <div class="interior-study"><figure><GraphConceptArtwork /><figcaption>Illustrated concept / static example connections</figcaption></figure><div>{graphStages.map((stage, index) => <section id={`graph-stage-${stage.id}`} data-graph-stage-panel={stage.id} hidden={index !== 0}><p class="project-content__label">Stage 0{index + 1} / 04</p><h4>{stage.title}</h4><p>{stage.description}</p></section>)}</div></div>
+  <section class="project-content__scope" aria-labelledby="graph-scope-title"><p class="project-content__label">Current scope</p><h4 id="graph-scope-title">Foundations and intended direction</h4><div class="interior-scope"><section><h5>Present in inspected code</h5><p>Frontend upload and graph screens, document and graph data models, PostgreSQL/pgvector foundations, and an embedding-service implementation.</p></section><section><h5>Intended pipeline</h5><p>Complete document extraction, graph-building orchestration, and grounded answers. The illustration is a conceptual map, with no generated research result.</p></section></div></section>
+</div>

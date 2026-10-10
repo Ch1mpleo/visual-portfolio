@@ -19,10 +19,10 @@ const titleId = `${instance}-${projectId}-art-title`
     </g>
     <g class="art-line" fill="none">
       <path d="M36 36h16m-8-8v16M648 36h16m-8-8v16M36 464h16m-8-8v16M648 464h16m-8-8v16" />
-      <path d="M254 260v74h-34v40M518 348v26H370M298 426v28" stroke-dasharray="5 5" />
-      <path d="m214 365 6 9 6-9m135 3 9 6-9 6" />
     </g>
-    <g transform="translate(72 64) rotate(-6 180 110)">
+    <text class="art-label" x="62" y="45">01 / WEB PLATFORM</text>
+    <text class="art-label" x="482" y="78">02 / MOBILE APP</text>
+    <g transform="translate(62 65)">
       <path class="art-side" d="M0 228v12h366V12l-12-12v228Z" />
       <rect class="art-plane" width="354" height="228" />
       <path class="art-line" d="M0 34h354M82 34v194" />
@@ -37,38 +37,60 @@ const titleId = `${instance}-${projectId}-art-title`
       <text class="art-serif" x="102" y="74">A learning journey.</text>
       <text class="art-mono art-muted" x="103" y="98">BUILD / LEARN / DISCOVER</text>
       <rect class="art-panel" x="103" y="116" width="109" height="86" />
-      <path class="art-line" fill="none" d="m116 169 19-19 18 6 22-24 23 11M116 186h81" />
+      <path class="art-line" fill="none" d="m116 180 19-17 18 6 22-20 23 9M116 190h81" />
       <text class="art-mono" x="116" y="133">PROGRESS</text>
       <rect class="art-panel" x="225" y="116" width="109" height="86" />
       <text class="art-mono" x="238" y="133">PORTFOLIO</text>
       <rect class="art-ink" x="238" y="147" width="37" height="29" />
       <path class="art-line" d="M283 151h38m-38 10h29m-45 26h54" />
     </g>
-    <g transform="translate(454 144) rotate(8 64 108)">
-      <path class="art-side" d="M128 0l10 10v218H10L0 218h128Z" />
-      <rect class="art-plane" width="128" height="218" />
-      <path class="art-line" d="M44 12h40M10 193h108" />
-      <text class="art-mono" x="14" y="41">OBOX / MOBILE</text>
-      <text class="art-serif" x="14" y="70">Up next.</text>
-      <rect class="art-panel" x="14" y="85" width="100" height="58" />
-      <text class="art-mono" x="22" y="104">SCHEDULE</text>
-      <path class="art-line" d="M22 116h65m-65 12h43" />
-      <text class="art-mono" x="14" y="165">CHILD PROGRESS</text>
-      <path class="art-line" d="M14 177h100" />
-      <path class="art-strong" d="M14 177h69" />
-      <circle class="art-ink" cx="64" cy="205" r="3" />
+    <g transform="translate(482 98)">
+      <rect class="art-phone-frame" x="0" y="0" width="136" height="244" rx="22" />
+      <rect class="art-plane" x="7" y="7" width="122" height="230" rx="16" />
+      <rect class="art-ink" x="47" y="14" width="42" height="10" rx="5" />
+      <path class="art-phone-button" d="M-2 48v18m0 8v25m140-32v32" />
+      <text class="art-mono" x="17" y="48">OBOX / PARENT</text>
+      <text class="art-serif" x="17" y="78">Up next.</text>
+      <rect class="art-panel" x="16" y="93" width="104" height="58" rx="5" />
+      <text class="art-mono" x="25" y="112">SCHEDULE</text>
+      <path class="art-line" d="M25 125h66m-66 12h43" />
+      <text class="art-mono" x="17" y="175">PROGRESS</text>
+      <path class="art-line" d="M17 189h102" />
+      <path class="art-strong" d="M17 189h69" />
+      <path class="art-line" d="M7 207h122" />
+      <g class="art-line" fill="none">
+        <path d="m24 222 5-4 5 4v6H24Z" />
+        <rect x="63" y="219" width="10" height="9" rx="1" />
+        <circle cx="107" cy="222" r="3" />
+        <path d="M102 230q5-7 10 0" />
+      </g>
+    </g>
+    <g class="art-connector" fill="none">
+      <path d="M239 293v25q0 10 10 10h56q10 0 10 10v28" />
+      <path d="M550 342v55q0 10-10 10h-75" />
+      <path d="M315 450v16" />
     </g>
     <g>
-      <path class="art-side" d="M126 426v10h250v-52l-10-10v52Z" />
-      <rect class="art-ink" x="126" y="374" width="240" height="52" />
-      <text class="art-mono art-inverse" x="144" y="396">SHARED API</text>
-      <text class="art-mono art-inverse" x="144" y="413">ONE SOURCE OF PRODUCT RULES</text>
-      <path class="art-line" d="M283 455h94m-94 7h94" />
-      <text class="art-mono art-muted" x="390" y="463">DATA + FILES</text>
+      <circle class="art-node" cx="239" cy="293" r="4" />
+      <circle class="art-node" cx="550" cy="342" r="4" />
+      <rect class="art-ink" x="165" y="366" width="300" height="84" rx="4" />
+      <text class="art-label art-inverse" x="185" y="391">SHARED API</text>
+      <text class="art-mono art-inverse" x="185" y="414">AUTH · LEARNING · MEDIA</text>
+      <text class="art-mono art-inverse" x="185" y="434">PRODUCT RULES FOR BOTH CLIENTS</text>
+      <g class="art-server" fill="none">
+        <rect x="417" y="384" width="29" height="12" rx="2" />
+        <rect x="417" y="402" width="29" height="12" rx="2" />
+        <rect x="417" y="420" width="29" height="12" rx="2" />
+        <path d="M422 390h3m-3 18h3m-3 18h3" />
+      </g>
+      <circle class="art-node" cx="315" cy="366" r="4" />
+      <circle class="art-node" cx="465" cy="407" r="4" />
     </g>
-    <text class="art-mono" x="43" y="321">01 / WEB</text>
-    <text class="art-mono" x="548" y="401">02 / MOBILE</text>
-    <text class="art-mono art-muted" x="43" y="484">SYSTEM STUDY — THREE CONNECTED APPLICATIONS</text>
+    <g>
+      <ellipse class="art-plane" cx="315" cy="472" rx="19" ry="5" />
+      <path class="art-plane" d="M296 472v15c0 7 38 7 38 0v-15c0 7-38 7-38 0Z" />
+      <text class="art-mono art-muted" x="350" y="484">DATA + FILES</text>
+    </g>
   </svg>
 )}
 
@@ -99,7 +121,7 @@ const titleId = `${instance}-${projectId}-art-title`
     <text class="art-mono" x="326" y="90">CONCEPT</text>
     <text class="art-mono art-muted" x="419" y="45">METHOD</text>
     <text class="art-mono art-muted" x="457" y="151">FINDING</text>
-    <text class="art-mono art-muted" x="36" y="236">GRAPHRAG / ILLUSTRATED CONCEPT</text>
+    <text class="art-mono art-muted" x="326" y="236">GRAPHRAG EXPERIMENT</text>
   </svg>
 )}
 
@@ -110,8 +132,8 @@ const titleId = `${instance}-${projectId}-art-title`
       <rect class="art-plane" width="248" height="195" />
       <path class="art-line" d="M14 30h220M125 30v150M14 180h220" />
       <text class="art-mono" x="14" y="20">MLN131 / DIGITAL EXHIBIT</text>
-      <text class="art-display" x="13" y="80">DÂN</text>
-      <text class="art-display" x="13" y="125">CHỦ</text>
+      <text class="art-vietnamese" x="14" y="85" lang="vi">DÂN</text>
+      <text class="art-vietnamese" x="14" y="132" lang="vi">CHỦ</text>
       <path class="art-museum-rule" d="M14 148h95" />
       <path class="art-line" d="M142 47h87m-87 9h68m-68 9h78" />
       <rect class="art-panel" x="142" y="80" width="87" height="80" />
@@ -141,14 +163,22 @@ const titleId = `${instance}-${projectId}-art-title`
     .art-grid { stroke: color(grid); opacity: 0.16; stroke-width: 1; }
     .art-line { stroke: color(secondary); stroke-width: 1; }
     .art-strong { stroke: color(secondary); stroke-width: 3; }
+    .art-connector { stroke: color(secondary); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .art-phone-frame { fill: color(surface-raised); stroke: color(secondary); stroke-width: 2; }
+    .art-phone-button { stroke: color(secondary); stroke-width: 2; stroke-linecap: round; }
+    .art-server { stroke: color(primary); stroke-width: 1; }
     .art-plane { fill: color(surface); stroke: color(secondary); stroke-width: 1; }
     .art-side { fill: color(surface-raised); stroke: color(secondary); stroke-width: 1; }
     .art-panel { fill: color(surface-raised); stroke: color(line); stroke-width: 1; }
     .art-node { fill: color(surface); stroke: color(secondary); stroke-width: 1.5; }
     .art-ink { fill: color(secondary); }
     .art-mono { fill: currentColor; font: 400 11px font-family(fraktion); letter-spacing: 0.035em; }
+    .art-label { fill: currentColor; font: 700 14px font-family(fraktion); letter-spacing: 0.04em; }
     .art-serif { fill: currentColor; font: 400 26px font-family(editorial); }
     .art-display { fill: currentColor; font: 700 60px font-family(bigger); }
+    // Bigger Display's accented glyphs do not match its condensed Latin forms.
+    // Keep this Vietnamese title in one family with complete diacritic support.
+    .art-vietnamese { fill: currentColor; font: 700 38px Arial, sans-serif; letter-spacing: -0.035em; }
     .art-muted { fill: color(muted); }
     .art-inverse { fill: color(primary); }
     .art-museum-rule { stroke: #a44738; stroke-width: 4; }

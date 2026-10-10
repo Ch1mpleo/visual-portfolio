@@ -1,6 +1,7 @@
 ---
 import { projects } from '../../data/projects'
 import OboxExperience from './OboxExperience.astro'
+import OboxUnderHood from './OboxUnderHood.astro'
 import GraphPaperExperience from './GraphPaperExperience.astro'
 import MuseumsExperience from './MuseumsExperience.astro'
 import ProjectOverview from './ProjectOverview.astro'
@@ -25,7 +26,7 @@ import '../../styles/components/project-content.scss'
           {project.id === 'museums' && <MuseumsExperience project={project} />}
         </div>
         <div id={`viewer-${project.id}-under-the-hood`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-under-the-hood" data-viewer-project={project.id} data-viewer-tab="under-the-hood" hidden>
-          <ProjectOverview project={project} />
+          {project.id === 'oboxsteam' ? <OboxUnderHood /> : <ProjectOverview project={project} />}
         </div>
       </>)}
     </div>

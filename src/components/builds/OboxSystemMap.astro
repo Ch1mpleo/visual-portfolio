@@ -1,0 +1,37 @@
+---
+const nodes = [
+  { id: 'web', title: 'Web', sub: 'Next.js / React', x: 4, y: 5, w: 39 },
+  { id: 'mobile', title: 'Mobile', sub: 'Expo / React Native', x: 57, y: 5, w: 39 },
+  { id: 'api', title: 'Shared API', sub: 'ASP.NET Core', x: 30, y: 34, w: 40 },
+  { id: 'data', title: 'Data & files', sub: 'PostgreSQL / S3', x: 4, y: 63, w: 39 },
+  { id: 'media', title: 'Media jobs', sub: 'Video / faces / reels', x: 57, y: 63, w: 39 },
+  { id: 'services', title: 'Connected services', sub: 'Stripe / SignalR / Resend / JaaS', x: 20, y: 87, w: 60 },
+]
+const edges = [
+  { from: 'web', to: 'api', d: 'M141 83 V121 H300 V156' },
+  { from: 'mobile', to: 'api', d: 'M459 83 V121 H300 V156' },
+  { from: 'api', to: 'data', d: 'M300 217 V251 H141 V290' },
+  { from: 'api', to: 'media', d: 'M300 217 V251 H459 V290' },
+  { from: 'data', to: 'media', d: 'M258 320 H342' },
+  { from: 'api', to: 'services', d: 'M300 217 V400' },
+]
+---
+<figure class="system-map">
+  <div class="system-map__drawing" role="img" aria-label="Web and mobile communicate with a shared API. The API connects to PostgreSQL and S3, media processing, and external services. Media processing also uses storage. Clients access records through the API.">
+    <svg viewBox="0 0 600 460" preserveAspectRatio="none" fill="none" aria-hidden="true">
+      {edges.map((edge) => <path d={edge.d} data-anatomy-edge={`${edge.from} ${edge.to}`} class:list={['system-map__edge', { 'is-connected': edge.from === 'api' || edge.to === 'api' }]} />)}
+    </svg>
+    {nodes.map((node) => <div aria-hidden="true" data-anatomy-node={node.id} class:list={['system-map__node', { 'is-selected': node.id === 'api', 'is-connected': node.id !== 'api' }]} style={`--x:${node.x}%;--y:${node.y}%;--w:${node.w}%`}><strong>{node.title}</strong><span>{node.sub}</span></div>)}
+  </div>
+  <figcaption>Two clients. One shared backend. Select a part to trace its connections.</figcaption>
+</figure>
+<style lang="scss">
+  .system-map { margin: 0; padding: clamp(0.75rem, 2vw, 1.5rem); border: 1px solid color(line); background: color(surface);
+    &__drawing { position: relative; aspect-ratio: 600 / 460; }
+    svg { display: block; width: 100%; height: 100%; }
+    &__edge { stroke: color(line); stroke-width: 1.5; vector-effect: non-scaling-stroke; &.is-connected { stroke: color(secondary); } }
+    &__node { position: absolute; left: var(--x); top: var(--y); width: var(--w); min-height: 13%; display: flex; justify-content: center; flex-direction: column; padding: 0.6rem 0.7rem; border: 1px solid color(line); background: color(primary); color: color(muted); strong { font: 400 clamp(11px, 1.3vw, 15px) / 1.3 font-family(fraktion); } span { margin-top: 0.35rem; font: 400 clamp(9px, 0.95vw, 11px) / 1.3 font-family(fraktion); } &.is-connected { color: color(secondary); border-color: color(secondary); } &.is-selected { background: color(secondary); color: color(primary); border-color: color(secondary); } }
+    figcaption { margin-top: 1.5rem; max-width: 46ch; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); }
+    @media (max-width: 767px) { &__node { padding: 0.4rem; strong { font-size: 11px; } span { font-size: 9px; margin-top: 0.2rem; } } &__drawing { aspect-ratio: 600 / 500; } svg { position: absolute; inset: 0; } }
+  }
+</style>

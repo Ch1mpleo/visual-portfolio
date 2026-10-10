@@ -1,0 +1,46 @@
+---
+import { oboxAnatomy } from '../../data/oboxAnatomy'
+import OboxSystemMap from './OboxSystemMap.astro'
+const decisions = [
+  { title: 'One backend, different client responsibilities', text: 'Web and mobile share identity, permissions, and product rules through the API. Their interfaces differ by role and device: the web supports deeper learning and management work; mobile focuses on parent visibility and in-session actions.' },
+  { title: 'Save records before notifying', text: 'The notification publisher persists inbox records before attempting real-time delivery. The durable inbox remains authoritative: a SignalR delivery failure does not erase a saved notification.' },
+  { title: 'Separate learning records from presentation', text: 'Completed highlights and supported learning evidence can be imported into a portfolio draft. Editing and importing are distinct from publishing a public snapshot, so collecting a class moment does not automatically make it public.' },
+]
+---
+<div class="project-content obox-hood">
+  <p class="project-content__label">OboxSTEAM / Under the Hood</p>
+  <h3>Different surfaces.<br />Shared rules.</h3>
+  <p class="project-content__intro">A closer look at the system connecting the web platform, mobile companion, and the learning records behind both.</p>
+  <section class="project-content__section" aria-labelledby="obox-anatomy-title">
+    <p class="project-content__label">01 / System anatomy</p>
+    <h4 id="obox-anatomy-title">Explore the connections</h4>
+    <div class="obox-hood__selectors" role="group" aria-label="System parts">
+      {oboxAnatomy.map((item, index) => <button type="button" data-anatomy-select={item.id} aria-pressed={item.id === 'api'} aria-controls={`obox-anatomy-${item.id}`}><span aria-hidden="true">0{index + 1}</span>{item.label}</button>)}
+    </div>
+    <div class="obox-hood__anatomy">
+      <OboxSystemMap />
+      <div class="obox-hood__explanations">
+        {oboxAnatomy.map((item) => <section id={`obox-anatomy-${item.id}`} data-anatomy-panel={item.id} hidden={item.id !== 'api'} aria-label={item.label}>
+          <p class="project-content__label">Selected part</p><h4>{item.label}</h4>
+          <dl><dt>What it does</dt><dd>{item.purpose}</dd><dt>Why it exists</dt><dd>{item.rationale}</dd><dt>Communicates with</dt><dd>{item.connectionIds.map((id) => oboxAnatomy.find((part) => part.id === id)!.label).join(' · ')}</dd></dl>
+          {item.id === 'api' && <div class="obox-hood__layers"><p class="project-content__label">Inside the shared backend</p><ol aria-label="Request through backend layers"><li>HTTP boundary</li><li>Application services</li><li>Domain rules</li></ol><p>Infrastructure adapters support persistence and integrations. These are layers inside one backend.</p></div>}
+        </section>)}
+      </div>
+    </div>
+  </section>
+  <section class="project-content__section" aria-labelledby="obox-decisions-title">
+    <p class="project-content__label">02 / Engineering decisions</p><h4 id="obox-decisions-title">The choices behind the system</h4>
+    <div class="obox-hood__decisions">{decisions.map((decision) => <details data-obox-decision><summary>{decision.title}<span aria-hidden="true">+</span></summary><p>{decision.text}</p></details>)}</div>
+  </section>
+</div>
+<style lang="scss">
+  .obox-hood {
+    &__selectors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 1.5rem 0; button { display: flex; align-items: center; gap: 0.75rem; min-height: 48px; padding: 0.75rem; text-align: left; border: 1px solid color(line); color: color(secondary); background: color(primary); cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); span { color: color(muted); } &:hover { border-color: color(secondary); } &[aria-pressed='true'] { background: color(secondary); color: color(primary); span { color: inherit; } } } }
+    &__anatomy { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2rem; align-items: start; }
+    &__explanations { min-width: 0; padding-block: 0.75rem; dl { margin: 1.5rem 0 0; } dt { color: color(muted); font: 400 11px / 1.4 font-family(fraktion); text-transform: uppercase; margin-top: 1.25rem; } dd { margin: 0.5rem 0 0; font: 400 1.125rem / 1.5 font-family(editorial); } }
+    &__layers { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid color(line); ol { padding: 0; margin: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; li { font: 400 11px / 1.5 font-family(fraktion); &:not(:last-child)::after { content: ' →'; } } } p:not(.project-content__label) { font-size: 1rem; color: color(muted); } }
+    &__decisions { margin-top: 1.5rem; border-top: 1px solid color(line); details { border-bottom: 1px solid color(line); padding-block: 1rem; } summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; cursor: pointer; font: 400 clamp(1.2rem, 2vw, 1.5rem) / 1.3 font-family(editorial); list-style: none; &::-webkit-details-marker { display: none; } span { font: 400 22px / 1 font-family(fraktion); } } details[open] summary span { transform: rotate(45deg); } p { max-width: 65ch; padding-bottom: 0.5rem; } }
+    @media (max-width: 987px) { &__anatomy { grid-template-columns: 1fr; gap: 1.5rem; } }
+    @media (max-width: 767px) { &__selectors { grid-template-columns: repeat(2, minmax(0, 1fr)); button { gap: 0.4rem; font-size: 11px; } } }
+  }
+</style>

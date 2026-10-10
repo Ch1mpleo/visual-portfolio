@@ -5,7 +5,7 @@
 The gallery opens one native modal dialog mounted outside `.site-wrapper` in
 `src/pages/index.astro`. Experience content is rendered at build time in three
 project components. `ProjectOverview.astro` provides static Under the Hood
-summaries until the later packets replace them with detailed interactions.
+summaries for GraphPaper and Museums. OboxSTEAM uses its own detailed component.
 
 `ProjectViewerController.ts` owns modal state, project/tab selection, tab scroll
 positions, museum selection, and the original trigger/page position. The typed
@@ -42,10 +42,25 @@ GOAT scrolling and its video popup/playback still work afterward. No runtime
 console errors were recorded in the final preview. Existing Sass mixed-declaration
 and outdated Browserslist build warnings remain.
 
+## Packet 3: OboxSTEAM system anatomy
+
+`oboxAnatomy.ts` holds six typed parts and their immediate connections.
+`OboxUnderHood.astro` renders explanatory HTML, the API layer sequence, and
+three native engineering-decision disclosures. `OboxSystemMap.astro` keeps
+project-specific geometry separate from content. Both clients connect through
+the API; there are no client-to-database routes. The controller owns selection,
+updates nodes/edges and pressed states, preserves selection across tabs, and
+resets to Shared API with collapsed notes on project changes/reopening.
+Native summaries are included in the dialog's focus wrap.
+
+Production build passed. Checked all six selected panels and their connections,
+keyboard disclosure opening, tab memory, reopening defaults, and responsive
+light/dark layouts at desktop, tablet, and 360–390px phone sizes. Source checks
+used the backend architecture/product docs and attendance/notification services.
+No live requests or motion were added.
+
 ## Next packets
 
-3. Replace the OboxSTEAM overview with six selectable anatomy nodes, API-layer
-   detail, and engineering-decision notes.
 4. Add OboxSTEAM's Join a class, Check in, and Capture to portfolio walkthroughs.
 5. Add GraphPaper's four-stage concept and the museum layer breakdown. The
    Experience exhibit selector and paired links are already complete; retain

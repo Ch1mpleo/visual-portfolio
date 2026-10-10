@@ -1,5 +1,6 @@
 import { projects, type ProjectId, type ProjectTab } from '../../data/projects'
 import type { MuseumExhibitId } from '../../data/museumExhibits'
+import { oboxAnatomy, type AnatomyId } from '../../data/oboxAnatomy'
 import { OPEN_PROJECT } from './viewerEvents'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
@@ -10,6 +11,7 @@ export class ProjectViewerController {
   private projectId: ProjectId = 'oboxsteam'
   private activeTab: ProjectTab = 'experience'
   private exhibit: MuseumExhibitId = 'mln131'
+  private anatomy: AnatomyId = 'api'
   private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
@@ -32,7 +34,7 @@ export class ProjectViewerController {
     dialog.addEventListener('close', () => this.restorePage())
     dialog.addEventListener('keydown', (event) => {
       if (event.key !== 'Tab') return
-      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex="0"]'))
+      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], summary, [tabindex="0"]'))
         .filter((element) => element.getClientRects().length > 0)
       const first = controls[0]
       const last = controls[controls.length - 1]
@@ -65,6 +67,9 @@ export class ProjectViewerController {
 
     dialog.querySelectorAll<HTMLButtonElement>('[data-exhibit]').forEach((button) => {
       button.addEventListener('click', () => this.selectExhibit(button.dataset.exhibit as MuseumExhibitId))
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-anatomy-select]').forEach((button) => {
+      button.addEventListener('click', () => this.selectAnatomy(button.dataset.anatomySelect as AnatomyId))
     })
 
     // A drag that begins in the sheet must never dismiss the dialog.
@@ -136,6 +141,8 @@ export class ProjectViewerController {
     this.activeTab = 'experience'
     this.tabScroll = { experience: 0, 'under-the-hood': 0 }
     this.selectExhibit('mln131')
+    this.selectAnatomy('api')
+    this.dialog.querySelectorAll<HTMLDetailsElement>('[data-obox-decision]').forEach((note) => { note.open = false })
     this.render()
   }
 
@@ -153,6 +160,23 @@ export class ProjectViewerController {
     })
     this.dialog.querySelectorAll<HTMLElement>('[data-exhibit-panel]').forEach((panel) => {
       panel.hidden = panel.dataset.exhibitPanel !== this.exhibit
+    })
+  }
+
+  private selectAnatomy(id: AnatomyId) {
+    const item = oboxAnatomy.find((part) => part.id === id)
+    if (!item) return
+    this.anatomy = id
+    this.dialog.querySelectorAll<HTMLButtonElement>('[data-anatomy-select]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.anatomySelect === this.anatomy))
+    })
+    this.dialog.querySelectorAll<HTMLElement>('[data-anatomy-panel]').forEach((panel) => { panel.hidden = panel.dataset.anatomyPanel !== this.anatomy })
+    this.dialog.querySelectorAll<HTMLElement>('[data-anatomy-node]').forEach((node) => {
+      node.classList.toggle('is-selected', node.dataset.anatomyNode === this.anatomy)
+      node.classList.toggle('is-connected', item.connectionIds.includes(node.dataset.anatomyNode as AnatomyId))
+    })
+    this.dialog.querySelectorAll<SVGElement>('[data-anatomy-edge]').forEach((edge) => {
+      edge.classList.toggle('is-connected', edge.dataset.anatomyEdge!.split(' ').includes(this.anatomy))
     })
   }
 

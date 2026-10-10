@@ -7,6 +7,7 @@ import SAbout from '../components/SAbout.astro'
 import SBuilds from '../components/SBuilds.astro'
 import SWork from '../components/SWork.astro'
 import VideoPopup from '../components/VideoPopup.astro'
+import ProjectViewer from '../components/builds/ProjectViewer.astro'
 import SMyWay from '../components/SMyWay.astro'
 import SCTA from '../components/SCTA.astro'
 import ASeparator from '../components/ASeparator.astro'
@@ -169,6 +170,8 @@ const publicBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
     </div><!-- .site-wrapper -->
 
     <VideoPopup />
+
+    <ProjectViewer />
 
     <div
       class="site-intro js-intro"

@@ -1,0 +1,19 @@
+---
+import type { Project } from '../../data/projects'
+import { museumExhibits } from '../../data/museumExhibits'
+import MuseumExhibitArtwork from './MuseumExhibitArtwork.astro'
+import ProjectFacts from './ProjectFacts.astro'
+import ProjectLinks from './ProjectLinks.astro'
+interface Props { project: Project }
+const { project } = Astro.props
+---
+<div class="project-content" data-museum-experience>
+  <p class="project-content__label">Two exhibits / One collection</p><h3>Coursework,<br />built to be explored.</h3>
+  <p class="project-content__intro">Two interactive digital exhibits turn coursework into visual stories, with editorial composition, chapter navigation, and motion guiding the experience.</p>
+  <div class="project-content__exhibit-controls" role="group" aria-label="Choose an exhibit">{museumExhibits.map((exhibit, index) => <button type="button" data-exhibit={exhibit.id} aria-pressed={index === 0} aria-controls={`exhibit-${exhibit.id}`}>{exhibit.label}</button>)}</div>
+  {museumExhibits.map((exhibit, index) => <section id={`exhibit-${exhibit.id}`} data-exhibit-panel={exhibit.id} hidden={index !== 0} aria-label={exhibit.label}>
+    <div class="project-content__lead"><div><p class="project-content__label">{exhibit.label}</p><h4>{exhibit.title}</h4><p>{exhibit.description}</p></div><div class="project-content__art"><MuseumExhibitArtwork exhibit={exhibit.id} /><p class="project-content__label">Illustrated editorial study</p></div></div>
+    <ProjectLinks links={exhibit.links} />
+  </section>)}
+  <ProjectFacts project={project} />
+</div>

@@ -1,0 +1,18 @@
+---
+import type { Project } from '../../data/projects'
+import ProjectArtwork from './ProjectArtwork.astro'
+import ProjectFacts from './ProjectFacts.astro'
+import ProjectLinks from './ProjectLinks.astro'
+interface Props { project: Project }
+const { project } = Astro.props
+---
+<div class="project-content">
+  <div class="project-content__lead">
+    <div><p class="project-content__label">GraphRAG experiment</p><h3>From research papers<br />to connected ideas.</h3><p class="project-content__intro">An experiment exploring documents, entities, relationships, and graph navigation: how a research paper might become a connected collection of ideas.</p></div>
+    <div class="project-content__art"><ProjectArtwork projectId={project.id} description={project.artworkDescription} instance="viewer" /><p class="project-content__label">Illustrated concept</p></div>
+  </div>
+  <ProjectFacts project={project} />
+  <section class="project-content__section"><p class="project-content__label">Verified foundations</p><h4>Pieces of a connected research tool</h4><ul class="project-content__list"><li>Next.js document-upload and graph-viewing interface code.</li><li>.NET data models for documents, chunks, entities, relationships, and citations.</li><li>PostgreSQL/pgvector foundations and an embedding-service implementation.</li></ul></section>
+  <section class="project-content__scope"><h4>Current scope</h4><p>The inspected code contains frontend screens, data models, and an embedding service. Complete document extraction, graph-building orchestration, and grounded answers are the intended pipeline.</p><p class="project-content__note">The illustration shows the idea behind the project, rather than a completed processing result.</p></section>
+  <ProjectLinks links={project.links} />
+</div>

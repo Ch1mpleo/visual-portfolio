@@ -1,0 +1,24 @@
+---
+import type { Project } from '../../data/projects'
+import ProjectArtwork from './ProjectArtwork.astro'
+import ProjectFacts from './ProjectFacts.astro'
+import ProjectLinks from './ProjectLinks.astro'
+interface Props { project: Project }
+const { project } = Astro.props
+const surfaces = [
+  { title: 'Web platform', label: '01 / Web', text: 'Curriculum and class management, learning activities, assessments, and portfolio editing.' },
+  { title: 'Shared API', label: '02 / API', text: 'Shared identity, permissions, enrollment, learning records, media processing, and integrations.' },
+  { title: 'Mobile companion', label: '03 / Mobile', text: 'Parent visibility and schedules, student QR check-in, and mentor session tools.' },
+]
+const journey = ['Discover a program', 'Join a class', 'Participate and progress', 'Collect learning evidence', 'Present a portfolio']
+---
+<div class="project-content">
+  <div class="project-content__lead">
+    <div><p class="project-content__label">One product / Three surfaces</p><h3>One learning journey.<br />Three connected applications.</h3><p class="project-content__intro">OboxSTEAM connects structured STEAM learning, class delivery, parent visibility, and student portfolios. I built across its API, web platform, and mobile app.</p></div>
+    <div class="project-content__art project-content__art--obox"><ProjectArtwork projectId={project.id} description={project.artworkDescription} instance="viewer" /><p class="project-content__label">Illustrated product overview</p></div>
+  </div>
+  <ProjectFacts project={project} />
+  <div class="project-content__surfaces">{surfaces.map((surface) => <section><p class="project-content__label">{surface.label}</p><h4>{surface.title}</h4><p>{surface.text}</p></section>)}</div>
+  <section class="project-content__journey"><h4>A learning journey</h4><ol>{journey.map((step) => <li>{step}</li>)}</ol><p class="project-content__note">Each application supports its own part of the journey, with product records and rules shared through the API.</p></section>
+  <ProjectLinks links={project.links} />
+</div>

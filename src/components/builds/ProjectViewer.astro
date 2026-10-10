@@ -1,0 +1,81 @@
+---
+import { projects } from '../../data/projects'
+import OboxExperience from './OboxExperience.astro'
+import GraphPaperExperience from './GraphPaperExperience.astro'
+import MuseumsExperience from './MuseumsExperience.astro'
+import ProjectOverview from './ProjectOverview.astro'
+import '../../styles/components/project-content.scss'
+---
+
+<dialog id="project-viewer" class="project-viewer" aria-labelledby="project-viewer-title" data-lenis-prevent>
+  <div class="project-viewer__sheet">
+    <header class="project-viewer__header">
+      <div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div>
+      <button class="project-viewer__close" type="button" data-viewer-close autofocus aria-label="Close project viewer">Close <span aria-hidden="true">×</span></button>
+    </header>
+    <div class="project-viewer__tabs" role="tablist" aria-label="Project views">
+      <button id="project-tab-experience" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="viewer-oboxsteam-experience" data-project-tab="experience">Experience</button>
+      <button id="project-tab-under-the-hood" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="viewer-oboxsteam-under-the-hood" data-project-tab="under-the-hood">Under the Hood</button>
+    </div>
+    <div class="project-viewer__scroller" data-viewer-scroller data-lenis-prevent>
+      {projects.map((project) => <>
+        <div id={`viewer-${project.id}-experience`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-experience" data-viewer-project={project.id} data-viewer-tab="experience" hidden={project.id !== 'oboxsteam'}>
+          {project.id === 'oboxsteam' && <OboxExperience project={project} />}
+          {project.id === 'graphpaper' && <GraphPaperExperience project={project} />}
+          {project.id === 'museums' && <MuseumsExperience project={project} />}
+        </div>
+        <div id={`viewer-${project.id}-under-the-hood`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-under-the-hood" data-viewer-project={project.id} data-viewer-tab="under-the-hood" hidden>
+          <ProjectOverview project={project} />
+        </div>
+      </>)}
+    </div>
+    <footer class="project-viewer__footer">
+      <button type="button" data-viewer-previous aria-label="Previous project: Interactive Museums"><span aria-hidden="true">←</span> Previous</button>
+      <span class="project-viewer__counter" aria-live="polite" aria-atomic="true"><span data-viewer-counter>01 / 03</span><span class="u-sr-only" data-viewer-announcement> — OboxSTEAM</span></span>
+      <button type="button" data-viewer-next aria-label="Next project: GraphPaper">Next <span aria-hidden="true">→</span></button>
+    </footer>
+  </div>
+</dialog>
+
+<script>
+  import { ProjectViewerController } from './ProjectViewerController'
+  const dialog = document.querySelector<HTMLDialogElement>('#project-viewer')
+  if (dialog) new ProjectViewerController(dialog)
+</script>
+
+<style lang="scss">
+  :global(html.is-project-viewer-open) { overflow: hidden; }
+  :global(html.is-project-viewer-open .site-scrollbar) { visibility: hidden; pointer-events: none; }
+  .project-viewer {
+    width: min(1320px, calc(100% - 48px)); max-width: none;
+    height: min(960px, calc(100dvh - 48px)); max-height: calc(100dvh - 48px);
+    margin: auto; padding: 0; border: 1px solid color(line);
+    color: color(secondary); background: color(primary); overflow: clip;
+    &::backdrop { background: color(overlay); }
+    [hidden] { display: none !important; }
+    &__sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+    &__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 2rem; border-bottom: 1px solid color(line); }
+    &__label { margin: 0 0 0.5rem; font: 400 11px / 1.4 font-family(fraktion); color: color(muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    h2 { margin: 0; font: 700 clamp(2rem, 3.8vw, 3.5rem) / 0.95 font-family(bigger); text-transform: uppercase; }
+    button { min-height: 44px; border: 0; border-radius: 0; padding: 0.75rem 1rem; color: inherit; background: transparent; cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); }
+    button:focus-visible { outline-offset: -4px; }
+    &__close { display: flex; align-items: center; gap: 1rem; text-transform: uppercase; flex-shrink: 0; border: 1px solid color(line) !important; > span { font-size: 24px; line-height: 1; } }
+    &__close:hover { color: color(primary); background: color(secondary); }
+    &__tabs { display: flex; flex-shrink: 0; padding-inline: 2rem; border-bottom: 1px solid color(line); gap: 1rem; button { min-height: 52px; border-bottom: 2px solid transparent; color: color(muted); } button[aria-selected='true'] { color: color(secondary); border-bottom-color: color(secondary); } }
+    &__scroller { min-height: 0; flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color(muted) color(primary); }
+    [role='tabpanel']:focus-visible { outline: 2px solid color(accent); outline-offset: -4px; }
+    &__footer { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem; border-top: 1px solid color(line); button { display: flex; align-items: center; gap: 0.75rem; } button:hover { text-decoration: underline; text-underline-offset: 4px; } }
+    &__counter { color: color(muted); font: 400 11px / 1.4 font-family(fraktion); }
+    @media (max-width: 767px) {
+      width: 100%; height: 100dvh; max-height: 100dvh; border: 0;
+      &__header { padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); }
+      h2 { font-size: clamp(1.75rem, 7vw, 2.6rem); }
+      &__close { gap: 0.5rem; padding: 0.5rem 0.75rem !important; }
+      &__tabs { padding-inline: 1rem; gap: 0.5rem; }
+      &__footer { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); padding-inline: max(0.5rem, env(safe-area-inset-left)) max(0.5rem, env(safe-area-inset-right)); }
+    }
+    @media (max-height: 500px) and (min-width: 768px) {
+      &__header { padding-block: 0.5rem; } h2 { font-size: 2rem; } &__tabs button { min-height: 44px; }
+    }
+  }
+</style>

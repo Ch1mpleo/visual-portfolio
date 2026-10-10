@@ -1,0 +1,10 @@
+---
+import type { Project } from '../../data/projects'
+interface Props { project: Project }
+const { project } = Astro.props
+---
+<dl class="project-content__facts">
+  <div><dt>Category</dt><dd>{project.category}</dd></div>
+  <div><dt>Contribution</dt><dd>{project.contribution}</dd></div>
+  <div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div>
+</dl>

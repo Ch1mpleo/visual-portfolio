@@ -1,0 +1,8 @@
+---
+import type { ProjectLink } from '../../data/projects'
+interface Props { links: readonly ProjectLink[] }
+const { links } = Astro.props
+---
+<nav class="project-content__links" aria-label="Project links">
+  {links.map((link) => <a href={link.href} target="_blank" rel="noopener noreferrer">{link.label === 'Website' ? 'Visit website' : link.label}<span aria-hidden="true">↗</span><span class="u-sr-only"> (opens in a new tab)</span></a>)}
+</nav>

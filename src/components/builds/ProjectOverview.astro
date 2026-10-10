@@ -1,0 +1,34 @@
+---
+import type { Project } from '../../data/projects'
+interface Props { project: Project }
+const { project } = Astro.props
+const overview = {
+  oboxsteam: {
+    heading: 'Shared rules. Different responsibilities.',
+    intro: 'Web and mobile both communicate with the shared ASP.NET Core API. The clients adapt the experience to their device and role; the backend validates actions and stores the product records.',
+    sections: [
+      { title: 'Web and mobile', text: 'The web supports the broader learning and management workflows. Mobile focuses on parent visibility, student check-in, and mentor session tools.' },
+      { title: 'Data and media', text: 'PostgreSQL and EF Core support product records. S3 holds media objects, with separate processing stages for video, learner association, and highlights.' },
+      { title: 'Product boundaries', text: 'Capture, processing, portfolio editing, and publication are separate stages. Uploading media does not automatically publish it.' },
+    ],
+  },
+  graphpaper: {
+    heading: 'Documents, connected by ideas.',
+    intro: 'The concept moves from documents to chunks and embeddings, then entities and relationships, and finally graph exploration.',
+    sections: [
+      { title: 'Present in inspected code', text: 'Frontend screens, data models, and an embedding-service implementation establish the foundations.' },
+      { title: 'Intended pipeline', text: 'Complete document extraction, graph-building orchestration, and grounded answers remain the intended architecture. The illustrated graph is static concept artwork.' },
+    ],
+  },
+  museums: {
+    heading: 'Content becomes an experience.',
+    intro: 'Both exhibits bring together content structure, visual language, and interaction, using React and TypeScript with Vite, Tailwind, GSAP, and Motion.',
+    sections: [
+      { title: 'Content structure', text: 'Concepts, periods, and chapters give the reader a route through each subject.' },
+      { title: 'Visual language', text: 'Monumental typography, editorial spreads, and a restrained paper, red, and ink palette frame the story.' },
+      { title: 'Interaction', text: 'Scroll reveals, timelines, text treatments, and transitions guide attention through the content.' },
+    ],
+  },
+}[project.id]
+---
+<div class="project-content project-content--overview"><p class="project-content__label">System overview</p><h3>{overview.heading}</h3><p class="project-content__intro">{overview.intro}</p><div class="project-content__surfaces">{overview.sections.map((section) => <section><h4>{section.title}</h4><p>{section.text}</p></section>)}</div></div>

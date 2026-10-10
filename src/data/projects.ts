@@ -1,4 +1,5 @@
 export type ProjectId = 'oboxsteam' | 'graphpaper' | 'museums'
+export type ProjectTab = 'experience' | 'under-the-hood'
 
 export type ProjectLink = { label: string; href: string }
 

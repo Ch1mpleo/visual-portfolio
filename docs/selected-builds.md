@@ -1,5 +1,24 @@
 # Selected Builds handoff
 
+## Follow-up: OboxSTEAM film introduction and branding
+
+Overview introduces the 45-second showreel with a short editorial description.
+Copy and film sit side by side on desktop and stack below 988px. The player sizes
+as a complete 16:9 frame, with automatic height and a bounded width; the former
+independent height cap no longer creates a wide letterboxed player.
+
+`OboxLogo.astro` uses the supplied `public/builds/oboxsteam/logo-obox.png` as a CSS
+mask, rendered in the theme's secondary color. It appears in the shared viewer
+header across all OboxSTEAM tabs and hides for the other projects. The original
+transparent artwork is preserved, and its URL includes the production base path.
+
+Production build and TypeScript checks passed. Preview checks covered 1440px
+desktop, 768px tablet, and 360–390px phones in both themes. The 1280×720 film
+retains its 16:9 proportions during playback, pauses when leaving Overview, and
+fits without horizontal overflow. The logo follows the theme, stays visible in
+all OboxSTEAM tabs, hides for other projects, and ships at the expected asset path.
+No runtime console errors were observed.
+
 ## Follow-up: one stack overview per project
 
 Every project now has a persistent **Stack** tab alongside Overview and Under
@@ -35,10 +54,10 @@ desktop/phone checks passed; source URLs and responsive widths were checked.
 
 ## OboxSTEAM: compact three-tab detail
 
-The viewer keeps Overview / Under the Hood / Stack. Overview contains only the
-native promotional video, its caption, and live/source destination buttons. The
-film has a capped desktop height so visitors can see its destination buttons
-without passing through a second product walkthrough. The internal tab key stays
+The viewer keeps Overview / Under the Hood / Stack. Overview contains the short
+film introduction, native promotional video, its caption, and live/source
+destination buttons. The film scales proportionally within a bounded width.
+The internal tab key stays
 `experience`; its visible label is Overview for all projects.
 
 Under the Hood combines the product story and engineering breakdown in a single

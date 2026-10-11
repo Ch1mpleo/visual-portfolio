@@ -7,12 +7,15 @@ const { project } = Astro.props
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
 <div class="project-content obox-detail obox-overview" data-obox-experience>
-  <figure class="obox-film">
-    <video data-obox-film controls playsinline preload="none" poster={`${assets}generated/hero-section-1600.webp`} aria-label="OboxSTEAM promotional showreel">
-      <source src={`${assets}obox-showreel.mp4`} type="video/mp4" />
-      <p>Your browser cannot play this video. <a href={`${assets}obox-showreel.mp4`}>Watch the OboxSTEAM showreel</a>.</p>
-    </video>
-    <figcaption><span>OboxSTEAM / Product film</span><span>One platform. A connected journey.</span></figcaption>
-  </figure>
+  <div class="obox-overview__showcase">
+    <div class="obox-overview__copy"><p class="project-content__label">Meet the platform / 45 seconds</p><p>A short tour of OboxSTEAM: from expert-built curricula to hands-on learning, and the personal portfolios that make a student’s growth visible.</p></div>
+    <figure class="obox-film">
+      <video data-obox-film controls playsinline preload="none" poster={`${assets}generated/hero-section-1600.webp`} aria-label="OboxSTEAM promotional showreel">
+        <source src={`${assets}obox-showreel.mp4`} type="video/mp4" />
+        <p>Your browser cannot play this video. <a href={`${assets}obox-showreel.mp4`}>Watch the OboxSTEAM showreel</a>.</p>
+      </video>
+      <figcaption><span>OboxSTEAM / Product film</span><span>One platform. A connected journey.</span></figcaption>
+    </figure>
+  </div>
   <ProjectLinks links={project.links} />
 </div>

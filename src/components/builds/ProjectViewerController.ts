@@ -213,6 +213,7 @@ export class ProjectViewerController {
   private render() {
     const index = projects.findIndex((project) => project.id === this.projectId)
     const project = projects[index]
+    this.dialog.querySelector<HTMLElement>('[data-viewer-logo]')!.hidden = project.id !== 'oboxsteam'
     this.dialog.querySelector('[data-viewer-title]')!.textContent = project.title
     this.dialog.querySelector('[data-viewer-category]')!.textContent = `${project.index} / ${project.category}`
     this.dialog.querySelector('[data-viewer-counter]')!.textContent = `${project.index} / 03`

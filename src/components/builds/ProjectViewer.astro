@@ -7,6 +7,7 @@ import MuseumsExperience from './MuseumsExperience.astro'
 import GraphPaperUnderHood from './GraphPaperUnderHood.astro'
 import MuseumsUnderHood from './MuseumsUnderHood.astro'
 import ProjectStack from './ProjectStack.astro'
+import OboxLogo from './OboxLogo.astro'
 import '../../styles/components/project-content.scss'
 ---
 
@@ -20,7 +21,7 @@ import '../../styles/components/project-content.scss'
   </div>
   <div class="project-viewer__sheet">
     <header class="project-viewer__header">
-      <div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div>
+      <div class="project-viewer__identity"><OboxLogo /><div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div></div>
       <button class="project-viewer__close" type="button" data-viewer-close autofocus aria-label="Close project viewer">Close <span aria-hidden="true">×</span></button>
     </header>
     <div class="project-viewer__tabs" role="tablist" aria-label="Project views">
@@ -80,6 +81,7 @@ import '../../styles/components/project-content.scss'
     &__sheet { position: relative; }
     &__sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
     &__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 2rem; border-bottom: 1px solid color(line); }
+    &__identity { display: flex; align-items: center; gap: .75rem; min-width: 0; }
     &__label { margin: 0 0 0.5rem; font: 400 11px / 1.4 font-family(fraktion); color: color(muted); text-transform: uppercase; letter-spacing: 0.06em; }
     h2 { margin: 0; font: 700 clamp(2rem, 3.8vw, 3.5rem) / 0.95 font-family(bigger); text-transform: uppercase; }
     button { min-height: 44px; border: 0; border-radius: 0; padding: 0.75rem 1rem; color: inherit; background: transparent; cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); }
@@ -94,6 +96,7 @@ import '../../styles/components/project-content.scss'
     @media (max-width: 767px) {
       width: 100%; height: 100dvh; max-height: 100dvh; border: 0;
       &__header { padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); }
+      &__identity { gap: .35rem; }
       h2 { font-size: clamp(1.75rem, 7vw, 2.6rem); }
       &__close { gap: 0.5rem; padding: 0.5rem 0.75rem !important; }
       &__tabs { padding-inline: 1rem; gap: 0.25rem; button { padding-inline: .75rem; } }

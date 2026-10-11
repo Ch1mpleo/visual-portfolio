@@ -2,14 +2,13 @@ import type { OboxChapterId } from './oboxChapters'
 
 export interface OboxEngineeringChapter {
   id: OboxChapterId
-  title: string
   caption: string
   parts: readonly { id: string; label: string; title: string; text: string }[]
 }
 
 export const oboxEngineering: readonly OboxEngineeringChapter[] = [
   {
-    id: 'curriculum', title: 'A blueprint becomes a program.',
+    id: 'curriculum',
     caption: 'Author → Review → Publish',
     parts: [
       { id: 'blueprint', label: 'Program blueprint', title: 'Structure before delivery.', text: 'Programs organize modules, courses, activities, and rubrics. The web workspace edits the curriculum; application services and domain rules keep its structure consistent.' },
@@ -18,7 +17,7 @@ export const oboxEngineering: readonly OboxEngineeringChapter[] = [
     ],
   },
   {
-    id: 'learning', title: 'The program becomes a learning path.',
+    id: 'learning',
     caption: 'Class → Activity → Evidence',
     parts: [
       { id: 'class', label: 'Connected class', title: 'One program, different ways to learn.', text: 'Classes connect schedules, mentors, and learning activities across self-paced, live online, and offline delivery. Payment callbacks confirm paid enrollments; meeting access supports live sessions.' },
@@ -27,7 +26,7 @@ export const oboxEngineering: readonly OboxEngineeringChapter[] = [
     ],
   },
   {
-    id: 'portfolio', title: 'Learning becomes a personal story.',
+    id: 'portfolio',
     caption: 'Evidence → Personal reel → Portfolio',
     parts: [
       { id: 'media', label: 'Personal highlights', title: 'Find the moments that matter.', text: 'Object storage holds the footage; video processing and analysis provide face and label signals. AI helps select segments against a student’s strengths. Face associations are conditional; background work produces the personal reel.' },

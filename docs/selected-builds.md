@@ -2,7 +2,7 @@
 
 ## Follow-up: one stack overview per project
 
-Every project now has a persistent **Stack** tab alongside Experience and Under
+Every project now has a persistent **Stack** tab alongside Overview and Under
 the Hood. `projectStacks.ts` is the single typed source for technology names;
 `ProjectStack.astro` groups them by responsibility in a two-column editorial
 overview, stacking the groups on phones. OboxSTEAM covers web, mobile, API/data,
@@ -13,8 +13,8 @@ foundations from the intended full research pipeline.
 Stack facts, core-stack summaries, contextual technology badges, and the museum
 stack paragraph have been removed from the other views. Architecture notes keep
 their functional explanations. Tab keyboard navigation includes Stack, with
-independent scroll restoration; project changes and reopening reset to Experience.
-The showreel pauses when leaving Experience for Stack.
+independent scroll restoration; project changes and reopening reset to Overview.
+The showreel pauses when leaving Overview for Stack.
 
 Production build, TypeScript, and all eight viewer motion tests passed. Preview
 checks covered 1440px desktop, 768px tablet, and 360–390px phones in both themes:
@@ -33,66 +33,47 @@ All existing URLs and new-tab/noopener behavior are preserved. Hover has a small
 directional arrow movement, disabled with reduced motion. Production build and
 desktop/phone checks passed; source URLs and responsive widths were checked.
 
-## OboxSTEAM redesign: Experience
+## OboxSTEAM: compact three-tab detail
 
-The OboxSTEAM Experience now follows Create / Learn / Show: expert-reviewed
-curriculum, a class learning path, and the student portfolio builder. Typed copy
-and screenshot metadata live in `oboxChapters.ts`. The product film uses the
-provided 45-second showreel, native controls, a designed poster, and no preload
-or autoplay. Playback pauses on tab/project changes, inspection, and closing.
-Project changes/reopening reset playback and chapter/focus selections. Experience
-and Under the Hood share the selected chapter, preserving the story across tabs.
+The viewer keeps Overview / Under the Hood / Stack. Overview contains only the
+native promotional video, its caption, and live/source destination buttons. The
+film has a capped desktop height so visitors can see its destination buttons
+without passing through a second product walkthrough. The internal tab key stays
+`experience`; its visible label is Overview for all projects.
 
-Screenshots have selectable focus crops and an inner native image-inspection
-dialog. Escape closes only the image inspector and restores its trigger.
-The inspector preserves the complete screenshot and supports horizontal/vertical
-scrolling on phones. Technologies now live in the dedicated Stack tab above.
-Credit reflects the author's confirmed team-lead / primary-contributor role.
+Under the Hood combines the product story and engineering breakdown in a single
+Create / Learn / Show selector. `oboxChapters.ts` holds the chapter summary and
+screenshot metadata; `oboxEngineering.ts` holds the nine selectable object notes.
+On desktop the illustration and selected note sit beside one another; on tablets
+and phones the note follows the illustration. The screenshot is a small optional
+attachment below the scene, opening the full image in an inner native dialog.
+The previous full-size inline screenshots, focus crops, duplicated chapter
+controls, and Shared Foundation strip are removed. Shipping and observing the
+system is a visible section rather than a collapsed disclosure. Technologies
+remain exclusively in Stack.
+
+`OboxDetailController.ts` handles the single chapter selector, SVG/native object
+controls, screenshot inspection, and film lifecycle. Part selections survive tab
+and chapter changes. Reopening or changing projects resets the chapter, all three
+object selections, and playback. Escape closes the screenshot alone and restores
+its attachment button. The image supports keyboard scrolling on phones, and
+chapter/object reveals respect reduced motion. Credit retains the confirmed team
+lead / primary contributor role across API, web, and mobile.
 
 Original captures and the showreel live in `public/builds/oboxsteam/`; the viewer
 serves WebP variants in `generated/`. Regenerate with
-`node scripts/prepare-obox-assets.mjs` (Sharp is already an Astro dependency).
-Every public URL includes Astro's base path for the GitHub Pages deployment.
-
-Production build and TypeScript checks passed. Preview checks covered chapter
-switching, focus selection, native image inspection/Escape, phone layout, and
-showreel playback/pause with the production base path.
-
-## OboxSTEAM redesign: Under the Hood
-
-The former anatomy and 19-step workflows have been replaced by three connected
-illustrated scenes. `oboxEngineering.ts` defines nine short engineering notes
-and functional integration explanations. `OboxStoryArtwork.astro` draws tangible curriculum
-blueprints/review/booklets, a class/phone/evidence route, and a filmstrip/editor/
-published story. Objects are pointer- and keyboard-selectable, with equivalent
-native buttons. Only one scene and one engineering note are visible at once.
-
-`OboxDetailController.ts` owns both chapter views, screenshot focus/inspection,
-object selection, and showreel lifecycle. The shared viewer retains modal state,
-focus handling, project navigation, and independent tab scroll positions. Part
-selections survive tab/chapter changes; reopening resets all three to their first
-object and collapses the delivery note. Interaction respects reduced motion.
-
-The persistent foundation identifies client responsibilities, API layers, and
-records/media storage. A collapsed delivery note explains deployment, tracing,
-and background work; technology names live in Stack. Conditional face associations
-and separate draft/publication lifecycles are explained in the portfolio chapter.
-
-Content was checked against the local API's product overview/integrations and
-the web/mobile source references below. Earlier packet notes below document
-the historical implementation, superseded for OboxSTEAM by this redesign.
-
-### Redesign verification
-
-Production build, TypeScript, and scoped diff checks passed. Preview checks at
-1440px desktop, 768px tablet, and 360–390px phones covered both themes, all nine
-engineering notes, SVG keyboard selection, chapter synchronization, disclosure
-reset, image focus/inspection, keyboard image scrolling, and nested Escape.
-The 45-second showreel plays from the production base path and pauses when
-leaving Experience. Project changes restore the default chapter and playback
-position. GraphPaper and Museums still open and switch views correctly.
-No runtime errors were captured. Existing Sass/Browserslist warnings remain.
+`node scripts/prepare-obox-assets.mjs`. Public URLs include Astro’s deployment base.
 GitHub Pages checkout already enables Git LFS for the supplied MP4.
+
+Production build, TypeScript, all eight viewer motion tests, and scoped diff
+checks passed. Preview checks at 1440px desktop, 768px tablet, and 360–390px
+phones covered both themes, all nine notes, SVG keyboard selection, each matching
+screenshot, full-image scrolling, nested Escape/focus restoration, tab keyboard
+navigation, project/reopen reset, and film playback/pause. No runtime errors were
+captured. GraphPaper and Museums retain their content and view switching.
+
+Earlier packet notes below describe the historical implementation, superseded for
+OboxSTEAM by the compact three-tab layout above.
 
 ## Packet 2: functional viewer
 

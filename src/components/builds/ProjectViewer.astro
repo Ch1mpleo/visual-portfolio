@@ -15,7 +15,7 @@ import '../../styles/components/project-content.scss'
     {projects.map((project) => <div class="project-viewer__cover" data-transition-art={project.id} hidden>
       <div class="project-viewer__cover-meta"><span>Selected builds / {project.category}</span><span>{project.index} — 03</span></div>
       <div class="project-viewer__cover-window"><p class="project-viewer__cover-title" data-cover-title>{project.title}</p></div>
-      <div class="project-viewer__cover-foot"><span>Experience<br />Under the Hood<br />Stack</span><span class="project-viewer__cover-arrow">↗</span></div>
+      <div class="project-viewer__cover-foot"><span>Overview<br />Under the Hood<br />Stack</span><span class="project-viewer__cover-arrow">↗</span></div>
     </div>)}
   </div>
   <div class="project-viewer__sheet">
@@ -24,7 +24,7 @@ import '../../styles/components/project-content.scss'
       <button class="project-viewer__close" type="button" data-viewer-close autofocus aria-label="Close project viewer">Close <span aria-hidden="true">×</span></button>
     </header>
     <div class="project-viewer__tabs" role="tablist" aria-label="Project views">
-      <button id="project-tab-experience" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="viewer-oboxsteam-experience" data-project-tab="experience">Experience</button>
+      <button id="project-tab-experience" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="viewer-oboxsteam-experience" data-project-tab="experience">Overview</button>
       <button id="project-tab-under-the-hood" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="viewer-oboxsteam-under-the-hood" data-project-tab="under-the-hood">Under the Hood</button>
       <button id="project-tab-stack" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="viewer-oboxsteam-stack" data-project-tab="stack">Stack</button>
     </div>

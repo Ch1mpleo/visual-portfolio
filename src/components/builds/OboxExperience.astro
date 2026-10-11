@@ -1,17 +1,12 @@
 ---
 import type { Project } from '../../data/projects'
-import { oboxChapters } from '../../data/oboxChapters'
 import ProjectLinks from './ProjectLinks.astro'
 import '../../styles/components/obox-detail.scss'
 interface Props { project: Project }
 const { project } = Astro.props
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
-<div class="project-content obox-detail" data-obox-experience>
-  <header class="obox-intro">
-    <div><p class="project-content__label">Create / Learn / Show</p><h3>Learning becomes<br />a personal story.</h3></div>
-    <div><p class="project-content__intro">A connected STEAM platform, from expert-reviewed curricula to learning experiences and student portfolios.</p><p class="obox-credit">Team lead & primary contributor<br /><span>Across API, web, and mobile</span></p></div>
-  </header>
+<div class="project-content obox-detail obox-overview" data-obox-experience>
   <figure class="obox-film">
     <video data-obox-film controls playsinline preload="none" poster={`${assets}generated/hero-section-1600.webp`} aria-label="OboxSTEAM promotional showreel">
       <source src={`${assets}obox-showreel.mp4`} type="video/mp4" />
@@ -19,23 +14,5 @@ const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/
     </video>
     <figcaption><span>OboxSTEAM / Product film</span><span>One platform. A connected journey.</span></figcaption>
   </figure>
-  <section class="obox-chapters" aria-label="Explore the product journey">
-    <div class="obox-chapter-nav" role="group" aria-label="Product chapters">
-      {oboxChapters.map((chapter) => <button type="button" data-obox-chapter={chapter.id} aria-pressed={chapter.id === 'curriculum'} aria-controls={`obox-experience-${chapter.id}`}><span>{chapter.number}</span><strong>{chapter.label}</strong><span aria-hidden="true">↗</span></button>)}
-    </div>
-    {oboxChapters.map((chapter) => <section id={`obox-experience-${chapter.id}`} class="obox-chapter" data-obox-chapter-panel={chapter.id} hidden={chapter.id !== 'curriculum'} aria-label={chapter.title}>
-      <div class="obox-chapter__copy"><h4>{chapter.title}</h4><p>{chapter.summary}</p><ul class="obox-tags" aria-label="Connected features">{chapter.supporting.map((feature) => <li>{feature}</li>)}</ul></div>
-      <div class="obox-screen" data-obox-screen data-focus="full">
-        <div class="obox-screen__toolbar"><span>OboxSTEAM / {chapter.label}</span><button type="button" data-obox-enlarge data-image={`${assets}generated/${chapter.image}-1600.webp`} data-caption={chapter.alt}>Inspect full screen <span aria-hidden="true">↗</span></button></div>
-        <div class="obox-screen__window"><img src={`${assets}generated/${chapter.image}-1600.webp`} srcset={`${assets}generated/${chapter.image}-960.webp 960w, ${assets}generated/${chapter.image}-1600.webp 1600w`} sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1320px) calc(100vw - 144px), 1176px" width={chapter.width} height={chapter.height} alt={chapter.alt} loading="lazy" decoding="async" /></div>
-        <div class="obox-screen__focus" role="group" aria-label={`${chapter.label} screenshot focus`}><button type="button" data-obox-focus="full" aria-pressed="true">Full view</button>{chapter.focuses.map((focus) => <button type="button" data-obox-focus={focus.id} aria-pressed="false">{focus.label}</button>)}</div>
-      </div>
-    </section>)}
-  </section>
   <ProjectLinks links={project.links} />
-  <dialog class="obox-zoom" data-obox-zoom aria-labelledby="obox-zoom-title" data-lenis-prevent>
-    <header><h4 id="obox-zoom-title">Product screen</h4><button type="button" data-obox-zoom-close autofocus>Close <span aria-hidden="true">×</span></button></header>
-    <div class="obox-zoom__scroll" role="region" aria-label="Full project screenshot" tabindex="0" data-lenis-prevent><img data-obox-zoom-image alt="" /></div>
-    <p>Scroll to inspect the complete interface.</p>
-  </dialog>
 </div>

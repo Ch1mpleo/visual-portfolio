@@ -162,7 +162,6 @@ export class ProjectViewerController {
     this.selectExhibit('mln131')
     this.selectGraphStage('document')
     this.selectMuseumLayer('content')
-    this.dialog.querySelectorAll<HTMLDetailsElement>('[data-obox-decision]').forEach((note) => { note.open = false })
     this.render()
   }
 

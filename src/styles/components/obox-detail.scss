@@ -1,52 +1,42 @@
 .obox-detail {
   button { min-height: 44px; border: 0; border-radius: 0; padding: .75rem 1rem; color: color(secondary); background: transparent; cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); }
-  p.obox-credit:not(.project-content__label) { font: 400 12px / 1.6 font-family(fraktion); margin-top: 1.25rem; span { color: color(muted); } }
-  .obox-intro { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: end; h3 { max-width: 20ch; } }
-  .obox-film { margin: 2rem 0; video { width: 100%; aspect-ratio: 16 / 9; display: block; object-fit: contain; background: #151515; } figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding: .8rem 0; color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; } }
-  .obox-chapter-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid color(line); margin-bottom: 1.5rem; button { display: flex; align-items: center; gap: 1rem; padding: 1rem; min-height: 64px; border-bottom: 2px solid transparent; color: color(muted); &:not(:last-child) { border-right: 1px solid color(line); } strong { flex: 1; font: 400 1.6rem / 1 font-family(editorial); text-align: left; } &[aria-pressed='true'] { color: color(secondary); border-bottom-color: color(secondary); background: color(surface); } &:hover { color: color(secondary); } } }
-  .obox-chapter__copy { display: grid; grid-template-columns: .8fr 1.2fr; gap: .5rem 2rem; margin-bottom: 1.5rem; h4 { font-size: clamp(1.7rem, 3vw, 2.6rem); } p { margin: 0; max-width: 60ch; } .obox-tags { grid-column: 2; } }
-  .obox-tags { display: flex; flex-wrap: wrap; gap: .4rem .9rem; list-style: none; padding: 0; margin: .75rem 0 0; li { font: 400 10px / 1.6 font-family(fraktion); color: color(muted); } }
-  .obox-screen { border: 1px solid color(line); background: color(surface);
-    &__toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-left: 1rem; span { font: 400 10px / 1.5 font-family(fraktion); color: color(muted); } button { text-decoration: underline; text-underline-offset: 4px; } }
-    &__window { aspect-ratio: 1.71; overflow: hidden; background: #f7f7f2; img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: top left; transition: transform .65s cubic-bezier(.22, 1, .36, 1); } }
-    &[data-focus='structure'] img { transform: scale(1.7) translate(-3%, -39%); }
-    &[data-focus='review'] img { transform: scale(1.8) translate(-44%, -8%); }
-    &[data-focus='path'] img { transform: scale(1.7) translate(0, -30%); }
-    &[data-focus='lesson'] img { transform: scale(1.3) translate(-17%, -12%); }
-    &[data-focus='editor'] img { transform: scale(1.7) translate(0, -8%); }
-    &[data-focus='preview'] img { transform: scale(1.5) translate(-33%, -12%); }
-    &__focus { display: flex; flex-wrap: wrap; padding: .35rem; gap: .25rem; button { color: color(muted); font-size: 10px; &[aria-pressed='true'] { color: color(primary); background: color(secondary); } } }
+  p.obox-credit:not(.project-content__label) { font: 400 11px / 1.6 font-family(fraktion); margin-top: 1rem; span { color: color(muted); } }
+  .obox-intro { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: end; h3 { max-width: 20ch; font-size: clamp(2.4rem, 3.4vw, 3.5rem); } }
+  .obox-film { margin: 0; video { width: 100%; max-height: min(48dvh, 380px); aspect-ratio: 16 / 9; display: block; object-fit: contain; background: #151515; } figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding: .8rem 0; color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; } }
+  .obox-chapter-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid color(line); margin: 1.5rem 0; button { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; min-height: 56px; border-bottom: 2px solid transparent; color: color(muted); &:not(:last-child) { border-right: 1px solid color(line); } strong { flex: 1; font: 400 1.5rem / 1 font-family(editorial); text-align: left; } &[aria-pressed='true'] { color: color(secondary); border-bottom-color: color(secondary); background: color(surface); } &:hover { color: color(secondary); } } }
+  .obox-attachment { display: flex; align-items: center; gap: 1rem; width: 100%; margin-top: 1rem; padding: .65rem; border: 1px solid color(line); background: color(surface); text-align: left;
+    > img { width: 100px; height: 58px; object-fit: cover; object-position: top; border: 1px solid color(line); }
+    &__copy { flex: 1; min-width: 0; display: grid; gap: .3rem; > span { color: color(muted); font: 400 10px / 1.4 font-family(fraktion); text-transform: uppercase; } > strong { font: 400 1.1rem / 1.3 font-family(editorial); } }
+    &__action { display: flex; align-items: center; gap: .6rem; font-size: 11px; > span { font-size: 20px; } }
+    &:hover { background: color(secondary); color: color(primary); .obox-attachment__copy > span { color: inherit; } }
   }
-  .obox-zoom { width: calc(100vw - 32px); max-width: 1800px; height: calc(100dvh - 32px); max-height: none; padding: 0; border: 1px solid color(line); background: color(primary); color: color(secondary); &[open] { display: flex; flex-direction: column; } &::backdrop { background: color(overlay); } header { display: flex; align-items: center; justify-content: space-between; padding: .5rem 1rem; border-bottom: 1px solid color(line); h4 { font: 400 12px / 1.4 font-family(fraktion); margin: 0; } } &__scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; img { display: block; width: 100%; min-width: 1100px; height: auto; } } > p { padding: .6rem 1rem; margin: 0; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); } }
-  @media (max-width: 987px) { .obox-intro { grid-template-columns: 1fr; gap: 1rem; } }
-  @media (max-width: 767px) { .obox-chapter-nav { button { gap: .4rem; padding: .6rem; strong { font-size: 1.25rem; } > span:last-child { display: none; } } } .obox-chapter__copy { grid-template-columns: 1fr; gap: .5rem; .obox-tags { grid-column: auto; } } .obox-screen__toolbar { padding-left: .6rem; > span { display: none; } button { width: 100%; text-align: right; } } .obox-zoom { width: 100%; height: 100dvh; border: 0; header { padding-top: max(.5rem, env(safe-area-inset-top)); } > p { padding-bottom: max(.6rem, env(safe-area-inset-bottom)); } } }
-  @media (prefers-reduced-motion: reduce) { .obox-screen__window img { transition: none; } }
+  .obox-zoom { width: calc(100vw - 32px); max-width: 1800px; height: calc(100dvh - 32px); max-height: none; padding: 0; border: 1px solid color(line); background: color(primary); color: color(secondary); &[open] { display: flex; flex-direction: column; } &::backdrop { background: color(overlay); } header { display: flex; align-items: center; justify-content: space-between; padding: .5rem 1rem; border-bottom: 1px solid color(line); h4 { font: 400 12px / 1.4 font-family(fraktion); margin: 0; } } &__scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; img { display: block; width: 100%; min-width: 1100px; height: auto; } } > p:not(.project-content__label) { padding: .6rem 1rem; margin: 0; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); } }
+  @media (max-width: 767px) {
+    .obox-intro { grid-template-columns: 1fr; gap: .5rem; }
+    .obox-chapter-nav button { gap: .4rem; padding: .6rem; strong { font-size: 1.25rem; } > span:last-child { display: none; } }
+    .obox-attachment { gap: .65rem; > img { width: 68px; height: 46px; } &__copy > strong { font-size: 1rem; } &__action { font-size: 10px; gap: .25rem; } }
+    .obox-zoom { width: 100%; height: 100dvh; border: 0; header { padding-top: max(.5rem, env(safe-area-inset-top)); } > p { padding-bottom: max(.6rem, env(safe-area-inset-bottom)); } }
+  }
 }
 
 .obox-engine {
-  .obox-intro h3 { font-size: clamp(2.4rem, 3.4vw, 3.5rem); }
-  > .obox-chapter-nav { margin-top: 2rem; }
-  &__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; h4 { margin: 0; } > span { color: color(muted); font: 400 10px / 1.5 font-family(fraktion); } }
-  &__stage { position: relative; background: color(surface); border: 1px solid color(line); padding: .5rem 1rem 2.75rem; }
-  &__objects { position: absolute; bottom: .75rem; left: 1rem; right: 1rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem;
-    button { border: 1px solid color(line); background: color(primary); font-size: 11px; &[aria-pressed='true'] { color: color(primary); background: color(secondary); } }
+  &__heading { display: grid; grid-template-columns: 1fr 1.2fr; align-items: center; gap: 2rem; margin-bottom: 1rem; .project-content__label { margin-bottom: .35rem; } h4 { margin: 0; } > p:not(.project-content__label) { margin: 0; font-size: 1.05rem; } }
+  &__study { display: grid; grid-template-columns: 1.8fr 1fr; align-items: center; gap: 1.5rem; > * { min-width: 0; } }
+  &__stage { background: color(surface); border: 1px solid color(line); padding: .5rem; }
+  &__objects { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem;
+    button { border: 1px solid color(line); background: color(primary); padding: .6rem .4rem; font-size: 11px; > span { display: none; } &[aria-pressed='true'] { color: color(primary); background: color(secondary); } }
   }
-  &__readout { padding: 1.25rem 0; min-height: 170px;
-    > section { display: grid; grid-template-columns: .8fr 1.2fr; gap: 2rem; .project-content__label { margin-bottom: .5rem; } h4 { margin-bottom: 0; } p:not(.project-content__label) { margin: 0; font-size: 1.05rem; } }
+  &__readout { padding: 1rem 0; .project-content__label { margin-bottom: .5rem; } h4 { margin-bottom: .75rem; font-size: 1.65rem; } p:not(.project-content__label) { margin: 0; font-size: 1.05rem; } }
+  .obox-delivery { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; border-block: 1px solid color(line); margin-top: 1.5rem; padding-block: 1.25rem; h4 { margin: 0; font-size: 1.5rem; } p:not(.project-content__label) { margin: 0; font-size: 1.05rem; } }
+  @media (max-width: 987px) {
+    &__study { grid-template-columns: 1fr; gap: 0; }
+    &__readout > section { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1rem; h4 { margin-bottom: 0; } }
   }
-  .obox-foundation { border-block: 1px solid color(line); padding: 1.25rem 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; align-items: center;
-    .project-content__label { margin-bottom: .5rem; } p:not(.project-content__label) { margin: 0; font-size: 1rem; > span { color: color(muted); font: 400 10px / 1.6 font-family(fraktion); } }
-    &__core { display: grid; gap: .25rem; transform: skewY(-4deg); span { padding: .35rem .75rem; border: 1px solid color(line); background: color(surface); font: 400 10px / 1.5 font-family(fraktion); &:nth-child(2) { margin-inline: .4rem -.4rem; } &:last-child { margin-inline: .8rem -.8rem; } } }
-  }
-  .obox-delivery { border-bottom: 1px solid color(line); padding: .75rem 0; summary { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; list-style: none; cursor: pointer; font: 400 12px / 1.5 font-family(fraktion); &::-webkit-details-marker { display: none; } > span { font-size: 22px; } } &[open] summary > span { transform: rotate(45deg); } p { max-width: 75ch; } .obox-tags { padding-bottom: .75rem; } }
-  @media (max-width: 987px) { &__heading { align-items: start; flex-direction: column; gap: .5rem; } }
   @media (max-width: 767px) {
-    &__stage { padding: .5rem .4rem; } &__objects { position: static; gap: .35rem; button { padding: .5rem .3rem; font-size: 10px; min-height: 60px; > span { display: none; } } }
-    &__readout { min-height: 0; > section { grid-template-columns: 1fr; gap: .5rem; } }
-    .obox-foundation { grid-template-columns: 1fr 1fr; gap: 1.25rem; &__core { grid-column: 2; grid-row: 1 / 3; } > div:last-child { grid-column: 1; } }
+    &__heading, .obox-delivery { grid-template-columns: 1fr; gap: .5rem; }
+    &__objects { gap: .35rem; button { font-size: 10px; padding: .5rem .3rem; min-height: 54px; } }
+    &__readout > section { grid-template-columns: 1fr; gap: .5rem; }
   }
 }
 
-.obox-detail.obox-engine .obox-engine__stage .obox-story-art { height: clamp(190px, 32vw, 400px); }
-.obox-detail .obox-zoom > p:not(.project-content__label) { margin: 0; font: 400 11px / 1.5 font-family(fraktion); }
-
+.obox-detail.obox-engine .obox-engine__stage .obox-story-art { height: clamp(180px, 28vw, 300px); }

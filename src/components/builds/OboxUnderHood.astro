@@ -2,34 +2,44 @@
 import { oboxChapters } from '../../data/oboxChapters'
 import { oboxEngineering } from '../../data/oboxEngineering'
 import OboxStoryArtwork from './OboxStoryArtwork.astro'
+const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
 <div class="project-content obox-detail obox-engine" data-obox-engine>
   <header class="obox-intro">
-    <div><p class="project-content__label">OboxSTEAM / Under the Hood</p><h3>One system.<br />Every stage connected.</h3></div>
-    <p class="project-content__intro">The same shared foundation carries a program from its first blueprint to a student's published story. Select an object to look inside.</p>
+    <div><p class="project-content__label">Create / Learn / Show</p><h3>One connected<br />learning journey.</h3></div>
+    <div><p class="project-content__intro">From expert-reviewed curricula to learning experiences and student portfolios. Select an object to see how it works.</p><p class="obox-credit">Team lead & primary contributor<br /><span>Across API, web, and mobile</span></p></div>
   </header>
-  <div class="obox-chapter-nav" role="group" aria-label="Engineering chapters">
+  <div class="obox-chapter-nav" role="group" aria-label="Product chapters">
     {oboxChapters.map((chapter) => <button type="button" data-obox-engine-chapter={chapter.id} aria-pressed={chapter.id === 'curriculum'} aria-controls={`obox-engine-${chapter.id}`}><span>{chapter.number}</span><strong>{chapter.label}</strong><span aria-hidden="true">↗</span></button>)}
   </div>
-  {oboxEngineering.map((chapter) => <section id={`obox-engine-${chapter.id}`} data-obox-engine-panel={chapter.id} hidden={chapter.id !== 'curriculum'} aria-label={chapter.title}>
-    <div class="obox-engine__heading"><h4>{chapter.title}</h4><span>{chapter.caption}</span></div>
-    <div class="obox-engine__stage">
+  {oboxChapters.map((chapter) => {
+    const engineering = oboxEngineering.find((item) => item.id === chapter.id)!
+    return <section id={`obox-engine-${chapter.id}`} data-obox-engine-panel={chapter.id} hidden={chapter.id !== 'curriculum'} aria-label={chapter.title}>
+    <div class="obox-engine__heading"><div><p class="project-content__label">{engineering.caption}</p><h4>{chapter.title}</h4></div><p>{chapter.summary}</p></div>
+    <div class="obox-engine__study">
+      <div class="obox-engine__stage">
       <OboxStoryArtwork chapter={chapter.id} />
       <div class="obox-engine__objects" role="group" aria-label={`${chapter.title} objects`}>
-        {chapter.parts.map((part, index) => <button type="button" data-obox-part={part.id} aria-pressed={index === 0} aria-controls={`obox-note-${part.id}`}><span aria-hidden="true">0{index + 1} / </span>{part.label}<span aria-hidden="true"> +</span></button>)}
+        {engineering.parts.map((part, index) => <button type="button" data-obox-part={part.id} aria-pressed={index === 0} aria-controls={`obox-note-${part.id}`}><span aria-hidden="true">0{index + 1} / </span>{part.label}<span aria-hidden="true"> +</span></button>)}
       </div>
-    </div>
+      </div>
     <div class="obox-engine__readout" aria-live="polite" aria-atomic="true">
-      {chapter.parts.map((part, index) => <section id={`obox-note-${part.id}`} data-obox-part-panel={part.id} hidden={index !== 0} aria-label={part.title}>
+      {engineering.parts.map((part, index) => <section id={`obox-note-${part.id}`} data-obox-part-panel={part.id} hidden={index !== 0} aria-label={part.title}>
         <div><p class="project-content__label">Inside / {part.label}</p><h4>{part.title}</h4></div>
         <div><p>{part.text}</p></div>
       </section>)}
     </div>
-  </section>)}
-  <aside class="obox-foundation" aria-label="Shared system foundation">
-    <div><p class="project-content__label">Shared foundation</p><p>Web & mobile<br /><span>Role-specific experiences</span></p></div>
-    <div class="obox-foundation__core"><span>HTTP boundary</span><span>Application services</span><span>Domain rules</span></div>
-    <div><p class="project-content__label">API owns the records</p><p>Learning records<br /><span>Media stored separately</span></p></div>
-  </aside>
-  <details class="obox-delivery" data-obox-decision><summary>Shipping & observing the system<span aria-hidden="true">+</span></summary><p>A deployment pipeline builds and ships the backend as a container. Distributed tracing follows requests through the system; hosted workers handle scheduled tasks and media generation.</p></details>
+    </div>
+    <button class="obox-attachment" type="button" data-obox-enlarge data-image={`${assets}generated/${chapter.image}-1600.webp`} data-caption={chapter.alt} aria-label={`View ${chapter.label.toLowerCase()} screenshot`}>
+      <img src={`${assets}generated/${chapter.image}-960.webp`} width={chapter.width} height={chapter.height} alt="" loading="lazy" decoding="async" />
+      <span class="obox-attachment__copy"><span>Website screenshot</span><strong>{chapter.screenLabel}</strong></span>
+      <span class="obox-attachment__action">View <span aria-hidden="true">↗</span></span>
+    </button>
+  </section>})}
+  <section class="obox-delivery" aria-labelledby="obox-delivery-title"><h4 id="obox-delivery-title">Shipping & observing the system</h4><p>A deployment pipeline builds and ships the backend as a container. Distributed tracing follows requests through the system; hosted workers handle scheduled tasks and media generation.</p></section>
+  <dialog class="obox-zoom" data-obox-zoom aria-labelledby="obox-zoom-title" data-lenis-prevent>
+    <header><h4 id="obox-zoom-title">Product screen</h4><button type="button" data-obox-zoom-close autofocus>Close <span aria-hidden="true">×</span></button></header>
+    <div class="obox-zoom__scroll" role="region" aria-label="Full project screenshot" tabindex="0" data-lenis-prevent><img data-obox-zoom-image alt="" /></div>
+    <p>Scroll to inspect the complete interface.</p>
+  </dialog>
 </div>

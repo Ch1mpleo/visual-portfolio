@@ -14,7 +14,7 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
   <div class="s-builds__gallery">
     {projects.map((project) => <BuildSpecimen project={project} />)}
   </div>
-  <div class="s-builds__footnote" aria-hidden="true"><span>Selected work / 01 — 03</span><span>Built with curiosity.</span></div>
+  <div class="s-builds__footnote"><span aria-hidden="true">Selected work / 01 — 03</span><p class="s-builds__ending">and so much more..</p></div>
 </section>
 
 <script>
@@ -29,7 +29,7 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
     padding: clamp(4rem, 7vw, 6rem) clamp(1rem, 3.5vw, 4rem);
     color: color(secondary);
     background: color(primary);
-    scroll-margin-top: 1.5rem;
+    scroll-margin-top: 0;
 
     &__intro, &__gallery, &__footnote { max-width: 1560px; margin-inline: auto; }
     &__eyebrow { margin: 0 0 1.5rem; font: 400 12px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -38,10 +38,29 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
     &__period { color: color(accent); }
     &__description { margin: 0 0 0.3rem; max-width: 27ch; font: 400 clamp(1.25rem, 1.7vw, 1.6rem) / 1.4 font-family(editorial); }
     &__gallery { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(clamp(250px, 24vw, 340px), auto)); gap: 24px; }
-    &__footnote { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; color: color(muted); font: 400 10px / 1.4 font-family(fraktion); letter-spacing: 0.04em; text-transform: uppercase; }
+    &__footnote { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1rem; color: color(muted); font: 400 10px / 1.4 font-family(fraktion); letter-spacing: 0.04em; text-transform: uppercase; }
+    &__ending { margin: 0; color: color(secondary); font: italic 400 clamp(1.25rem, 2vw, 1.75rem) / 1.1 font-family(editorial); letter-spacing: 0; text-transform: none; }
+
+    // A complete exhibition in one screen; short/touch layouts can grow naturally.
+    @media (min-width: 768px) and (min-height: 700px) {
+      height: 100svh;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: clamp(12px, 2svh, 22px);
+      padding-block: clamp(20px, 3svh, 36px);
+      &__intro, &__gallery, &__footnote { width: 100%; }
+      &__eyebrow { margin-bottom: .75rem; font-size: 10px; }
+      &__heading { gap: 1.5rem; margin-bottom: 0; }
+      h2 { font-size: min(clamp(4rem, 6.3vw, 7rem), 11svh); }
+      &__description { font-size: clamp(1.125rem, 1.4vw, 1.35rem); max-width: 32ch; }
+      &__gallery { min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      &__footnote { padding-top: 0; }
+    }
 
     @media (min-width: 768px) and (max-width: 987px) {
       &__gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap: 20px; }
+      @media (min-height: 700px) { &__gallery { grid-template-rows: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; } }
     }
     @media (max-width: 767px) {
       padding: 3.5rem 1rem;
@@ -50,6 +69,22 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
       &__description { margin-top: 1.5rem; max-width: 30ch; font-size: 1.25rem; }
       &__gallery { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; gap: 16px; }
       &__footnote { flex-wrap: wrap; }
+    }
+    @media (max-width: 767px) {
+      min-height: 100svh;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 20px 1rem;
+      &__intro, &__gallery, &__footnote { width: 100%; }
+      &__eyebrow { margin-bottom: .5rem; font-size: 10px; }
+      &__heading { margin-bottom: 0; }
+      h2 { font-size: clamp(3rem, 14vw, 4rem); }
+      &__description { margin-top: .75rem; font-size: 1rem; line-height: 1.3; max-width: 36ch; }
+      &__gallery { min-height: 0; grid-template-rows: repeat(3, minmax(170px, 1fr)); gap: 10px; }
+      &__footnote { padding-top: 0; flex-wrap: nowrap; gap: .5rem; font-size: 8px; }
+      &__ending { font-size: 1.25rem; white-space: nowrap; }
     }
   }
 </style>

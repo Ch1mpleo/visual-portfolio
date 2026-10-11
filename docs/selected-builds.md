@@ -223,6 +223,28 @@ still unavailable; those branches are verified by tests and CSS review.
 `engaging-gallery-final.jpg` and the `viewer-sweep-*.jpg` frames in the proof
 directory above capture the completed gallery and the transition sequence.
 
+## Follow-up: one-screen Builds composition
+
+Builds now reserves one viewport for its introduction, gallery, and closing
+“and so much more..” line. At widths of at least 768px and heights of at least
+700px, the heading and captions use compact spacing and the gallery shares the
+remaining height. Desktop retains the asymmetric composition; tablet retains
+Obox above the paired specimens. SVGs fit their artwork areas without cropping.
+Phone specimens use artwork beside their captions in three compact rows.
+The phone section has a viewport minimum and 170px card minimum, so short or
+very narrow screens grow naturally rather than clipping copy. Short landscape
+windows also retain natural scrolling. The ending is accessible text styled in
+the existing Editorial face, and Builds navigation aligns the section's start.
+
+Production build and TypeScript pass. Checked light layouts at 1920×1080,
+1440×900, 1366×768, 1024×768, 768×1024, 390×844, 360×800, 360×700,
+320×800, and 844×390. Desktop/tablet and the two typical phone sizes fit one
+viewport; short/narrow fallback layouts retain all copy without horizontal
+overflow. Dark desktop/phone checks also passed, and all three compact phone
+cards still open and close their inspections. The final console has no errors.
+`builds-one-viewport.jpg` in the proof directory captures the complete desktop
+section. Existing build warnings remain unchanged.
+
 ## Content references
 
 The original planning inspection used the local OboxSTEAM API product overview

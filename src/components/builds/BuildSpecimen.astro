@@ -160,6 +160,21 @@ const { project } = Astro.props
       &--oboxsteam &__art { padding: 1rem 12%; min-height: 0; }
     }
 
+    @media (min-width: 768px) and (min-height: 700px) {
+      min-height: 0;
+      &__meta { flex-shrink: 0; padding: .5rem .875rem; font-size: 9px; }
+      &__art, &--oboxsteam &__art { min-height: 0; padding: .5rem .875rem; }
+      &__scene { height: 100%; display: flex; align-items: center; justify-content: center; }
+      &__art :global(.project-art) { width: 100%; height: 100%; }
+      &__caption, &--oboxsteam &__caption { flex-shrink: 0; padding: .75rem .875rem; gap: .5rem; }
+      h3 { font-size: clamp(1.5rem, 2.2vw, 2rem); }
+      &--oboxsteam h3 { font-size: clamp(2.5rem, 4vw, 4rem); }
+      p, &--oboxsteam p { margin-top: .375rem; font-size: clamp(1rem, 1.15vw, 1.125rem); line-height: 1.3; max-width: 44ch; }
+      &__inspect { font-size: 9px; gap: .5rem; }
+      &__inspect .build-specimen__arrow { width: 24px; height: 24px; font-size: 16px; }
+      &__folio { font-size: clamp(4rem, 6vw, 7rem); }
+    }
+
     @media (max-width: 767px) {
       &--oboxsteam, &--graphpaper, &--museums { grid-column: auto; grid-row: auto; }
       &__meta { padding: 0.875rem 1rem; font-size: 10px; }
@@ -174,6 +189,21 @@ const { project } = Astro.props
       &__caption, &--oboxsteam &__caption { padding: 1.25rem 1rem; gap: 1rem; }
       h3, &--oboxsteam h3 { font-size: clamp(2rem, 8vw, 3rem); }
       p, &--oboxsteam p { font-size: 1.125rem; }
+    }
+    @media (max-width: 767px) {
+      display: grid;
+      grid-template-columns: 42% minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+      &__meta { grid-column: 1 / -1; padding: .375rem .625rem; font-size: 9px; }
+      &__art, &--oboxsteam &__art { padding: .375rem; aspect-ratio: auto; min-height: 0; }
+      &__art :global(.project-art) { width: 100%; height: 100%; }
+      &__caption, &--oboxsteam &__caption { justify-content: center; padding: .5rem .625rem; gap: .375rem; border-top: 0; border-left: 1px solid color(line); }
+      h3, &--oboxsteam h3 { font-size: 1.375rem; }
+      p, &--oboxsteam p { margin-top: .375rem; font-size: .9375rem; line-height: 1.25; }
+      &__inspect { font-size: 8px; gap: .375rem; }
+      &__inspect .build-specimen__arrow { width: 22px; height: 22px; font-size: 15px; }
+      &__folio { top: .5rem; left: .375rem; font-size: 3rem; }
     }
   }
 </style>

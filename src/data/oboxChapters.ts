@@ -26,9 +26,3 @@ export const oboxChapters = [
     focuses: [{ id: 'editor', label: 'Builder controls' }, { id: 'preview', label: 'Portfolio preview' }],
   },
 ] as const
-
-export const oboxCoreStack = [
-  { label: 'Web', tools: 'Next.js · React · TypeScript · Tailwind' },
-  { label: 'Mobile', tools: 'Expo · React Native · NativeWind' },
-  { label: 'API & data', tools: 'ASP.NET Core · EF Core · PostgreSQL' },
-] as const

@@ -1,5 +1,29 @@
 # Selected Builds handoff
 
+## Follow-up: one stack overview per project
+
+Every project now has a persistent **Stack** tab alongside Experience and Under
+the Hood. `projectStacks.ts` is the single typed source for technology names;
+`ProjectStack.astro` groups them by responsibility in a two-column editorial
+overview, stacking the groups on phones. OboxSTEAM covers web, mobile, API/data,
+media/AI, connected services, and delivery/observability. Museums shares one
+overview across both exhibits. GraphPaper explicitly separates its inspected
+foundations from the intended full research pipeline.
+
+Stack facts, core-stack summaries, contextual technology badges, and the museum
+stack paragraph have been removed from the other views. Architecture notes keep
+their functional explanations. Tab keyboard navigation includes Stack, with
+independent scroll restoration; project changes and reopening reset to Experience.
+The showreel pauses when leaving Experience for Stack.
+
+Production build, TypeScript, and all eight viewer motion tests passed. Preview
+checks covered 1440px desktop, 768px tablet, and 360–390px phones in both themes:
+readable groups without horizontal overflow, all three project stacks, tab
+keyboard wrapping/Home/End, scroll restoration, project reset, and showreel pause.
+Live/source destinations retain their URLs and new-tab/noopener attributes.
+Changing viewport during a native theme transition produced a browser cancellation
+message; subsequent theme rendering and viewer interaction remained correct.
+
 ## Follow-up: project destination buttons
 
 `ProjectLinks.astro` presents live destinations as prominent filled buttons and
@@ -22,7 +46,7 @@ and Under the Hood share the selected chapter, preserving the story across tabs.
 Screenshots have selectable focus crops and an inner native image-inspection
 dialog. Escape closes only the image inspector and restores its trigger.
 The inspector preserves the complete screenshot and supports horizontal/vertical
-scrolling on phones. The core stack is grouped by web, mobile, and API/data.
+scrolling on phones. Technologies now live in the dedicated Stack tab above.
 Credit reflects the author's confirmed team-lead / primary-contributor role.
 
 Original captures and the showreel live in `public/builds/oboxsteam/`; the viewer
@@ -38,7 +62,7 @@ showreel playback/pause with the production base path.
 
 The former anatomy and 19-step workflows have been replaced by three connected
 illustrated scenes. `oboxEngineering.ts` defines nine short engineering notes
-and contextual integrations. `OboxStoryArtwork.astro` draws tangible curriculum
+and functional integration explanations. `OboxStoryArtwork.astro` draws tangible curriculum
 blueprints/review/booklets, a class/phone/evidence route, and a filmstrip/editor/
 published story. Objects are pointer- and keyboard-selectable, with equivalent
 native buttons. Only one scene and one engineering note are visible at once.
@@ -50,9 +74,9 @@ selections survive tab/chapter changes; reopening resets all three to their firs
 object and collapses the delivery note. Interaction respects reduced motion.
 
 The persistent foundation identifies client responsibilities, API layers, and
-records/media storage. A collapsed delivery note covers Docker/GitHub Actions/
-VPS and OpenTelemetry/Traceway. Bedrock, conditional face associations, and
-separate draft/publication lifecycles are explained in the portfolio chapter.
+records/media storage. A collapsed delivery note explains deployment, tracing,
+and background work; technology names live in Stack. Conditional face associations
+and separate draft/publication lifecycles are explained in the portfolio chapter.
 
 Content was checked against the local API's product overview/integrations and
 the web/mobile source references below. Earlier packet notes below document
@@ -304,5 +328,5 @@ GraphPaper content distinguishes its inspected frontend screens, data models,
 and embedding service from its intended complete GraphRAG pipeline. Museum
 content follows the MLN131-Visual and VNR-Visual public READMEs.
 
-Preserve attribution as “Built across API, web, and mobile”; do not invent sole
+Preserve the confirmed team-lead / primary-contributor attribution; do not invent sole
 authorship, performance figures, adoption metrics, or a working GraphPaper demo.

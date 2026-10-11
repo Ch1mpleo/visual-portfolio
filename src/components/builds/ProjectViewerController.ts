@@ -6,7 +6,7 @@ import { ProjectViewerMotion } from './ProjectViewerMotion'
 import { OboxDetailController } from './OboxDetailController'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
-const tabs: ProjectTab[] = ['experience', 'under-the-hood']
+const tabs: ProjectTab[] = ['experience', 'under-the-hood', 'stack']
 
 export class ProjectViewerController {
   private state: ViewerState = 'closed'
@@ -15,7 +15,7 @@ export class ProjectViewerController {
   private exhibit: MuseumExhibitId = 'mln131'
   private graphStage: GraphStageId = 'document'
   private museumLayer: MuseumLayerId = 'content'
-  private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0 }
+  private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0, stack: 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
   private wasLenisStopped = false
@@ -158,7 +158,7 @@ export class ProjectViewerController {
   private resetProject() {
     this.obox.reset()
     this.activeTab = 'experience'
-    this.tabScroll = { experience: 0, 'under-the-hood': 0 }
+    this.tabScroll = { experience: 0, 'under-the-hood': 0, stack: 0 }
     this.selectExhibit('mln131')
     this.selectGraphStage('document')
     this.selectMuseumLayer('content')

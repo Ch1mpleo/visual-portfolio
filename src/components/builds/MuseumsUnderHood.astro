@@ -12,5 +12,5 @@ import MuseumLayerArtwork from './MuseumLayerArtwork.astro'
     <div>{museumExhibits.map((exhibit, index) => <figure id={`exhibit-hood-${exhibit.id}`} data-exhibit-panel={exhibit.id} hidden={index !== 0}><MuseumLayerArtwork exhibit={exhibit.id} /><figcaption>{exhibit.label} / illustrated editorial layers</figcaption></figure>)}</div>
     <div>{museumLayers.map((layer, index) => <section id={`museum-layer-${layer.id}`} data-museum-layer-panel={layer.id} hidden={index !== 0}><p class="project-content__label">Layer 0{index + 1} / 03</p><h4>{layer.label}</h4><p>{layer.description}</p></section>)}</div>
   </div>
-  <section class="project-content__section"><p class="project-content__label">Shared stack</p><h4>Structure, styling, and motion</h4><p>React and TypeScript shape the interfaces; Vite supports the build, Tailwind the styling, and GSAP and Motion the reveals and transitions.</p><p class="project-content__note">Each exhibit has its own chapters and visual rhythm. Select an exhibit in either tab to keep exploring the same one.</p></section>
+  <p class="project-content__note">Each exhibit has its own chapters and visual rhythm. Select an exhibit in Experience or Under the Hood to keep exploring the same one.</p>
 </div>

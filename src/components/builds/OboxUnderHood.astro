@@ -22,14 +22,14 @@ import OboxStoryArtwork from './OboxStoryArtwork.astro'
     <div class="obox-engine__readout" aria-live="polite" aria-atomic="true">
       {chapter.parts.map((part, index) => <section id={`obox-note-${part.id}`} data-obox-part-panel={part.id} hidden={index !== 0} aria-label={part.title}>
         <div><p class="project-content__label">Inside / {part.label}</p><h4>{part.title}</h4></div>
-        <div><p>{part.text}</p><ul class="obox-tags" aria-label="Related technologies">{part.stack.map((tool) => <li>{tool}</li>)}</ul></div>
+        <div><p>{part.text}</p></div>
       </section>)}
     </div>
   </section>)}
   <aside class="obox-foundation" aria-label="Shared system foundation">
     <div><p class="project-content__label">Shared foundation</p><p>Web & mobile<br /><span>Role-specific experiences</span></p></div>
     <div class="obox-foundation__core"><span>HTTP boundary</span><span>Application services</span><span>Domain rules</span></div>
-    <div><p class="project-content__label">API owns the records</p><p>EF Core / PostgreSQL<br /><span>S3 stores the media</span></p></div>
+    <div><p class="project-content__label">API owns the records</p><p>Learning records<br /><span>Media stored separately</span></p></div>
   </aside>
-  <details class="obox-delivery" data-obox-decision><summary>Shipping & observing the system<span aria-hidden="true">+</span></summary><p>GitHub Actions builds the backend Docker image and deploys it to a VPS through Docker Compose. OpenTelemetry exports traces to Traceway; hosted workers handle scheduled tasks and media generation.</p><ul class="obox-tags" aria-label="Delivery technologies"><li>Docker</li><li>GitHub Actions</li><li>VPS</li><li>OpenTelemetry / Traceway</li></ul></details>
+  <details class="obox-delivery" data-obox-decision><summary>Shipping & observing the system<span aria-hidden="true">+</span></summary><p>A deployment pipeline builds and ships the backend as a container. Distributed tracing follows requests through the system; hosted workers handle scheduled tasks and media generation.</p></details>
 </div>

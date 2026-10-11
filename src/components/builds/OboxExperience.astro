@@ -1,6 +1,6 @@
 ---
 import type { Project } from '../../data/projects'
-import { oboxChapters, oboxCoreStack } from '../../data/oboxChapters'
+import { oboxChapters } from '../../data/oboxChapters'
 import ProjectLinks from './ProjectLinks.astro'
 import '../../styles/components/obox-detail.scss'
 interface Props { project: Project }
@@ -32,7 +32,6 @@ const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/
       </div>
     </section>)}
   </section>
-  <dl class="obox-stack" aria-label="Core technology stack">{oboxCoreStack.map((group) => <div><dt>{group.label}</dt><dd>{group.tools}</dd></div>)}</dl>
   <ProjectLinks links={project.links} />
   <dialog class="obox-zoom" data-obox-zoom aria-labelledby="obox-zoom-title" data-lenis-prevent>
     <header><h4 id="obox-zoom-title">Product screen</h4><button type="button" data-obox-zoom-close autofocus>Close <span aria-hidden="true">×</span></button></header>

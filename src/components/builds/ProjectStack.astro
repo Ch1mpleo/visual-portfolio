@@ -1,0 +1,42 @@
+---
+import type { Project } from '../../data/projects'
+import { projectStacks, type ProjectStack } from '../../data/projectStacks'
+interface Props { project: Project }
+const { project } = Astro.props
+const stack: ProjectStack = projectStacks[project.id]
+---
+<div class="project-content project-stack">
+  <header class="project-stack__intro">
+    <div><p class="project-content__label">{project.title} / Stack</p><h3>The whole stack.<br />One place.</h3></div>
+    <p class="project-content__intro">{stack.introduction}</p>
+  </header>
+  <div class="project-stack__groups">
+    {stack.groups.map((group, index) => <section class="project-stack__group" aria-labelledby={`stack-${project.id}-${index}`}>
+      <span class="project-stack__number" aria-hidden="true">0{index + 1}</span>
+      <div class="project-stack__body">
+        <h4 id={`stack-${project.id}-${index}`}>{group.label}</h4>
+        <p class="project-stack__purpose">{group.purpose}</p>
+        <ul aria-label={`${group.label} technologies`}>{group.tools.map((tool) => <li>{tool}</li>)}</ul>
+      </div>
+    </section>)}
+  </div>
+  {stack.note && <p class="project-content__note project-stack__note">{stack.note}</p>}
+</div>
+<style lang="scss">
+  .project-stack {
+    &__intro { display: grid; grid-template-columns: 1.2fr 1fr; align-items: end; gap: 2rem; margin-bottom: 1.5rem; h3 { margin-bottom: 0; font-size: clamp(2.4rem, 4vw, 3.5rem); } > p { margin: 0; max-width: 38ch; } }
+    &__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(1.5rem, 4vw, 4rem); }
+    &__group { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 1rem; padding-block: 1.25rem; border-top: 1px solid color(line); }
+    &__number { color: color(muted); padding-top: .35rem; font: 400 11px / 1.5 font-family(fraktion); }
+    &__body { h4 { margin: 0 0 .6rem; font: 400 1.65rem / 1.15 font-family(editorial); } }
+    p.project-stack__purpose { margin: 0 0 1rem; color: color(muted); font: 400 1rem / 1.5 font-family(editorial); max-width: 42ch; }
+    ul { display: flex; flex-wrap: wrap; gap: .35rem .75rem; list-style: none; padding: 0; margin: 0; }
+    li { font: 400 12px / 1.7 font-family(fraktion); overflow-wrap: anywhere; &:not(:last-child)::after { content: '·'; margin-left: .75rem; color: color(muted); } }
+    &__note { border-top: 1px solid color(line); padding-top: 1.25rem; margin-top: 1rem; }
+    @media (max-width: 767px) {
+      &__intro { grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+      &__groups { grid-template-columns: 1fr; }
+      &__group { gap: .5rem; grid-template-columns: 1.5rem minmax(0, 1fr); padding-block: 1.25rem; }
+    }
+  }
+</style>

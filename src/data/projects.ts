@@ -1,5 +1,5 @@
 export type ProjectId = 'oboxsteam' | 'graphpaper' | 'museums'
-export type ProjectTab = 'experience' | 'under-the-hood'
+export type ProjectTab = 'experience' | 'under-the-hood' | 'stack'
 
 export type ProjectLink = { label: string; href: string }
 
@@ -10,7 +10,6 @@ export type Project = {
   category: string
   summary: string
   contribution: string
-  stack: readonly string[]
   links: readonly ProjectLink[]
   artworkDescription: string
 }
@@ -23,7 +22,6 @@ export const projects = [
     category: 'Capstone',
     summary: 'One learning platform across web, API, and mobile.',
     contribution: 'Team lead and primary contributor across API, web, and mobile',
-    stack: ['ASP.NET Core', 'EF Core', 'PostgreSQL', 'Next.js', 'React Native', 'Expo'],
     links: [
       { label: 'Visit website', href: 'https://oboxsteam.website/' },
       { label: 'API', href: 'https://github.com/OboxSTEAM/OboxSTEAM.API' },
@@ -39,7 +37,6 @@ export const projects = [
     category: 'Experiment',
     summary: 'Exploring how research papers become connected knowledge.',
     contribution: 'GraphRAG concept, interface, and backend foundations',
-    stack: ['.NET', 'PostgreSQL', 'Next.js'],
     links: [
       { label: 'Backend', href: 'https://github.com/Ch1mpleo/GraphPaper' },
       { label: 'Frontend', href: 'https://github.com/Ch1mpleo/GraphPaper.FE' },
@@ -53,7 +50,6 @@ export const projects = [
     category: 'Visual storytelling',
     summary: 'Coursework reimagined as interactive digital exhibits.',
     contribution: 'Content structure, visual design, and interactive web experiences',
-    stack: ['React', 'TypeScript', 'GSAP', 'Motion'],
     links: [
       { label: 'MLN131 exhibit', href: 'https://ch1mpleo.github.io/MLN131-Visual/' },
       { label: 'MLN131 source', href: 'https://github.com/Ch1mpleo/MLN131-Visual' },

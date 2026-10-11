@@ -1,5 +1,30 @@
 # Selected Builds handoff
 
+## OboxSTEAM redesign: Experience
+
+The OboxSTEAM Experience now follows Create / Learn / Show: expert-reviewed
+curriculum, a class learning path, and the student portfolio builder. Typed copy
+and screenshot metadata live in `oboxChapters.ts`. The product film uses the
+provided 45-second showreel, native controls, a designed poster, and no preload
+or autoplay. Playback pauses on tab/project changes, inspection, and closing.
+Project changes/reopening reset playback and chapter/focus selections.
+
+Screenshots have selectable focus crops and an inner native image-inspection
+dialog. Escape closes only the image inspector and restores its trigger.
+The inspector preserves the complete screenshot and supports horizontal/vertical
+scrolling on phones. The core stack is grouped by web, mobile, and API/data.
+Credit reflects the author's confirmed team-lead / primary-contributor role.
+
+Original captures and the showreel live in `public/builds/oboxsteam/`; the viewer
+serves WebP variants in `generated/`. Regenerate with
+`node scripts/prepare-obox-assets.mjs` (Sharp is already an Astro dependency).
+Every public URL includes Astro's base path for the GitHub Pages deployment.
+
+Production build and TypeScript checks passed. Preview checks covered chapter
+switching, focus selection, native image inspection/Escape, phone layout, and
+showreel playback/pause with the production base path. Under the Hood is updated
+in the following implementation stage.
+
 ## Packet 2: functional viewer
 
 The gallery opens one native modal dialog mounted outside `.site-wrapper` in

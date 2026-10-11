@@ -5,6 +5,7 @@ import { oboxWorkflows, type WorkflowId, type WorkflowNodeId } from '../../data/
 import { OPEN_PROJECT } from './viewerEvents'
 import { graphStages, museumLayers, type GraphStageId, type MuseumLayerId } from '../../data/projectInteriors'
 import { ProjectViewerMotion } from './ProjectViewerMotion'
+import { OboxDetailController } from './OboxDetailController'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
 const tabs: ProjectTab[] = ['experience', 'under-the-hood']
@@ -29,9 +30,11 @@ export class ProjectViewerController {
   private tabButtons: HTMLButtonElement[]
   private panels: HTMLElement[]
   private motion: ProjectViewerMotion
+  private obox: OboxDetailController
 
   constructor(private dialog: HTMLDialogElement) {
     this.motion = new ProjectViewerMotion(dialog)
+    this.obox = new OboxDetailController(dialog)
     this.scroller = dialog.querySelector('[data-viewer-scroller]')!
     this.closeButton = dialog.querySelector('[data-viewer-close]')!
     this.tabButtons = Array.from(dialog.querySelectorAll('[data-project-tab]'))
@@ -43,7 +46,7 @@ export class ProjectViewerController {
     dialog.addEventListener('close', () => this.restorePage())
     dialog.addEventListener('keydown', (event) => {
       if (event.key !== 'Tab') return
-      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], summary, [tabindex="0"]'))
+      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], summary, video[controls], [tabindex="0"]'))
         .filter((element) => element.getClientRects().length > 0)
       const first = controls[0]
       const last = controls[controls.length - 1]
@@ -142,10 +145,14 @@ export class ProjectViewerController {
   private close() {
     if (this.state === 'closed' || this.state === 'closing') return
     this.state = 'closing'
+    this.obox.pause()
+    this.obox.dismissZoom()
     this.motion.close(this.trigger, this.projectId, () => this.dialog.close())
   }
 
   private restorePage() {
+    this.obox.pause()
+    this.obox.dismissZoom()
     this.motion.clear()
     document.documentElement.classList.remove('is-project-viewer-open')
     // Restore the native and smooth-scroll positions before restarting Lenis.
@@ -169,6 +176,7 @@ export class ProjectViewerController {
   }
 
   private resetProject() {
+    this.obox.reset()
     this.activeTab = 'experience'
     this.tabScroll = { experience: 0, 'under-the-hood': 0 }
     this.selectExhibit('mln131')
@@ -185,6 +193,7 @@ export class ProjectViewerController {
     if (tab === this.activeTab) return
     this.motion.finish()
     this.tabScroll[this.activeTab] = this.scroller.scrollTop
+    this.obox.pause()
     this.activeTab = tab
     this.render()
     this.fadeActivePanel()

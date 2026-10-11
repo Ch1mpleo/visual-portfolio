@@ -22,8 +22,8 @@ export const projects = [
     title: 'OboxSTEAM',
     category: 'Capstone',
     summary: 'One learning platform across web, API, and mobile.',
-    contribution: 'Built across API, web, and mobile',
-    stack: ['.NET', 'PostgreSQL', 'Next.js', 'Expo'],
+    contribution: 'Team lead and primary contributor across API, web, and mobile',
+    stack: ['ASP.NET Core', 'EF Core', 'PostgreSQL', 'Next.js', 'React Native', 'Expo'],
     links: [
       { label: 'Visit website', href: 'https://oboxsteam.website/' },
       { label: 'API', href: 'https://github.com/OboxSTEAM/OboxSTEAM.API' },

@@ -1,0 +1,108 @@
+---
+import type { OboxChapterId } from '../../data/oboxChapters'
+import { oboxEngineering } from '../../data/oboxEngineering'
+interface Props { chapter: OboxChapterId }
+const { chapter } = Astro.props
+const parts = oboxEngineering.find((item) => item.id === chapter)!.parts
+const object = (id: string) => ({ role: 'button', tabindex: 0, 'aria-label': `Inspect ${parts.find((part) => part.id === id)!.label}`, 'aria-pressed': id === parts[0].id })
+const descriptions = {
+  curriculum: 'A layered curriculum blueprint, expert review notes, and an approved program booklet.',
+  learning: 'A route connecting a class card, mobile attendance, learning activities, and a folder of evidence.',
+  portfolio: 'A filmstrip of learning moments, an editable portfolio page, and a published student story with a certificate.',
+}
+---
+<svg class="obox-story-art" viewBox="0 0 900 440" role="group" aria-label={descriptions[chapter]}>
+  <path class="art-grid" d="M0 88H900M0 176H900M0 264H900M0 352H900M90 0V440M180 0V440M270 0V440M360 0V440M450 0V440M540 0V440M630 0V440M720 0V440M810 0V440" />
+  {chapter === 'curriculum' && <>
+    <g class="art-object" data-story-object="blueprint" {...object('blueprint')}>
+      <path class="art-shadow" d="M61 70L360 45L383 346L84 371Z" />
+      <g transform="translate(58 46) rotate(-5 155 160)">
+        <rect class="art-paper" x="14" y="16" width="296" height="314" /><rect class="art-paper" width="296" height="314" />
+        <path class="art-line" d="M24 52H270M44 90V267M44 118H70M44 187H70M44 256H70" />
+        <text x="24" y="34">PROGRAM / BLUEPRINT</text>
+        <rect class="art-accent-fill" x="70" y="90" width="189" height="54" /><rect class="art-soft" x="70" y="159" width="189" height="54" /><rect class="art-soft" x="70" y="228" width="189" height="54" />
+        <path class="art-line" d="M87 109H198M87 125H160M87 178H222M87 194H180M87 247H195M87 263H225" />
+        <circle class="art-dot" cx="44" cy="90" r="5" /><circle class="art-dot" cx="44" cy="187" r="5" /><circle class="art-dot" cx="44" cy="256" r="5" />
+      </g>
+    </g>
+    <g class="art-object" data-story-object="review" {...object('review')} transform="translate(381 97) rotate(4 104 112)">
+      <rect class="art-paper" width="217" height="226" rx="2" /><path class="art-line" d="M20 52H196M20 84H175M20 103H191M20 122H144M20 172H191M20 191H152" />
+      <text x="20" y="34">EXPERT / REVIEW</text><path class="art-accent-line" d="M15 110L187 95M137 120Q181 106 193 133" />
+      <circle class="art-accent-fill" cx="175" cy="160" r="25" /><path class="art-heavy" d="M163 159L172 168L188 149" />
+      <path class="art-line" d="M14 -14L113 -14L126 5L105 21L18 21Z" />
+    </g>
+    <g class="art-object" data-story-object="release" {...object('release')} transform="translate(659 67) rotate(5 89 140)">
+      <path class="art-shadow" d="M9 17H178V294H9Z" /><rect class="art-paper" width="178" height="282" /><rect class="art-ink" width="24" height="282" />
+      <text class="art-title" x="45" y="70">OBOX</text><text class="art-title" x="45" y="103">STEAM</text><path class="art-line" d="M44 126H153M44 146H120" />
+      <circle class="art-stamp" cx="98" cy="216" r="44" /><circle class="art-accent-line" cx="98" cy="216" r="36" /><path class="art-accent-line" d="M83 213L94 224L113 204" />
+    </g>
+  </>}
+  {chapter === 'learning' && <>
+    <path class="art-route" d="M72 321C163 321 147 163 292 163S412 338 533 338S630 159 817 159" />
+    <g class="art-object" data-story-object="class" {...object('class')} transform="translate(51 58) rotate(-4 140 108)">
+      <rect class="art-paper" width="282" height="208" /><rect class="art-ink" width="282" height="42" /><circle class="art-on-ink" cx="20" cy="21" r="4" /><circle class="art-on-ink" cx="36" cy="21" r="4" />
+      <text x="22" y="76">CLASS / SMART CITY LAB</text><path class="art-line" d="M22 94H252" />
+      <g class="art-soft"><rect x="22" y="111" width="52" height="36" /><rect x="84" y="111" width="52" height="36" /><rect x="146" y="111" width="52" height="36" /><rect x="208" y="111" width="52" height="36" /></g>
+      <circle class="art-accent-fill" cx="48" cy="129" r="9" /><path class="art-line" d="M22 173H214M22 189H163" />
+      <circle class="art-stamp" cx="243" cy="203" r="33" /><path class="art-accent-line" d="M229 203L239 213L256 193" />
+    </g>
+    <g class="art-object" data-story-object="activity" {...object('activity')} transform="translate(373 74) rotate(5 80 144)">
+      <rect class="art-shadow" x="9" y="9" width="164" height="284" rx="25" /><rect class="art-ink" width="164" height="284" rx="25" /><rect class="art-paper" x="9" y="9" width="146" height="266" rx="19" />
+      <rect class="art-ink" x="54" y="17" width="56" height="10" rx="5" /><text x="24" y="61">SESSION / QR</text>
+      <path class="art-heavy" d="M34 89H63V118H34ZM103 89H132V118H103ZM34 158H63V187H34Z" /><path class="art-heavy" d="M78 91V108H90V137H111M34 137H60V149M79 159H92V184H132M120 132V151H132M77 125V139M112 164V176" />
+      <rect class="art-accent-fill" x="22" y="214" width="120" height="38" rx="5" /><path class="art-line" d="M50 233H114" />
+    </g>
+    <g class="art-object" data-story-object="evidence" {...object('evidence')} transform="translate(620 79) rotate(-5 110 132)">
+      <rect class="art-paper" x="24" width="177" height="226" /><text x="44" y="34">LEARNING / EVIDENCE</text>
+      <path class="art-line" d="M44 58H179M44 80H138M44 145H174M44 166H154" />
+      <path class="art-soft" d="M0 94H92L107 113H224V270H0Z" /><path class="art-paper" d="M0 128H224L204 286H-17Z" />
+      <path class="art-accent-line" d="M40 211L71 178L103 215L152 161L182 194" /><circle class="art-accent-fill" cx="152" cy="161" r="6" />
+    </g>
+  </>}
+  {chapter === 'portfolio' && <>
+    <g class="art-object" data-story-object="media" {...object('media')} transform="translate(32 119) rotate(-8 136 82)">
+      <rect class="art-ink" width="275" height="157" />
+      {Array.from({length: 9}, (_, i) => <><rect class="art-on-ink" x={12 + i * 29} y="8" width="13" height="9" /><rect class="art-on-ink" x={12 + i * 29} y="140" width="13" height="9" /></>)}
+      <rect class="art-paper" x="16" y="26" width="115" height="105" /><rect class="art-paper" x="144" y="26" width="115" height="105" />
+      <circle class="art-soft" cx="75" cy="58" r="18" /><path class="art-line" d="M41 113Q48 68 75 76Q105 67 114 113M172 102L194 71L216 97L234 58" />
+      <rect class="art-accent-line" x="48" y="36" width="53" height="53" rx="4" /><path class="art-accent-line" d="M167 113H243" />
+    </g>
+    <g class="art-object" data-story-object="draft" {...object('draft')} transform="translate(330 42) rotate(-2 141 163)">
+      <rect class="art-shadow" x="10" y="12" width="280" height="331" /><rect class="art-paper" width="280" height="331" />
+      <path class="art-line" d="M0 33H280M68 33V331M14 65H51M14 84H44M14 104H51M14 126H46" /><circle class="art-accent-fill" cx="26" cy="174" r="10" /><circle class="art-dot" cx="48" cy="174" r="6" />
+      <rect class="art-soft" x="87" y="54" width="175" height="74" /><circle class="art-paper" cx="120" cy="87" r="20" /><path class="art-line" d="M153 76H245M153 93H226M87 153H261M87 174H213" />
+      <rect class="art-paper" x="87" y="197" width="80" height="96" /><rect class="art-paper" x="180" y="197" width="80" height="96" /><path class="art-line" d="M101 213H151M101 231H140M194 213H245M194 231H233" />
+      <path class="art-accent-line" d="M237 117L242 141L248 131L259 126Z" />
+    </g>
+    <g class="art-object" data-story-object="publish" {...object('publish')} transform="translate(666 72) rotate(6 95 122)">
+      <rect class="art-ink" width="185" height="249" /><rect class="art-soft" x="12" y="13" width="161" height="40" />
+      <text class="art-title art-inverse" x="18" y="89">MY STORY.</text><path class="art-inverse-line" d="M18 110H146M18 125H125" />
+      <rect class="art-paper" x="18" y="147" width="68" height="72" /><rect class="art-paper" x="99" y="147" width="68" height="72" />
+      <g transform="translate(-40 220) rotate(-13 90 50)"><rect class="art-paper" width="183" height="94" /><path class="art-line" d="M17 21H126M17 40H90M17 62H103" /><circle class="art-stamp" cx="146" cy="52" r="23" /><path class="art-accent-line" d="M136 52L143 59L157 44" /></g>
+    </g>
+  </>}
+</svg>
+<style lang="scss">
+  .obox-story-art { display: block; width: 100%; height: auto; color: color(secondary); overflow: visible;
+    .art-grid { fill: none; stroke: color(line); opacity: .45; stroke-width: .7; }
+    .art-paper { fill: color(primary); stroke: currentColor; stroke-width: 1.5; }
+    .art-line { fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .art-heavy { fill: none; stroke: currentColor; stroke-width: 4; }
+    .art-ink, .art-dot { fill: color(secondary); }
+    .art-on-ink { fill: color(primary); }
+    .art-shadow { fill: color(secondary); opacity: .09; }
+    .art-soft { fill: color(surface); stroke: color(secondary); stroke-width: 1.5; }
+    .art-accent-fill { fill: color(accent); fill-opacity: .2; stroke: color(accent); stroke-width: 1.5; }
+    .art-accent-line, .art-stamp { fill: none; stroke: color(accent); stroke-width: 2.5; }
+    .art-route { fill: none; stroke: color(accent); stroke-width: 3; stroke-dasharray: 5 9; stroke-linecap: round; }
+    .art-inverse { fill: color(primary); }
+    .art-inverse-line { fill: none; stroke: color(primary); stroke-width: 1.5; }
+    text { fill: currentColor; font: 400 12px font-family(fraktion); letter-spacing: .035em; }
+    .art-title { font: 700 30px font-family(bigger); }
+    .art-title.art-inverse { fill: color(primary); }
+    .art-object { cursor: pointer; opacity: .55; transition: opacity .35s; }
+    .art-object.is-selected, .art-object:hover, .art-object:focus-visible { opacity: 1; }
+    .art-object:focus-visible { outline: 2px solid color(accent); outline-offset: 6px; }
+    @media (prefers-reduced-motion: reduce) { .art-object { transition: none; } }
+  }
+</style>

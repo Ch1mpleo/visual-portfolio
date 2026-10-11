@@ -7,7 +7,8 @@ curriculum, a class learning path, and the student portfolio builder. Typed copy
 and screenshot metadata live in `oboxChapters.ts`. The product film uses the
 provided 45-second showreel, native controls, a designed poster, and no preload
 or autoplay. Playback pauses on tab/project changes, inspection, and closing.
-Project changes/reopening reset playback and chapter/focus selections.
+Project changes/reopening reset playback and chapter/focus selections. Experience
+and Under the Hood share the selected chapter, preserving the story across tabs.
 
 Screenshots have selectable focus crops and an inner native image-inspection
 dialog. Escape closes only the image inspector and restores its trigger.
@@ -22,8 +23,43 @@ Every public URL includes Astro's base path for the GitHub Pages deployment.
 
 Production build and TypeScript checks passed. Preview checks covered chapter
 switching, focus selection, native image inspection/Escape, phone layout, and
-showreel playback/pause with the production base path. Under the Hood is updated
-in the following implementation stage.
+showreel playback/pause with the production base path.
+
+## OboxSTEAM redesign: Under the Hood
+
+The former anatomy and 19-step workflows have been replaced by three connected
+illustrated scenes. `oboxEngineering.ts` defines nine short engineering notes
+and contextual integrations. `OboxStoryArtwork.astro` draws tangible curriculum
+blueprints/review/booklets, a class/phone/evidence route, and a filmstrip/editor/
+published story. Objects are pointer- and keyboard-selectable, with equivalent
+native buttons. Only one scene and one engineering note are visible at once.
+
+`OboxDetailController.ts` owns both chapter views, screenshot focus/inspection,
+object selection, and showreel lifecycle. The shared viewer retains modal state,
+focus handling, project navigation, and independent tab scroll positions. Part
+selections survive tab/chapter changes; reopening resets all three to their first
+object and collapses the delivery note. Interaction respects reduced motion.
+
+The persistent foundation identifies client responsibilities, API layers, and
+records/media storage. A collapsed delivery note covers Docker/GitHub Actions/
+VPS and OpenTelemetry/Traceway. Bedrock, conditional face associations, and
+separate draft/publication lifecycles are explained in the portfolio chapter.
+
+Content was checked against the local API's product overview/integrations and
+the web/mobile source references below. Earlier packet notes below document
+the historical implementation, superseded for OboxSTEAM by this redesign.
+
+### Redesign verification
+
+Production build, TypeScript, and scoped diff checks passed. Preview checks at
+1440px desktop, 768px tablet, and 360–390px phones covered both themes, all nine
+engineering notes, SVG keyboard selection, chapter synchronization, disclosure
+reset, image focus/inspection, keyboard image scrolling, and nested Escape.
+The 45-second showreel plays from the production base path and pauses when
+leaving Experience. Project changes restore the default chapter and playback
+position. GraphPaper and Museums still open and switch views correctly.
+No runtime errors were captured. Existing Sass/Browserslist warnings remain.
+GitHub Pages checkout already enables Git LFS for the supplied MP4.
 
 ## Packet 2: functional viewer
 
@@ -32,7 +68,8 @@ The gallery opens one native modal dialog mounted outside `.site-wrapper` in
 project components. Every project has a dedicated Under the Hood component.
 
 `ProjectViewerController.ts` owns modal state, project/tab selection, tab scroll
-positions, museum/anatomy/workflow selection, and the original trigger/page position. The typed
+positions, museum/graph selection, and the original trigger/page position.
+`OboxDetailController.ts` owns OboxSTEAM's chapters, objects, and media. The typed
 `open-project-viewer` event carries a project ID and the gallery button.
 
 - Open and project changes reset to Experience and the top of the scroller.

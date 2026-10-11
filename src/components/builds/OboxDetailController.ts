@@ -48,6 +48,10 @@ export class OboxDetailController {
     this.film.currentTime = 0
   }
 
+  play() {
+    // A quick tab change can abort loading; native controls remain available if autoplay is blocked.
+    void this.film.play().catch(() => {})
+  }
   pause() { this.film.pause() }
   dismissZoom() { if (this.zoom.open) this.zoom.close() }
 

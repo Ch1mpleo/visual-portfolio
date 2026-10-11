@@ -111,6 +111,7 @@ export class ProjectViewerController {
     window.lenis?.stop()
     document.documentElement.classList.add('is-project-viewer-open')
     this.dialog.showModal()
+    this.syncFilm()
     // A closed dialog has no layout, so reset its scroller after showModal.
     this.scroller.scrollTop = 0
     // Native modal autofocus can move the document before focusing the sheet.
@@ -230,6 +231,12 @@ export class ProjectViewerController {
       panel.hidden = panel.dataset.viewerProject !== this.projectId || panel.dataset.viewerTab !== this.activeTab
     })
     this.scroller.scrollTop = this.tabScroll[this.activeTab]
+    this.syncFilm()
+  }
+
+  private syncFilm() {
+    if (this.dialog.open && this.state !== 'closing' && this.projectId === 'oboxsteam' && this.activeTab === 'experience') this.obox.play()
+    else this.obox.pause()
   }
 
   private fadeActivePanel() {

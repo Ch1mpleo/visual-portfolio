@@ -1,5 +1,19 @@
 # Selected Builds handoff
 
+## Follow-up: play the OboxSTEAM film on entry
+
+The showreel starts muted and inline when the OboxSTEAM Overview becomes visible.
+Returning to Overview resumes playback; reopening the project starts from the
+beginning. Switching tabs or projects and closing the viewer pause it. Playback
+is requested through the viewer lifecycle so the hidden film does not autoplay
+on initial page load. Native controls remain available for sound and playback.
+
+Production build and TypeScript checks passed. Browser verification confirmed
+muted playback on desktop and at 390px, resume on returning to Overview, restart
+on reopening or returning to the project, and pause on both other tabs, project
+switching, and closing. The hidden film stayed paused after page reload, and no
+runtime console errors were observed.
+
 ## Follow-up: OboxSTEAM film introduction and branding
 
 Overview introduces the 45-second showreel with a short editorial description.

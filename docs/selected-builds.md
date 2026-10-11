@@ -1,5 +1,14 @@
 # Selected Builds handoff
 
+## Follow-up: project destination buttons
+
+`ProjectLinks.astro` presents live destinations as prominent filled buttons and
+GitHub repositories as separate icon-led source buttons. GraphPaper has source
+buttons only; Museums keeps each exhibit's paired live/source destinations.
+All existing URLs and new-tab/noopener behavior are preserved. Hover has a small
+directional arrow movement, disabled with reduced motion. Production build and
+desktop/phone checks passed; source URLs and responsive widths were checked.
+
 ## OboxSTEAM redesign: Experience
 
 The OboxSTEAM Experience now follows Create / Learn / Show: expert-reviewed

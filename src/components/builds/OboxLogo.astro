@@ -1,11 +1,13 @@
 ---
+interface Props { viewer?: boolean }
+const { viewer = false } = Astro.props
 const logo = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/logo-obox.png`
 ---
-<span class="obox-logo" role="img" aria-label="OboxSTEAM logo" data-viewer-logo style={`--obox-logo: url('${logo}')`}></span>
+<span class="obox-logo" role="img" aria-label="OboxSTEAM logo" data-viewer-logo={viewer || undefined} style={`--obox-logo: url('${logo}')`}></span>
 <style lang="scss">
   .obox-logo {
     display: block; flex-shrink: 0; width: 64px; aspect-ratio: 1;
-    background: color(secondary);
+    background: currentColor;
     mask: var(--obox-logo) center / contain no-repeat;
     -webkit-mask: var(--obox-logo) center / contain no-repeat;
     &[hidden] { display: none !important; }

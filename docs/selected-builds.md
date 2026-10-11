@@ -1,5 +1,17 @@
 # Selected Builds handoff
 
+## Follow-up: OboxSTEAM logo in the gallery
+
+The OboxSTEAM specimen now uses the shared logo beside its title. Its mask inherits
+the caption color, including the inverted hover/focus state in both themes.
+The viewer uses an explicit component prop for its controller hook, keeping the
+gallery logo independent of project switching inside the viewer.
+
+Production build and TypeScript passed. Preview checks covered desktop and 360px
+phone layouts, normal and focused caption contrast in both themes, viewer logo
+visibility when switching projects, and continued Overview autoplay. No runtime
+console errors were observed.
+
 ## Follow-up: play the OboxSTEAM film on entry
 
 The showreel starts muted and inline when the OboxSTEAM Overview becomes visible.

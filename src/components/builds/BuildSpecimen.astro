@@ -1,6 +1,7 @@
 ---
 import type { Project } from '../../data/projects'
 import ProjectArtwork from './ProjectArtwork.astro'
+import OboxLogo from './OboxLogo.astro'
 
 interface Props { project: Project }
 const { project } = Astro.props
@@ -17,7 +18,10 @@ const { project } = Astro.props
   </div>
   <div class="build-specimen__caption">
     <div>
-      <h3 id={`build-${project.id}-title`}>{project.title}</h3>
+      <div class="build-specimen__identity">
+        {project.id === 'oboxsteam' && <OboxLogo />}
+        <h3 id={`build-${project.id}-title`}>{project.title}</h3>
+      </div>
       <p>{project.summary}</p>
     </div>
     <span class="build-specimen__inspect" aria-hidden="true"><span class="build-specimen__action-label"><span class="build-specimen__default-label">Inspect project</span><span class="build-specimen__cue">{project.id === 'oboxsteam' ? 'Trace the system' : project.id === 'graphpaper' ? 'Unfold the ideas' : 'Enter the exhibition'}</span></span><span class="build-specimen__arrow">↗</span></span>
@@ -119,6 +123,8 @@ const { project } = Astro.props
       padding: 1.25rem;
       border-top: 1px solid color(line);
     }
+
+    &__identity { display: flex; align-items: center; gap: .75rem; }
 
     h3 {
       margin: 0;

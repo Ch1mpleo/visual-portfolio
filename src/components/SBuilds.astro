@@ -14,7 +14,7 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
   <div class="s-builds__gallery">
     {projects.map((project) => <BuildSpecimen project={project} />)}
   </div>
-  <div class="s-builds__footnote" aria-hidden="true"><span>Selected work / 01 — 03</span><span>Built with curiosity.</span></div>
+  <div class="s-builds__footnote"><span aria-hidden="true">Selected work / 01 — 03</span><p class="s-builds__ending">and so much more..</p></div>
 </section>
 
 <script>
@@ -38,7 +38,8 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
     &__period { color: color(accent); }
     &__description { margin: 0 0 0.3rem; max-width: 27ch; font: 400 clamp(1.25rem, 1.7vw, 1.6rem) / 1.4 font-family(editorial); }
     &__gallery { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(clamp(250px, 24vw, 340px), auto)); gap: 24px; }
-    &__footnote { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; color: color(muted); font: 400 10px / 1.4 font-family(fraktion); letter-spacing: 0.04em; text-transform: uppercase; }
+    &__footnote { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1rem; color: color(muted); font: 400 10px / 1.4 font-family(fraktion); letter-spacing: 0.04em; text-transform: uppercase; }
+    &__ending { margin: 0; color: color(secondary); font: italic 400 clamp(1.25rem, 2vw, 1.75rem) / 1.1 font-family(editorial); letter-spacing: 0; text-transform: none; }
 
     @media (min-width: 768px) and (max-width: 987px) {
       &__gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap: 20px; }

@@ -1,0 +1,8 @@
+.project-viewer {
+  .project-disclosure {
+    margin-top: 1rem;
+    summary { display: flex; align-items: center; gap: .75rem; width: fit-content; min-height: 44px; cursor: pointer; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); list-style: none; &::-webkit-details-marker { display: none; } > span { font-size: 18px; transition: rotate .2s; } &:hover { color: color(secondary); } &:focus-visible { outline: 2px solid color(accent); outline-offset: 4px; } }
+    &[open] summary > span { rotate: 45deg; }
+    p { max-width: 64ch; color: color(muted); font-size: 1rem !important; }
+  }
+}

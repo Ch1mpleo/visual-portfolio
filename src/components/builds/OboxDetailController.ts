@@ -12,14 +12,34 @@ export class OboxDetailController {
     this.zoom = viewer.querySelector('[data-obox-zoom]')!
     viewer.querySelectorAll<HTMLButtonElement>('[data-obox-engine-chapter]').forEach((button) => {
       button.addEventListener('click', () => this.selectChapter(button.dataset.oboxEngineChapter as OboxChapterId, true))
-    })
-    viewer.querySelectorAll<HTMLButtonElement>('[data-obox-part]').forEach((button) => {
-      button.addEventListener('click', () => this.selectPart(button.closest<HTMLElement>('[data-obox-engine-panel]')!, button.dataset.oboxPart!, true))
+      button.addEventListener('keydown', (event) => {
+        const chapters = Array.from(viewer.querySelectorAll<HTMLButtonElement>('[data-obox-engine-chapter]'))
+        const index = chapters.indexOf(button)
+        const next = event.key === 'ArrowRight' ? (index + 1) % chapters.length : event.key === 'ArrowLeft' ? (index + chapters.length - 1) % chapters.length : event.key === 'Home' ? 0 : event.key === 'End' ? chapters.length - 1 : -1
+        if (next < 0) return
+        event.preventDefault()
+        chapters[next].click()
+        chapters[next].focus({ preventScroll: true })
+      })
     })
     viewer.querySelectorAll<SVGElement>('[data-story-object]').forEach((object) => {
       const select = () => this.selectPart(object.closest<HTMLElement>('[data-obox-engine-panel]')!, object.dataset.storyObject!, true)
       object.addEventListener('click', select)
-      object.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select() } })
+      object.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); return }
+        const panel = object.closest<HTMLElement>('[data-obox-engine-panel]')!
+        const objects = Array.from(panel.querySelectorAll<SVGElement>('[data-story-object]'))
+        const index = objects.indexOf(object)
+        const next = event.key === 'ArrowRight' ? (index + 1) % objects.length : event.key === 'ArrowLeft' ? (index + objects.length - 1) % objects.length : event.key === 'Home' ? 0 : event.key === 'End' ? objects.length - 1 : -1
+        if (next < 0) return
+        event.preventDefault()
+        this.selectPart(panel, objects[next].dataset.storyObject!, true)
+        objects[next].focus({ preventScroll: true })
+        const stage = panel.querySelector<HTMLElement>('[data-obox-stage]')!
+        const rect = objects[next].getBoundingClientRect()
+        const frame = stage.getBoundingClientRect()
+        stage.scrollTo({ left: stage.scrollLeft + rect.left + rect.width / 2 - frame.left - frame.width / 2, behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+      })
     })
     viewer.querySelectorAll<HTMLButtonElement>('[data-obox-enlarge]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -65,12 +85,15 @@ export class OboxDetailController {
     this.viewer.querySelectorAll<HTMLButtonElement>('[data-obox-engine-chapter]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.oboxEngineChapter === id)))
     this.viewer.querySelectorAll<HTMLElement>('[data-obox-engine-panel]').forEach((panel) => {
       panel.hidden = panel.dataset.oboxEnginePanel !== id
-      if (!panel.hidden) this.reveal(panel, animate)
+      if (!panel.hidden) {
+        panel.querySelector<HTMLElement>('[data-obox-stage]')!.scrollLeft = 0
+        this.reveal(panel, animate)
+      }
     })
   }
 
   private selectPart(panel: HTMLElement, id: string, animate = false) {
-    panel.querySelectorAll<HTMLButtonElement>('[data-obox-part]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.oboxPart === id)))
+    panel.querySelectorAll<HTMLDetailsElement>('details').forEach((detail) => { detail.open = false })
     panel.querySelectorAll<HTMLElement>('[data-obox-part-panel]').forEach((note) => {
       note.hidden = note.dataset.oboxPartPanel !== id
       if (!note.hidden) this.reveal(note, animate)

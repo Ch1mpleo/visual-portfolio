@@ -1,9 +1,9 @@
 export type GraphStageId = 'document' | 'chunks' | 'entities' | 'graph'
 export const graphStages = [
-  { id: 'document', label: 'Document', title: 'Start with a research paper', description: 'A document is the source material. The upload interface and document model are present; complete text extraction belongs to the intended pipeline.' },
-  { id: 'chunks', label: 'Chunks and embeddings', title: 'Give passages a representation', description: 'Chunks organize smaller passages, while embeddings represent their meaning numerically. Chunk models and an embedding service are present; connecting extraction to this stage remains part of the intended pipeline.' },
-  { id: 'entities', label: 'Entities and relationships', title: 'Describe the connections', description: 'Concepts, methods, and findings can become entities linked by relationships. The data models provide a foundation; complete extraction and graph-building orchestration remain intended work.' },
-  { id: 'graph', label: 'Graph exploration', title: 'Explore ideas in context', description: 'The graph interface offers a way to navigate connected ideas. The nodes shown here are an illustrated concept; grounded answers and a complete processing pipeline are not presented as working features.' },
+  { id: 'document', label: 'Document', title: 'It starts with a paper.', description: 'The research paper is the source. An upload interface and document model provide the starting point.', detail: 'Complete text extraction remains part of the intended pipeline.' },
+  { id: 'chunks', label: 'Passages', title: 'Give meaning a smaller canvas.', description: 'Passages break a document into smaller pieces. Embeddings represent their meaning numerically.', detail: 'Chunk models and an embedding service exist. Connecting document extraction to this stage remains intended work.' },
+  { id: 'entities', label: 'Connections', title: 'Ideas begin to find each other.', description: 'Concepts, methods, and findings can become entities, linked by relationships that give each idea context.', detail: 'Entity and relationship data models provide the foundation. Complete extraction and graph-building orchestration remain intended work.' },
+  { id: 'graph', label: 'Exploration', title: 'Follow an idea beyond the page.', description: 'A graph interface offers a way to navigate connected ideas. This scene illustrates that direction.', detail: 'Graph-viewing interface code is present. The illustrated nodes are conceptual; a complete pipeline and grounded answers remain intended work.' },
 ] as const
 
 export type MuseumLayerId = 'content' | 'visual' | 'interaction'

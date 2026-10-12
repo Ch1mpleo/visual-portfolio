@@ -14,6 +14,7 @@ export class ProjectViewerController {
   private activeTab: ProjectTab = 'experience'
   private exhibit: MuseumExhibitId = 'mln131'
   private graphStage: GraphStageId = 'document'
+  private reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
   private museumLayer: MuseumLayerId = 'content'
   private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0, stack: 0 }
   private trigger: HTMLButtonElement | null = null
@@ -75,8 +76,22 @@ export class ProjectViewerController {
     dialog.querySelectorAll<HTMLButtonElement>('[data-exhibit]').forEach((button) => {
       button.addEventListener('click', () => this.selectExhibit(button.dataset.exhibit as MuseumExhibitId))
     })
-    dialog.querySelectorAll<HTMLButtonElement>('[data-graph-stage]').forEach((button) => {
+    dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
       button.addEventListener('click', () => this.selectGraphStage(button.dataset.graphStage as GraphStageId))
+      button.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.selectGraphStage(button.dataset.graphStage as GraphStageId); return }
+        const stages = Array.from(dialog.querySelectorAll<SVGElement>('[data-graph-stage]'))
+        const index = stages.indexOf(button)
+        const next = event.key === 'ArrowRight' ? (index + 1) % stages.length : event.key === 'ArrowLeft' ? (index + stages.length - 1) % stages.length : event.key === 'Home' ? 0 : event.key === 'End' ? stages.length - 1 : -1
+        if (next < 0) return
+        event.preventDefault()
+        this.selectGraphStage(stages[next].dataset.graphStage as GraphStageId)
+        stages[next].focus({ preventScroll: true })
+        const scene = dialog.querySelector<HTMLElement>('[data-graph-scene]')!
+        const rect = stages[next].getBoundingClientRect()
+        const frame = scene.getBoundingClientRect()
+        scene.scrollTo({ left: scene.scrollLeft + rect.left + rect.width / 2 - frame.left - frame.width / 2, behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+      })
     })
     dialog.querySelectorAll<HTMLButtonElement>('[data-museum-layer]').forEach((button) => {
       button.addEventListener('click', () => this.selectMuseumLayer(button.dataset.museumLayer as MuseumLayerId))
@@ -162,6 +177,7 @@ export class ProjectViewerController {
     this.tabScroll = { experience: 0, 'under-the-hood': 0, stack: 0 }
     this.selectExhibit('mln131')
     this.selectGraphStage('document')
+    this.dialog.querySelector<HTMLElement>('[data-graph-scene]')!.scrollLeft = 0
     this.selectMuseumLayer('content')
     this.render()
   }
@@ -190,10 +206,11 @@ export class ProjectViewerController {
   private selectGraphStage(id: GraphStageId) {
     if (!graphStages.some((stage) => stage.id === id)) return
     this.graphStage = id
-    this.dialog.querySelectorAll<HTMLButtonElement>('[data-graph-stage]').forEach((button) => {
+    this.dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
       button.setAttribute('aria-pressed', String(button.dataset.graphStage === this.graphStage))
     })
     this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => { panel.hidden = panel.dataset.graphStagePanel !== this.graphStage })
+    this.dialog.querySelectorAll<HTMLDetailsElement>('[data-graph-stage-panel] details').forEach((detail) => { detail.open = false })
     this.dialog.querySelectorAll<SVGElement>('[data-graph-layer]').forEach((layer) => { layer.classList.toggle('is-selected', layer.dataset.graphLayer === this.graphStage) })
   }
 

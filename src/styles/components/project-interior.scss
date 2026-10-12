@@ -6,3 +6,29 @@
     p { max-width: 64ch; color: color(muted); font-size: 1rem !important; }
   }
 }
+
+.project-viewer .project-colophon { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; padding-top: 1rem; color: color(muted); border-top: 1px solid color(line); > span { font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; flex-shrink: 0; } > p { margin: 0; font: 400 11px / 1.5 font-family(fraktion); } }
+.graph-overview {
+  &__intro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 2rem; h3 { font-size: clamp(2.6rem, 4vw, 3.75rem); } > p { margin: 0 !important; max-width: 43ch; } }
+  &__art { margin-block: 1.5rem; .project-art { width: 100%; height: clamp(260px, 38dvh, 420px); } }
+}
+.project-viewer .graph-explorer {
+  padding-block: 1.5rem;
+  &__masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 1.25rem; .project-content__label { margin: 0; } > p:not(.project-content__label) { margin: 0; font: 400 10px / 1.5 font-family(fraktion); color: color(muted); } }
+  &__meta { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1rem; border-top: 1px solid color(line); color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; }
+  &__stage { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: color(line) transparent; .graph-concept { height: clamp(260px, 37dvh, 410px); } &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
+  &__caption { border-top: 1px solid color(line); padding-top: 1.5rem; margin-top: 1rem; > section { display: grid; grid-template-columns: 2rem 1fr; gap: 1rem; h4 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 2.3vw, 1.9rem); } p { max-width: 60ch; margin: 0; font-size: 1.1rem; } } }
+  &__number { padding-top: .3rem; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); }
+  &__scope { display: grid; grid-template-columns: 13rem 1fr; gap: 2rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid color(line); > span { color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; } > p { color: color(muted); margin: 0; max-width: 70ch; font-size: .95rem; } }
+}
+@media (max-width: 767px) {
+  .graph-overview__intro { grid-template-columns: 1fr; gap: 1rem; }
+  .project-viewer .project-colophon { flex-direction: column; gap: .5rem; }
+  .project-viewer .graph-explorer {
+    &__masthead { display: block; > p:not(.project-content__label) { margin-top: .35rem; } }
+    &__meta { display: block; > span:last-child { display: block; margin-top: .5rem; } }
+    &__stage { margin-inline: -1rem; padding-inline: 1rem; .graph-concept { width: 1030px; min-width: 1030px; height: auto; } }
+    &__caption > section { grid-template-columns: 1.5rem 1fr; gap: .5rem; }
+    &__scope { grid-template-columns: 1fr; gap: .65rem; }
+  }
+}

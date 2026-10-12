@@ -7,7 +7,7 @@ const stack: ProjectStack = projectStacks[project.id]
 ---
 <div class="project-content project-stack">
   <header class="project-stack__intro">
-    <div><p class="project-content__label">{project.title} / Stack</p><h3>The whole stack.<br />One place.</h3></div>
+    <p class="project-content__label">Technology & delivery</p>
     <p class="project-content__intro">{stack.introduction}</p>
   </header>
   <div class="project-stack__groups">
@@ -24,7 +24,7 @@ const stack: ProjectStack = projectStacks[project.id]
 </div>
 <style lang="scss">
   .project-stack {
-    &__intro { display: grid; grid-template-columns: 1.2fr 1fr; align-items: end; gap: 2rem; margin-bottom: 1.5rem; h3 { margin-bottom: 0; font-size: clamp(2.4rem, 4vw, 3.5rem); } > p { margin: 0; max-width: 38ch; } }
+    &__intro { display: grid; grid-template-columns: 1fr 1.4fr; align-items: baseline; gap: 2rem; margin-bottom: 2rem; > p { margin: 0; max-width: 46ch; } }
     &__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(1.5rem, 4vw, 4rem); }
     &__group { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 1rem; padding-block: 1.25rem; border-top: 1px solid color(line); }
     &__number { color: color(muted); padding-top: .35rem; font: 400 11px / 1.5 font-family(fraktion); }

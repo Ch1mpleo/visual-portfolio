@@ -37,7 +37,7 @@ export const projectStacks = {
         tools: ['Stripe — payments', '8x8 JaaS — live sessions', 'Resend — email', 'QuestPDF — certificates'],
       },
       {
-        label: 'Delivery & observability', purpose: 'Build, deploy, and follow requests through the backend.',
+        label: 'Delivery & observability', purpose: 'Ship the backend as a container, trace requests, and run scheduled tasks and media jobs.',
         tools: ['Docker / Docker Compose', 'Docker Hub / GitHub Actions', 'VPS deployment', 'OpenTelemetry / Traceway'],
       },
     ],

@@ -1,19 +1,23 @@
 ---
 import type { Project } from '../../data/projects'
 import { museumExhibits } from '../../data/museumExhibits'
-import MuseumExhibitArtwork from './MuseumExhibitArtwork.astro'
-import ProjectFacts from './ProjectFacts.astro'
 import ProjectLinks from './ProjectLinks.astro'
 interface Props { project: Project }
 const { project } = Astro.props
+const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/museums/`
 ---
-<div class="project-content" data-museum-experience>
-  <p class="project-content__label">Two exhibits / One collection</p><h3>Coursework,<br />built to be explored.</h3>
-  <p class="project-content__intro">Two interactive digital exhibits turn coursework into visual stories, with editorial composition, chapter navigation, and motion guiding the experience.</p>
-  <div class="project-content__exhibit-controls" role="group" aria-label="Choose an exhibit">{museumExhibits.map((exhibit, index) => <button type="button" data-exhibit={exhibit.id} aria-pressed={index === 0} aria-controls={`exhibit-${exhibit.id}`}>{exhibit.label}</button>)}</div>
+<div class="project-content museum-showcase" data-museum-experience>
+  <header class="museum-showcase__heading"><div><p class="project-content__label">Two exhibits / One collection</p><h3>Enter the exhibition.</h3></div><span>Content / Design / Interaction</span></header>
+  <div class="museum-showcase__selectors" role="group" aria-label="Choose an exhibit">
+    {museumExhibits.map((exhibit, index) => <button type="button" data-exhibit={exhibit.id} aria-label={exhibit.label} aria-pressed={index === 0} aria-controls={`exhibit-${exhibit.id}`}><span>0{index + 1} / {exhibit.id === 'mln131' ? 'MLN131' : 'VNR202'}</span><strong>{exhibit.id === 'mln131' ? 'Democracy' : '1945 — 1954'}</strong><span aria-hidden="true">↗</span></button>)}
+  </div>
   {museumExhibits.map((exhibit, index) => <section id={`exhibit-${exhibit.id}`} data-exhibit-panel={exhibit.id} hidden={index !== 0} aria-label={exhibit.label}>
-    <div class="project-content__lead"><div><p class="project-content__label">{exhibit.label}</p><h4>{exhibit.title}</h4><p>{exhibit.description}</p></div><div class="project-content__art"><MuseumExhibitArtwork exhibit={exhibit.id} /><p class="project-content__label">Illustrated editorial study</p></div></div>
+    <a class="museum-showcase__preview" href={exhibit.links[0].href} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${exhibit.label} exhibit (opens in a new tab)`}>
+      <img src={`${assets}${exhibit.id}-preview.jpg`} width="1440" height="1000" alt={exhibit.id === 'mln131' ? 'The Democracy exhibit: monumental Vietnamese typography, a portrait of Hồ Chí Minh, and a red and ink editorial composition.' : 'The Vietnam 1945–1954 exhibit: a flag fills the background behind monumental typography and historical chapter markers.'} loading="lazy" decoding="async" />
+      <span aria-hidden="true">Enter exhibit ↗</span>
+    </a>
+    <div class="museum-showcase__caption"><div><p class="project-content__label">{exhibit.label}</p><h4>{exhibit.title}</h4></div><p>{exhibit.description}</p></div>
     <ProjectLinks links={exhibit.links} />
   </section>)}
-  <ProjectFacts project={project} />
+  <div class="project-colophon"><span>My contribution</span><p>{project.contribution}</p></div>
 </div>

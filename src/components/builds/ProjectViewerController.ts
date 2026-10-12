@@ -1,12 +1,11 @@
-import { projects, type ProjectId, type ProjectTab } from '../../data/projects'
+import { projects, projectViews, type ProjectId, type ProjectTab } from '../../data/projects'
 import type { MuseumExhibitId } from '../../data/museumExhibits'
 import { OPEN_PROJECT } from './viewerEvents'
-import { graphStages, museumLayers, type GraphStageId, type MuseumLayerId } from '../../data/projectInteriors'
+import { graphStages, type GraphStageId } from '../../data/projectInteriors'
 import { ProjectViewerMotion } from './ProjectViewerMotion'
 import { OboxDetailController } from './OboxDetailController'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
-const tabs: ProjectTab[] = ['experience', 'under-the-hood', 'stack']
 
 export class ProjectViewerController {
   private state: ViewerState = 'closed'
@@ -15,7 +14,6 @@ export class ProjectViewerController {
   private exhibit: MuseumExhibitId = 'mln131'
   private graphStage: GraphStageId = 'document'
   private reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
-  private museumLayer: MuseumLayerId = 'content'
   private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0, stack: 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
@@ -60,6 +58,7 @@ export class ProjectViewerController {
     this.tabButtons.forEach((button) => {
       button.addEventListener('click', () => this.switchTab(button.dataset.projectTab as ProjectTab))
       button.addEventListener('keydown', (event) => {
+        const tabs = projectViews[this.projectId]
         const index = tabs.indexOf(this.activeTab)
         let next: number
         if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
@@ -69,7 +68,7 @@ export class ProjectViewerController {
         else return
         event.preventDefault()
         this.switchTab(tabs[next])
-        this.tabButtons[next].focus({ preventScroll: true })
+        this.tabButtons.find((tab) => tab.dataset.projectTab === tabs[next])!.focus({ preventScroll: true })
       })
     })
 
@@ -92,9 +91,6 @@ export class ProjectViewerController {
         const frame = scene.getBoundingClientRect()
         scene.scrollTo({ left: scene.scrollLeft + rect.left + rect.width / 2 - frame.left - frame.width / 2, behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
       })
-    })
-    dialog.querySelectorAll<HTMLButtonElement>('[data-museum-layer]').forEach((button) => {
-      button.addEventListener('click', () => this.selectMuseumLayer(button.dataset.museumLayer as MuseumLayerId))
     })
 
     // A drag that begins in the sheet must never dismiss the dialog.
@@ -178,11 +174,11 @@ export class ProjectViewerController {
     this.selectExhibit('mln131')
     this.selectGraphStage('document')
     this.dialog.querySelector<HTMLElement>('[data-graph-scene]')!.scrollLeft = 0
-    this.selectMuseumLayer('content')
     this.render()
   }
 
   private switchTab(tab: ProjectTab) {
+    if (!projectViews[this.projectId].includes(tab)) return
     if (this.state === 'closing') return
     if (tab === this.activeTab) return
     this.motion.finish()
@@ -214,20 +210,6 @@ export class ProjectViewerController {
     this.dialog.querySelectorAll<SVGElement>('[data-graph-layer]').forEach((layer) => { layer.classList.toggle('is-selected', layer.dataset.graphLayer === this.graphStage) })
   }
 
-  private selectMuseumLayer(id: MuseumLayerId) {
-    if (!museumLayers.some((layer) => layer.id === id)) return
-    this.museumLayer = id
-    this.dialog.querySelectorAll<HTMLButtonElement>('[data-museum-layer]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.museumLayer === this.museumLayer))
-    })
-    this.dialog.querySelectorAll<HTMLElement>('[data-museum-layer-panel]').forEach((panel) => { panel.hidden = panel.dataset.museumLayerPanel !== this.museumLayer })
-    this.dialog.querySelectorAll<SVGElement>('[data-museum-art-layer]').forEach((layer) => {
-      const selected = layer.dataset.museumArtLayer === this.museumLayer
-      layer.classList.toggle('is-selected', selected)
-      if (selected) layer.parentElement!.append(layer)
-    })
-  }
-
   private render() {
     const index = projects.findIndex((project) => project.id === this.projectId)
     const project = projects[index]
@@ -239,10 +221,13 @@ export class ProjectViewerController {
     this.dialog.querySelector('[data-viewer-previous]')!.setAttribute('aria-label', `Previous project: ${projects[(index + projects.length - 1) % projects.length].title}`)
     this.dialog.querySelector('[data-viewer-next]')!.setAttribute('aria-label', `Next project: ${projects[(index + 1) % projects.length].title}`)
     this.tabButtons.forEach((button) => {
+      const available = projectViews[this.projectId].includes(button.dataset.projectTab as ProjectTab)
+      button.hidden = !available
       const selected = button.dataset.projectTab === this.activeTab
       button.setAttribute('aria-selected', String(selected))
       button.tabIndex = selected ? 0 : -1
-      button.setAttribute('aria-controls', `viewer-${this.projectId}-${button.dataset.projectTab}`)
+      if (available) button.setAttribute('aria-controls', `viewer-${this.projectId}-${button.dataset.projectTab}`)
+      else button.removeAttribute('aria-controls')
     })
     this.panels.forEach((panel) => {
       panel.hidden = panel.dataset.viewerProject !== this.projectId || panel.dataset.viewerTab !== this.activeTab

@@ -68,9 +68,9 @@ const { project } = Astro.props
     @keyframes build-trace { from { stroke-dasharray: 12 10; stroke-dashoffset: 66; opacity: .35; } to { stroke-dasharray: 12 10; stroke-dashoffset: 0; opacity: 1; } }
     @keyframes build-node { 0% { scale: .65; } 65% { scale: 1.3; } 100% { scale: 1; } }
 
-    &--oboxsteam { grid-column: 1 / 8; grid-row: 1 / 3; }
-    &--graphpaper { grid-column: 8 / 13; grid-row: 1; }
-    &--museums { grid-column: 8 / 13; grid-row: 2; }
+    &--oboxsteam { grid-column: 1; grid-row: 1 / 3; }
+    &--graphpaper { grid-column: 2; grid-row: 1; }
+    &--museums { grid-column: 2; grid-row: 2; }
 
     &__meta {
       display: flex;
@@ -80,7 +80,7 @@ const { project } = Astro.props
       padding: 1rem 1.25rem;
       border-bottom: 1px solid color(line);
       color: color(muted);
-      font: 400 10px / 1.4 font-family(fraktion);
+      font: 400 12px / 1.4 font-family(fraktion);
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
@@ -140,7 +140,7 @@ const { project } = Astro.props
       gap: 0.75rem;
       align-items: center;
       color: inherit;
-      font: 400 11px / 1.4 font-family(fraktion);
+      font: 400 12px / 1.4 font-family(fraktion);
       text-transform: uppercase;
       letter-spacing: 0.035em;
       .build-specimen__arrow { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color(line); border-radius: 50%; font-size: 18px; line-height: 1; transition: rotate 500ms cubic-bezier(.22, 1, .36, 1), border-color 300ms ease; }
@@ -180,6 +180,31 @@ const { project } = Astro.props
       &__caption, &--oboxsteam &__caption { padding: 1.25rem 1rem; gap: 1rem; }
       h3, &--oboxsteam h3 { font-size: clamp(2rem, 8vw, 3rem); }
       p, &--oboxsteam p { font-size: 1.125rem; }
+    }
+  }
+
+  .build-specimen {
+    &__meta { display: none; }
+    &__caption { padding: 1rem; gap: .75rem; }
+    &__inspect { font-size: 12px; }
+    &--oboxsteam &__art { min-height: 0; padding: .75rem 2rem; }
+    &--oboxsteam &__caption { flex-direction: row; align-items: end; justify-content: space-between; padding: 1rem 1.25rem; gap: 1rem; }
+    &--oboxsteam h3 { font-size: clamp(2.5rem, 4vw, 3.75rem); }
+    &--oboxsteam p { font-size: 18px; }
+    &--oboxsteam &__inspect { flex-shrink: 0; }
+    &--oboxsteam &__action-label { display: none; }
+    &:not(.build-specimen--oboxsteam) { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+    &:not(.build-specimen--oboxsteam) &__art { min-height: 0; padding: .5rem; }
+    &:not(.build-specimen--oboxsteam) &__caption { justify-content: space-between; border-top: 0; border-left: 1px solid color(line); }
+    &:not(.build-specimen--oboxsteam) h3 { font-size: clamp(1.8rem, 2.5vw, 2.4rem); }
+    &:not(.build-specimen--oboxsteam) p { font-size: 18px; }
+    &__folio { font-size: 5rem; }
+    @media (max-width: 987px) {
+      &--oboxsteam &__art { aspect-ratio: 7 / 4; }
+      &:not(.build-specimen--oboxsteam) { display: flex; }
+      &:not(.build-specimen--oboxsteam) &__art { aspect-ratio: 4 / 3; }
+      &:not(.build-specimen--oboxsteam) &__caption { border-left: 0; border-top: 1px solid color(line); }
+      &--oboxsteam &__caption { align-items: center; }
     }
   }
 </style>

@@ -95,10 +95,10 @@ const titleId = `${instance}-${projectId}-art-title`
 )}
 
 {projectId === 'graphpaper' && (
-  <svg class="project-art" viewBox="0 0 600 250" role="img" aria-labelledby={titleId}>
+  <svg class="project-art" viewBox="0 0 400 300" role="img" aria-labelledby={titleId}>
     <title id={titleId}>{description}</title>
     <path class="art-grid" fill="none" d="M24 125h552M300 20v210" />
-    <g transform="translate(95 28) rotate(-9 80 92)" data-specimen-layer="paper">
+    <g transform="translate(38 36) rotate(-9 80 92)" data-specimen-layer="paper">
       <path class="art-side" d="M-12 12h170v186H-12Z" />
       <path class="art-plane" d="M0 0h130l28 28v158H0Z" />
       <path class="art-line" fill="none" d="M130 0v28h28" />
@@ -108,6 +108,7 @@ const titleId = `${instance}-${projectId}-art-title`
       <path class="art-line" d="M17 106h118m-118 11h94m-94 26h118m-118 11h73m-73 11h103" />
       <rect class="art-ink" x="17" y="125" width="86" height="7" />
     </g>
+    <g transform="translate(-142 68) scale(.92)">
     <g class="art-line" fill="none" data-graph-routes>
       <path d="M248 147h52l49-36M349 111l58-58 77 31-46 87-89-60 12 94 77-34 84 24M484 84l38 111" />
       <path d="M273 136v22M285 140v14" />
@@ -121,14 +122,14 @@ const titleId = `${instance}-${projectId}-art-title`
     <text class="art-mono" x="326" y="90">CONCEPT</text>
     <text class="art-mono art-muted" x="419" y="45">METHOD</text>
     <text class="art-mono art-muted" x="457" y="151">FINDING</text>
-    <text class="art-mono art-muted" x="326" y="236">GRAPHRAG EXPERIMENT</text>
+    </g>
   </svg>
 )}
 
 {projectId === 'museums' && (
-  <svg class="project-art" viewBox="0 0 600 250" role="img" aria-labelledby={titleId}>
+  <svg class="project-art" viewBox="0 0 400 300" role="img" aria-labelledby={titleId}>
     <title id={titleId}>{description}</title>
-    <g transform="translate(74 22) rotate(-7 126 98)" data-specimen-layer="exhibit-a">
+    <g transform="translate(28 25) rotate(-7 126 98) scale(.84)" data-specimen-layer="exhibit-a">
       <rect class="art-plane" width="248" height="195" />
       <path class="art-line" d="M14 30h220M125 30v150M14 180h220" />
       <text class="art-mono" x="14" y="20">MLN131 / DIGITAL EXHIBIT</text>
@@ -140,7 +141,7 @@ const titleId = `${instance}-${projectId}-art-title`
       <path class="art-line" fill="none" d="m150 150 22-33 15 13 21-31 13 51M153 94h15" />
       <text class="art-mono" x="14" y="190">DEMOS + KRATOS</text>
     </g>
-    <g transform="translate(300 30) rotate(7 118 100)" data-specimen-layer="exhibit-b">
+    <g transform="translate(165 105) rotate(7 118 100) scale(.84)" data-specimen-layer="exhibit-b">
       <rect class="art-plane" width="235" height="195" />
       <rect class="art-ink" x="12" y="12" width="211" height="26" />
       <text class="art-mono art-inverse" x="21" y="30">VNR202 / VIETNAM</text>

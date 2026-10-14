@@ -1,12 +1,4 @@
 export type ProjectId = 'oboxsteam' | 'graphpaper' | 'museums'
-export type ProjectTab = 'experience' | 'under-the-hood' | 'stack'
-
-export const projectViews: Record<ProjectId, readonly ProjectTab[]> = {
-  oboxsteam: ['experience', 'under-the-hood', 'stack'],
-  graphpaper: ['experience', 'under-the-hood', 'stack'],
-  museums: ['experience', 'stack'],
-}
-
 export type ProjectLink = { label: string; href: string }
 
 export type Project = {

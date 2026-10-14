@@ -1,5 +1,4 @@
-import { projects, projectViews, type ProjectId, type ProjectTab } from '../../data/projects'
-import type { MuseumExhibitId } from '../../data/museumExhibits'
+import { projects, type ProjectId } from '../../data/projects'
 import { OPEN_PROJECT } from './viewerEvents'
 import { graphStages, type GraphStageId } from '../../data/projectInteriors'
 import { ProjectViewerMotion } from './ProjectViewerMotion'
@@ -10,18 +9,14 @@ type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
 export class ProjectViewerController {
   private state: ViewerState = 'closed'
   private projectId: ProjectId = 'oboxsteam'
-  private activeTab: ProjectTab = 'experience'
-  private exhibit: MuseumExhibitId = 'mln131'
   private graphStage: GraphStageId = 'document'
   private reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
-  private tabScroll: Record<ProjectTab, number> = { experience: 0, 'under-the-hood': 0, stack: 0 }
   private trigger: HTMLButtonElement | null = null
   private pagePosition = { x: 0, y: 0 }
   private wasLenisStopped = false
   private backdropPointer: number | null = null
   private scroller: HTMLElement
   private closeButton: HTMLButtonElement
-  private tabButtons: HTMLButtonElement[]
   private panels: HTMLElement[]
   private motion: ProjectViewerMotion
   private obox: OboxDetailController
@@ -31,7 +26,6 @@ export class ProjectViewerController {
     this.obox = new OboxDetailController(dialog)
     this.scroller = dialog.querySelector('[data-viewer-scroller]')!
     this.closeButton = dialog.querySelector('[data-viewer-close]')!
-    this.tabButtons = Array.from(dialog.querySelectorAll('[data-project-tab]'))
     this.panels = Array.from(dialog.querySelectorAll('[data-viewer-project]'))
 
     document.addEventListener(OPEN_PROJECT, (event) => this.open(event.detail.projectId, event.detail.trigger))
@@ -55,26 +49,6 @@ export class ProjectViewerController {
     dialog.querySelector('[data-viewer-previous]')!.addEventListener('click', () => this.switchProject(-1))
     dialog.querySelector('[data-viewer-next]')!.addEventListener('click', () => this.switchProject(1))
 
-    this.tabButtons.forEach((button) => {
-      button.addEventListener('click', () => this.switchTab(button.dataset.projectTab as ProjectTab))
-      button.addEventListener('keydown', (event) => {
-        const tabs = projectViews[this.projectId]
-        const index = tabs.indexOf(this.activeTab)
-        let next: number
-        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
-        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length
-        else if (event.key === 'Home') next = 0
-        else if (event.key === 'End') next = tabs.length - 1
-        else return
-        event.preventDefault()
-        this.switchTab(tabs[next])
-        this.tabButtons.find((tab) => tab.dataset.projectTab === tabs[next])!.focus({ preventScroll: true })
-      })
-    })
-
-    dialog.querySelectorAll<HTMLButtonElement>('[data-exhibit]').forEach((button) => {
-      button.addEventListener('click', () => this.selectExhibit(button.dataset.exhibit as MuseumExhibitId))
-    })
     dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
       button.addEventListener('click', () => this.selectGraphStage(button.dataset.graphStage as GraphStageId))
       button.addEventListener('keydown', (event) => {
@@ -169,34 +143,9 @@ export class ProjectViewerController {
 
   private resetProject() {
     this.obox.reset()
-    this.activeTab = 'experience'
-    this.tabScroll = { experience: 0, 'under-the-hood': 0, stack: 0 }
-    this.selectExhibit('mln131')
     this.selectGraphStage('document')
     this.dialog.querySelector<HTMLElement>('[data-graph-scene]')!.scrollLeft = 0
     this.render()
-  }
-
-  private switchTab(tab: ProjectTab) {
-    if (!projectViews[this.projectId].includes(tab)) return
-    if (this.state === 'closing') return
-    if (tab === this.activeTab) return
-    this.motion.finish()
-    this.tabScroll[this.activeTab] = this.scroller.scrollTop
-    this.obox.pause()
-    this.activeTab = tab
-    this.render()
-    this.fadeActivePanel()
-  }
-
-  private selectExhibit(exhibit: MuseumExhibitId) {
-    this.exhibit = exhibit
-    this.dialog.querySelectorAll<HTMLButtonElement>('[data-exhibit]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.exhibit === this.exhibit))
-    })
-    this.dialog.querySelectorAll<HTMLElement>('[data-exhibit-panel]').forEach((panel) => {
-      panel.hidden = panel.dataset.exhibitPanel !== this.exhibit
-    })
   }
 
   private selectGraphStage(id: GraphStageId) {
@@ -205,8 +154,7 @@ export class ProjectViewerController {
     this.dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
       button.setAttribute('aria-pressed', String(button.dataset.graphStage === this.graphStage))
     })
-    this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => { panel.hidden = panel.dataset.graphStagePanel !== this.graphStage })
-    this.dialog.querySelectorAll<HTMLDetailsElement>('[data-graph-stage-panel] details').forEach((detail) => { detail.open = false })
+    this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => { panel.classList.toggle('is-selected', panel.dataset.graphStagePanel === this.graphStage) })
     this.dialog.querySelectorAll<SVGElement>('[data-graph-layer]').forEach((layer) => { layer.classList.toggle('is-selected', layer.dataset.graphLayer === this.graphStage) })
   }
 
@@ -220,24 +168,18 @@ export class ProjectViewerController {
     this.dialog.querySelector('[data-viewer-announcement]')!.textContent = ` — ${project.title}`
     this.dialog.querySelector('[data-viewer-previous]')!.setAttribute('aria-label', `Previous project: ${projects[(index + projects.length - 1) % projects.length].title}`)
     this.dialog.querySelector('[data-viewer-next]')!.setAttribute('aria-label', `Next project: ${projects[(index + 1) % projects.length].title}`)
-    this.tabButtons.forEach((button) => {
-      const available = projectViews[this.projectId].includes(button.dataset.projectTab as ProjectTab)
-      button.hidden = !available
-      const selected = button.dataset.projectTab === this.activeTab
-      button.setAttribute('aria-selected', String(selected))
-      button.tabIndex = selected ? 0 : -1
-      if (available) button.setAttribute('aria-controls', `viewer-${this.projectId}-${button.dataset.projectTab}`)
-      else button.removeAttribute('aria-controls')
+    this.panels.forEach((panel) => { panel.hidden = panel.dataset.viewerProject !== this.projectId })
+    this.scroller.scrollTop = 0
+    // Hidden project layout and interrupted fades must not anchor the new document.
+    const renderedProject = this.projectId
+    requestAnimationFrame(() => {
+      if (this.projectId === renderedProject && this.state !== 'closed' && this.state !== 'closing') this.scroller.scrollTop = 0
     })
-    this.panels.forEach((panel) => {
-      panel.hidden = panel.dataset.viewerProject !== this.projectId || panel.dataset.viewerTab !== this.activeTab
-    })
-    this.scroller.scrollTop = this.tabScroll[this.activeTab]
     this.syncFilm()
   }
 
   private syncFilm() {
-    if (this.dialog.open && this.state !== 'closing' && this.projectId === 'oboxsteam' && this.activeTab === 'experience') this.obox.play()
+    if (this.dialog.open && this.state !== 'closing' && this.projectId === 'oboxsteam') this.obox.play()
     else this.obox.pause()
   }
 

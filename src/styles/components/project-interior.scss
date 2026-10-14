@@ -1,25 +1,25 @@
 .project-viewer {
   .project-disclosure {
     margin-top: 1rem;
-    summary { display: flex; align-items: center; gap: .75rem; width: fit-content; min-height: 44px; cursor: pointer; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); list-style: none; &::-webkit-details-marker { display: none; } > span { font-size: 18px; transition: rotate .2s; } &:hover { color: color(secondary); } &:focus-visible { outline: 2px solid color(accent); outline-offset: 4px; } }
+    summary { display: flex; align-items: center; gap: .75rem; width: fit-content; min-height: 44px; cursor: pointer; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); list-style: none; &::-webkit-details-marker { display: none; } > span { font-size: 18px; transition: rotate .2s; } &:hover { color: color(secondary); } &:focus-visible { outline: 2px solid color(accent); outline-offset: 4px; } }
     &[open] summary > span { rotate: 45deg; }
     p { max-width: 64ch; color: color(muted); font-size: 1rem !important; }
   }
 }
 
-.project-viewer .project-colophon { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; padding-top: 1rem; color: color(muted); border-top: 1px solid color(line); > span { font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; flex-shrink: 0; } > p { margin: 0; font: 400 11px / 1.5 font-family(fraktion); } }
+.project-viewer .project-colophon { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; padding-top: 1rem; color: color(muted); border-top: 1px solid color(line); > span { font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; flex-shrink: 0; } > p { margin: 0; font: 400 12px / 1.5 font-family(fraktion); } }
 .graph-overview {
   &__intro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 2rem; h3 { font-size: clamp(2.6rem, 4vw, 3.75rem); } > p { margin: 0 !important; max-width: 43ch; } }
   &__art { margin-block: 1.5rem; .project-art { width: 100%; height: clamp(260px, 38dvh, 420px); } }
 }
 .project-viewer .graph-explorer {
   padding-block: 1.5rem;
-  &__masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 1.25rem; .project-content__label { margin: 0; } > p:not(.project-content__label) { margin: 0; font: 400 10px / 1.5 font-family(fraktion); color: color(muted); } }
-  &__meta { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1rem; border-top: 1px solid color(line); color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; }
+  &__masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 1.25rem; .project-content__label { margin: 0; } > p:not(.project-content__label) { margin: 0; font: 400 12px / 1.5 font-family(fraktion); color: color(muted); } }
+  &__meta { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1rem; border-top: 1px solid color(line); color: color(muted); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; }
   &__stage { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: color(line) transparent; .graph-concept { height: clamp(260px, 37dvh, 410px); } &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
   &__caption { border-top: 1px solid color(line); padding-top: 1.5rem; margin-top: 1rem; > section { display: grid; grid-template-columns: 2rem 1fr; gap: 1rem; h4 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 2.3vw, 1.9rem); } p { max-width: 60ch; margin: 0; font-size: 1.1rem; } } }
-  &__number { padding-top: .3rem; color: color(muted); font: 400 11px / 1.5 font-family(fraktion); }
-  &__scope { display: grid; grid-template-columns: 13rem 1fr; gap: 2rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid color(line); > span { color: color(muted); font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; } > p { color: color(muted); margin: 0; max-width: 70ch; font-size: .95rem; } }
+  &__number { padding-top: .3rem; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); }
+  &__scope { display: grid; grid-template-columns: 13rem 1fr; gap: 2rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid color(line); > span { color: color(muted); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; } > p { color: color(muted); margin: 0; max-width: 70ch; font-size: .95rem; } }
 }
 @media (max-width: 767px) {
   .graph-overview__intro { grid-template-columns: 1fr; gap: 1rem; }
@@ -34,19 +34,42 @@
 }
 
 .project-viewer .museum-showcase {
-  &__heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; h3 { max-width: none; font-size: clamp(2.5rem, 4vw, 3.75rem); } > span { padding-bottom: .3rem; font: 400 10px / 1.5 font-family(fraktion); color: color(muted); } }
-  &__selectors { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid color(line); margin: 1.5rem 0; button { display: flex; align-items: baseline; gap: 1rem; min-height: 56px; padding: .75rem .5rem 1rem; border: 0; border-radius: 0; border-bottom: 2px solid transparent; background: transparent; cursor: pointer; color: color(muted); > span:first-child { font: 400 10px / 1.5 font-family(fraktion); } strong { flex: 1; text-align: left; font: 400 1.6rem / 1 font-family(editorial); } > span:last-child { font-size: 18px; opacity: 0; } &[aria-pressed='true'] { color: color(secondary); border-bottom-color: color(secondary); > span:last-child { opacity: 1; } } &:hover { color: color(secondary); } } }
-  &__preview { display: block; position: relative; overflow: hidden; height: clamp(260px, 40dvh, 460px); background: color(surface); border: 1px solid color(line); > img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 47%; transition: scale .65s cubic-bezier(.22, 1, .36, 1); } > span { position: absolute; right: 1rem; bottom: 1rem; padding: .6rem .9rem; color: color(primary); background: color(secondary); font: 400 11px / 1.5 font-family(fraktion); opacity: 0; translate: 0 8px; transition: opacity .3s, translate .4s; } &:is(:hover, :focus-visible) { > img { scale: 1.025; } > span { opacity: 1; translate: 0 0; } } }
-  &__caption { display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: start; margin-top: 1.5rem; .project-content__label { font-size: 10px; margin-bottom: .6rem; } h4 { margin: 0; font-size: 1.9rem; } > p { margin: 0; max-width: 54ch; font-size: 1.1rem; } }
+  &__heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; h3 { max-width: none; font-size: clamp(2.5rem, 4vw, 3.75rem); } > span { padding-bottom: .3rem; font: 400 12px / 1.5 font-family(fraktion); color: color(muted); } }
+  &__preview { display: block; position: relative; overflow: hidden; height: clamp(260px, 40dvh, 460px); background: color(surface); border: 1px solid color(line); > img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 47%; transition: scale .65s cubic-bezier(.22, 1, .36, 1); } > span { position: absolute; right: 1rem; bottom: 1rem; padding: .6rem .9rem; color: color(primary); background: color(secondary); font: 400 12px / 1.5 font-family(fraktion); opacity: 0; translate: 0 8px; transition: opacity .3s, translate .4s; } &:is(:hover, :focus-visible) { > img { scale: 1.025; } > span { opacity: 1; translate: 0 0; } } }
+  &__caption { display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: start; margin-top: 1.5rem; .project-content__label { font-size: 12px; margin-bottom: .6rem; } h4 { margin: 0; font-size: 1.9rem; } > p { margin: 0; max-width: 54ch; font-size: 1.1rem; } }
   .project-actions { margin-top: 1rem; }
   .project-colophon { margin-top: 1rem; }
 }
 @media (max-width: 767px) {
   .project-viewer .museum-showcase {
     &__heading { display: block; > span { display: block; margin-top: 1rem; } }
-    &__selectors button { flex-wrap: wrap; gap: .5rem; > span:first-child { width: 100%; text-align: left; } strong { font-size: 1.45rem; } }
     &__preview { height: auto; aspect-ratio: 16 / 11; }
     &__caption { grid-template-columns: 1fr; gap: .75rem; }
   }
 }
 @media (prefers-reduced-motion: reduce) { .project-viewer .museum-showcase__preview > img, .project-viewer .museum-showcase__preview > span { transition: none; } }
+
+// Continuous project documents: generous reading size and visible explanations.
+.project-viewer {
+  .project-content__label, .project-disclosure summary, .project-colophon > span,
+  .graph-explorer__masthead > p, .graph-explorer__meta, .graph-explorer__number,
+  .graph-explorer__scope > span, .museum-showcase__heading > span,
+  .museum-showcase__caption .project-content__label { font-size: 12px; }
+  .project-colophon { margin-block: 1.25rem; align-items: start; > p { font: 400 18px / 1.5 font-family(editorial); max-width: 65ch; } }
+  .graph-overview { padding-bottom: 0; }
+  .graph-explorer__caption { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; > section { padding: 1rem; border: 1px solid color(line); transition: border-color .2s; &.is-selected { border-color: color(secondary); } p { font-size: 18px; } } }
+  .graph-explorer__scope > p { font-size: 18px; }
+  .project-disclosure p { font-size: 18px !important; }
+  .museum-showcase__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-top: 2rem; > section { min-width: 0; } }
+  .museum-showcase__preview { height: auto; aspect-ratio: 1.44; > span { opacity: 1; translate: none; font-size: 12px; } }
+  .museum-showcase__caption { grid-template-columns: 1fr; gap: 1rem; > p { font-size: 18px; } }
+  .project-stack { border-top: 1px solid color(line); &__intro { display: block; margin-bottom: 1rem; > .project-content__intro { display: none; } } &__group { padding-block: 1rem; } &__number { font-size: 12px; } p.project-stack__purpose { font-size: 18px; } }
+  @media (max-width: 767px) { .graph-explorer__caption, .museum-showcase__grid { grid-template-columns: 1fr; } }
+}
+
+.project-viewer {
+  .graph-overview__intro { gap: 2rem; align-items: start; > div:last-child > p:first-child { margin-top: 0; } }
+  .graph-overview__contribution { font-size: 18px; > span { display: block; margin-bottom: .35rem; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; } }
+  .graph-explorer { padding-top: 1rem; }
+  .graph-explorer__masthead { padding-bottom: .5rem; }
+}

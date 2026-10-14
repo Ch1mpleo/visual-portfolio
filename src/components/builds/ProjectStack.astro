@@ -1,4 +1,5 @@
 ---
+import ProjectLinks from './ProjectLinks.astro'
 import type { Project } from '../../data/projects'
 import { projectStacks, type ProjectStack } from '../../data/projectStacks'
 interface Props { project: Project }
@@ -20,6 +21,7 @@ const stack: ProjectStack = projectStacks[project.id]
       </div>
     </section>)}
   </div>
+  {project.id !== 'museums' && <ProjectLinks links={project.links} />}
   {stack.note && <p class="project-content__note project-stack__note">{stack.note}</p>}
 </div>
 <style lang="scss">
@@ -27,7 +29,7 @@ const stack: ProjectStack = projectStacks[project.id]
     &__intro { display: grid; grid-template-columns: 1fr 1.4fr; align-items: baseline; gap: 2rem; margin-bottom: 2rem; > p { margin: 0; max-width: 46ch; } }
     &__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(1.5rem, 4vw, 4rem); }
     &__group { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 1rem; padding-block: 1.25rem; border-top: 1px solid color(line); }
-    &__number { color: color(muted); padding-top: .35rem; font: 400 11px / 1.5 font-family(fraktion); }
+    &__number { color: color(muted); padding-top: .35rem; font: 400 12px / 1.5 font-family(fraktion); }
     &__body { h4 { margin: 0 0 .6rem; font: 400 1.65rem / 1.15 font-family(editorial); } }
     p.project-stack__purpose { margin: 0 0 1rem; color: color(muted); font: 400 1rem / 1.5 font-family(editorial); max-width: 42ch; }
     ul { display: flex; flex-wrap: wrap; gap: .35rem .75rem; list-style: none; padding: 0; margin: 0; }

@@ -3,11 +3,10 @@ import { graphStages } from '../../data/projectInteriors'
 import GraphConceptArtwork from './GraphConceptArtwork.astro'
 ---
 <div class="project-content graph-explorer">
-  <header class="graph-explorer__masthead"><p class="project-content__label">A paper, unfolded.</p><p id="graph-explore-hint">Inspect a stage to follow the idea.</p></header>
-  <div class="graph-explorer__meta"><span>Document → Passages → Connections → Exploration</span><span>Illustrated concept</span></div>
+  <header class="graph-explorer__masthead"><p class="project-content__label">Document → Passages → Connections → Exploration</p><p id="graph-explore-hint">Illustrated concept / Inspect a stage</p></header>
   <div class="graph-explorer__stage" data-graph-scene role="region" aria-label="Interactive research pipeline" aria-describedby="graph-explore-hint" tabindex="0"><GraphConceptArtwork /></div>
-  <div class="graph-explorer__caption" aria-live="polite" aria-atomic="true">
-    {graphStages.map((stage, index) => <section id={`graph-stage-${stage.id}`} data-graph-stage-panel={stage.id} hidden={index !== 0}>
+  <div class="graph-explorer__caption">
+    {graphStages.map((stage, index) => <section id={`graph-stage-${stage.id}`} data-graph-stage-panel={stage.id}>
       <span class="graph-explorer__number" aria-hidden="true">0{index + 1}</span><div><h4>{stage.title}</h4><p>{stage.description}</p><details class="project-disclosure"><summary>Technical detail <span aria-hidden="true">+</span></summary><p>{stage.detail}</p></details></div>
     </section>)}
   </div>

@@ -1,13 +1,8 @@
 ---
 import type { Project } from '../../data/projects'
-import ProjectArtwork from './ProjectArtwork.astro'
-import ProjectLinks from './ProjectLinks.astro'
 interface Props { project: Project }
 const { project } = Astro.props
 ---
 <div class="project-content graph-overview">
-  <header class="graph-overview__intro"><div><p class="project-content__label">GraphRAG / Experiment in progress</p><h3>Paper to<br />possibility.</h3></div><p>An experiment in turning research papers into connected ideas, with an interface and backend foundations to explore the direction.</p></header>
-  <div class="graph-overview__art"><ProjectArtwork projectId={project.id} description={project.artworkDescription} instance="viewer" /></div>
-  <div class="project-colophon"><span>Concept illustration</span><p>{project.contribution}</p></div>
-  <ProjectLinks links={project.links} />
+  <header class="graph-overview__intro"><div><p class="project-content__label">GraphRAG / Experiment in progress</p><h3>Paper to<br />possibility.</h3></div><div><p>An experiment in turning research papers into connected ideas, with an interface and backend foundations to explore the direction.</p><p class="graph-overview__contribution"><span>My contribution</span> {project.contribution}.</p></div></header>
 </div>

@@ -15,8 +15,8 @@ const sources = links.filter((link) => new URL(link.href).hostname === 'github.c
     &__showcase { gap: 1.5rem !important; font: 400 1.6rem / 1.2 font-family(editorial); }
     &__arrow { font-size: 1.8rem; transition: translate .3s cubic-bezier(.22, 1, .36, 1); }
     &__showcase:hover &__arrow { translate: 3px -3px; }
-    &__sources { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem 1.5rem; font: 400 11px / 1.5 font-family(fraktion); }
-    &__source-label { color: color(muted); font-size: 10px; text-transform: uppercase; margin-right: .5rem; }
+    &__sources { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem 1.5rem; font: 400 12px / 1.5 font-family(fraktion); }
+    &__source-label { color: color(muted); font-size: 12px; text-transform: uppercase; margin-right: .5rem; }
     &--source-only { justify-content: flex-end; }
     @media (max-width: 767px) { gap: .5rem; flex-direction: column; align-items: flex-start; &__sources { gap: .5rem 1.25rem; } &__showcase { font-size: 1.5rem; } }
     @media (prefers-reduced-motion: reduce) { &__arrow { transition: none; } }

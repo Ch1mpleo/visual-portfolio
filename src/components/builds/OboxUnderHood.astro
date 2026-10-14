@@ -7,21 +7,19 @@ const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/
 <div class="project-content obox-detail obox-engine" data-obox-engine>
   <div class="obox-engine__masthead">
     <p class="project-content__label">One platform. Three chapters.</p>
-    <p id="obox-explore-hint" class="obox-engine__hint">Choose a chapter. Inspect an object.</p>
-  </div>
-  <div class="obox-chapter-nav" role="group" aria-label="Product chapters">
-    {oboxChapters.map((chapter) => <button type="button" data-obox-engine-chapter={chapter.id} aria-pressed={chapter.id === 'curriculum'} aria-controls={`obox-engine-${chapter.id}`}><span>{chapter.number}</span><strong>{chapter.label}</strong><span aria-hidden="true">↗</span></button>)}
+    <p id="obox-explore-hint" class="obox-engine__hint">Inspect an object to highlight its explanation.</p>
   </div>
   {oboxChapters.map((chapter) => {
     const engineering = oboxEngineering.find((item) => item.id === chapter.id)!
-    return <section id={`obox-engine-${chapter.id}`} data-obox-engine-panel={chapter.id} hidden={chapter.id !== 'curriculum'} aria-label={chapter.title}>
+    return <section id={`obox-engine-${chapter.id}`} data-obox-engine-panel={chapter.id} aria-label={chapter.title}>
+      <header class="obox-chapter-heading"><p class="project-content__label">{chapter.number} / {chapter.label}</p><h3>{chapter.title}</h3><p>{chapter.summary}</p></header>
       <div class="obox-engine__scene-meta"><span>{engineering.caption}</span><span>Explore / {chapter.number}</span></div>
       <div class="obox-engine__stage" role="region" aria-label={`${chapter.label} interactive illustration`} aria-describedby="obox-explore-hint" tabindex="0" data-obox-stage>
         <OboxStoryArtwork chapter={chapter.id} />
       </div>
       <div class="obox-engine__caption-row">
-        <div class="obox-engine__readout" aria-live="polite" aria-atomic="true">
-          {engineering.parts.map((part, index) => <section id={`obox-note-${part.id}`} data-obox-part-panel={part.id} hidden={index !== 0} aria-label={part.title}>
+        <div class="obox-engine__readout">
+          {engineering.parts.map((part, index) => <section id={`obox-note-${part.id}`} data-obox-part-panel={part.id} aria-label={part.title}>
             <span class="obox-engine__note-number" aria-hidden="true">0{index + 1}</span>
             <div><h4>{part.title}</h4><p>{part.caption}</p>
               <details class="project-disclosure"><summary>Technical detail <span aria-hidden="true">+</span></summary><p>{part.text}</p></details>

@@ -16,7 +16,7 @@ export class ProjectViewerMotion {
   constructor(private dialog: HTMLDialogElement) {
     this.sheet = dialog.querySelector('.project-viewer__sheet')!
     this.shell = dialog.querySelector('[data-viewer-transition]')!
-    this.parts = Array.from(this.sheet.querySelectorAll<HTMLElement>('.project-viewer__header, .project-viewer__tabs, .project-viewer__scroller, .project-viewer__footer'))
+    this.parts = Array.from(this.sheet.querySelectorAll<HTMLElement>('.project-viewer__header, .project-viewer__scroller, .project-viewer__footer'))
     this.titles = Array.from(this.shell.querySelectorAll<HTMLElement>('[data-cover-title]'))
     this.reducedMotion.addEventListener('change', () => { if (this.reducedMotion.matches) this.finish() })
     window.addEventListener('resize', () => this.finish())

@@ -1,5 +1,5 @@
 ---
-import { projects, projectViews } from '../../data/projects'
+import { projects } from '../../data/projects'
 import OboxExperience from './OboxExperience.astro'
 import OboxUnderHood from './OboxUnderHood.astro'
 import GraphPaperExperience from './GraphPaperExperience.astro'
@@ -16,7 +16,7 @@ import '../../styles/components/project-interior.scss'
     {projects.map((project) => <div class="project-viewer__cover" data-transition-art={project.id} hidden>
       <div class="project-viewer__cover-meta"><span>Selected builds / {project.category}</span><span>{project.index} — 03</span></div>
       <div class="project-viewer__cover-window"><p class="project-viewer__cover-title" data-cover-title>{project.title}</p></div>
-      <div class="project-viewer__cover-foot"><span>{project.id === 'museums' ? <>Overview<br />Stack</> : <>Overview<br />Under the Hood<br />Stack</>}</span><span class="project-viewer__cover-arrow">↗</span></div>
+      <div class="project-viewer__cover-foot"><span><>Selected work<br />A closer look</></span><span class="project-viewer__cover-arrow">↗</span></div>
     </div>)}
   </div>
   <div class="project-viewer__sheet">
@@ -24,26 +24,13 @@ import '../../styles/components/project-interior.scss'
       <div class="project-viewer__identity"><OboxLogo viewer /><div><p class="project-viewer__label" data-viewer-category>01 / Capstone</p><h2 id="project-viewer-title" data-viewer-title>OboxSTEAM</h2></div></div>
       <button class="project-viewer__close" type="button" data-viewer-close autofocus aria-label="Close project viewer">Close <span aria-hidden="true">×</span></button>
     </header>
-    <div class="project-viewer__tabs" role="tablist" aria-label="Project views">
-      <button id="project-tab-experience" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="viewer-oboxsteam-experience" data-project-tab="experience">Overview</button>
-      <button id="project-tab-under-the-hood" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="viewer-oboxsteam-under-the-hood" data-project-tab="under-the-hood">Under the Hood</button>
-      <button id="project-tab-stack" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="viewer-oboxsteam-stack" data-project-tab="stack">Stack</button>
-    </div>
     <div class="project-viewer__scroller" data-viewer-scroller data-lenis-prevent>
-      {projects.map((project) => <>
-        <div id={`viewer-${project.id}-experience`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-experience" data-viewer-project={project.id} data-viewer-tab="experience" hidden={project.id !== 'oboxsteam'}>
-          {project.id === 'oboxsteam' && <OboxExperience project={project} />}
-          {project.id === 'graphpaper' && <GraphPaperExperience project={project} />}
-          {project.id === 'museums' && <MuseumsExperience project={project} />}
-        </div>
-        {projectViews[project.id].includes('under-the-hood') && <div id={`viewer-${project.id}-under-the-hood`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-under-the-hood" data-viewer-project={project.id} data-viewer-tab="under-the-hood" hidden>
-          {project.id === 'oboxsteam' && <OboxUnderHood />}
-          {project.id === 'graphpaper' && <GraphPaperUnderHood />}
-        </div>}
-        <div id={`viewer-${project.id}-stack`} role="tabpanel" tabindex="0" aria-labelledby="project-tab-stack" data-viewer-project={project.id} data-viewer-tab="stack" hidden>
-          <ProjectStack project={project} />
-        </div>
-      </>)}
+      {projects.map((project) => <article id={`viewer-${project.id}`} data-viewer-project={project.id} hidden={project.id !== 'oboxsteam'} aria-label={project.title}>
+        {project.id === 'oboxsteam' && <><OboxExperience project={project} /><OboxUnderHood /></>}
+        {project.id === 'graphpaper' && <><GraphPaperExperience project={project} /><GraphPaperUnderHood /></>}
+        {project.id === 'museums' && <MuseumsExperience project={project} />}
+        <ProjectStack project={project} />
+      </article>)}
     </div>
     <footer class="project-viewer__footer">
       <button type="button" data-viewer-previous aria-label="Previous project: Interactive Museums"><span aria-hidden="true">←</span> Previous</button>
@@ -71,7 +58,7 @@ import '../../styles/components/project-interior.scss'
     [hidden] { display: none !important; }
     &__transition { position: absolute; inset: -1px; z-index: 5; background: color(secondary); color: color(primary); pointer-events: none; }
     &__cover { height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1.25rem, 4vw, 4rem); }
-    &__cover-meta, &__cover-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font: 400 11px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: .06em; }
+    &__cover-meta, &__cover-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: .06em; }
     &__cover-meta { border-bottom: 1px solid currentColor; padding-bottom: 1.25rem; }
     &__cover-window { overflow: hidden; padding-block: .3rem; }
     &__cover-title { margin: 0; max-width: 14ch; font: 700 min(clamp(4rem, 14vw, 12rem), 20dvh) / .85 font-family(bigger); text-transform: uppercase; letter-spacing: -.01em; }
@@ -81,18 +68,16 @@ import '../../styles/components/project-interior.scss'
     &__sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
     &__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 2rem; border-bottom: 1px solid color(line); }
     &__identity { display: flex; align-items: center; gap: .75rem; min-width: 0; }
-    &__label { margin: 0 0 .3rem; font: 400 10px / 1.4 font-family(fraktion); color: color(muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    &__label { margin: 0 0 .3rem; font: 400 12px / 1.4 font-family(fraktion); color: color(muted); text-transform: uppercase; letter-spacing: 0.06em; }
     &__identity :global(.obox-logo) { width: 42px; }
     h2 { margin: 0; font: 700 clamp(1.75rem, 2.8vw, 2.5rem) / 0.95 font-family(bigger); text-transform: uppercase; }
     button { min-height: 44px; border: 0; border-radius: 0; padding: 0.75rem 1rem; color: inherit; background: transparent; cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); }
     button:focus-visible { outline-offset: -4px; }
     &__close { display: flex; align-items: center; gap: 1rem; text-transform: uppercase; flex-shrink: 0; border: 1px solid color(line) !important; > span { font-size: 24px; line-height: 1; } }
     &__close:hover { color: color(primary); background: color(secondary); }
-    &__tabs { display: flex; flex-shrink: 0; padding-inline: 2rem; border-bottom: 1px solid color(line); gap: 1.5rem; button { min-height: 46px; padding-inline: 0; border-bottom: 2px solid transparent; color: color(muted); font-size: 11px; } button[aria-selected='true'] { color: color(secondary); border-bottom-color: color(secondary); } }
-    &__scroller { min-height: 0; flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color(muted) color(primary); }
-    [role='tabpanel']:focus-visible { outline: 2px solid color(accent); outline-offset: -4px; }
+    &__scroller { min-height: 0; flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; overflow-anchor: none; scrollbar-width: thin; scrollbar-color: color(muted) color(primary); }
     &__footer { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem; border-top: 1px solid color(line); button { display: flex; align-items: center; gap: 0.75rem; } button:hover { text-decoration: underline; text-underline-offset: 4px; } }
-    &__counter { color: color(muted); font: 400 11px / 1.4 font-family(fraktion); }
+    &__counter { color: color(muted); font: 400 12px / 1.4 font-family(fraktion); }
     @media (max-width: 767px) {
       width: 100%; height: 100dvh; max-height: 100dvh; border: 0;
       &__header { padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); }
@@ -100,11 +85,7 @@ import '../../styles/components/project-interior.scss'
       &__identity :global(.obox-logo) { width: 32px; }
       h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
       &__close { gap: 0.5rem; padding: 0.5rem 0.75rem !important; }
-      &__tabs { padding-inline: 1rem; gap: 1.5rem; }
       &__footer { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); padding-inline: max(0.5rem, env(safe-area-inset-left)) max(0.5rem, env(safe-area-inset-right)); }
-    }
-    @media (max-height: 500px) and (min-width: 768px) {
-      &__header { padding-block: 0.5rem; } h2 { font-size: 2rem; } &__tabs button { min-height: 44px; }
     }
   }
 </style>

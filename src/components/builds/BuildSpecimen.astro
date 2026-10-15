@@ -8,10 +8,6 @@ const { project } = Astro.props
 ---
 
 <article class:list={['build-specimen', `build-specimen--${project.id}`]} aria-labelledby={`build-${project.id}-title`} data-project-id={project.id}>
-  <div class="build-specimen__meta">
-    <span>{project.index} / {project.category}</span>
-    <span aria-hidden="true">{project.id === 'oboxsteam' ? 'API + WEB + MOBILE' : project.id === 'graphpaper' ? 'DOCUMENT → GRAPH' : 'TWO EXHIBITS'}</span>
-  </div>
   <div class="build-specimen__art">
     <span class="build-specimen__folio" aria-hidden="true">{project.index}</span>
     <div class="build-specimen__scene"><ProjectArtwork projectId={project.id} description={project.artworkDescription} /></div>
@@ -24,7 +20,14 @@ const { project } = Astro.props
       </div>
       <p>{project.summary}</p>
     </div>
-    <span class="build-specimen__inspect" aria-hidden="true"><span class="build-specimen__action-label"><span class="build-specimen__default-label">Inspect project</span><span class="build-specimen__cue">{project.id === 'oboxsteam' ? 'Trace the system' : project.id === 'graphpaper' ? 'Unfold the ideas' : 'Enter the exhibition'}</span></span><span class="build-specimen__arrow">↗</span></span>
+    <span class="build-specimen__inspect" aria-hidden="true">
+      <span>{project.id === 'oboxsteam' ? 'Explore platform' : project.id === 'graphpaper' ? 'Unfold the idea' : 'Enter exhibits'}</span>
+      <svg class="build-specimen__symbol" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
+        {project.id === 'oboxsteam' && <><rect class="symbol-window" x="5" y="8" width="25" height="19" /><path d="M5 13h25M10 11h1m3 0h1" /><rect class="symbol-companion" x="26" y="19" width="9" height="16" rx="2" /><path d="M29 31h3" /></>}
+        {project.id === 'graphpaper' && <><path class="symbol-paper" d="M7 7h16l6 6v20H7ZM23 7v7h6M12 20h10m-10 5h7" /><path class="symbol-route" d="m22 29 10-11 4 9" /><circle cx="22" cy="29" r="2" /><circle cx="32" cy="18" r="2" /><circle cx="36" cy="27" r="2" /></>}
+        {project.id === 'museums' && <><path d="M5 34h30M9 34V6h22v28" /><path class="symbol-door" d="M12 8v25l15-5V12Z" /><circle cx="23" cy="21" r="1" /></>}
+      </svg>
+    </span>
   </div>
   <button class="build-specimen__trigger" type="button" data-open-project={project.id} aria-haspopup="dialog" aria-controls="project-viewer" aria-label={`Inspect ${project.title}`}>
     <span class="u-sr-only">Inspect {project.title}</span>
@@ -72,19 +75,6 @@ const { project } = Astro.props
     &--graphpaper { grid-column: 2; grid-row: 1; }
     &--museums { grid-column: 2; grid-row: 2; }
 
-    &__meta {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem 1rem;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid color(line);
-      color: color(muted);
-      font: 400 12px / 1.4 font-family(fraktion);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
     &__art {
       position: relative;
       overflow: hidden;
@@ -101,11 +91,7 @@ const { project } = Astro.props
     }
     &__scene { position: relative; width: 100%; }
     &__folio { position: absolute; left: .75rem; top: .5rem; font: 700 clamp(4rem, 9vw, 9rem) / 1 font-family(bigger); -webkit-text-stroke: 1px color-mix(in srgb, color(secondary) 20%, transparent); color: transparent; opacity: .6; transition: translate 650ms cubic-bezier(.22, 1, .36, 1), opacity 400ms ease; }
-    &__action-label { display: grid; > span { grid-area: 1 / 1; transition: opacity 250ms ease, translate 500ms cubic-bezier(.22, 1, .36, 1); } }
-    &__cue { opacity: 0; translate: 0 10px; }
     &:is(:hover, :focus-within) &__folio { translate: 8px 0; opacity: 1; }
-    &:is(:hover, :focus-within) &__cue { opacity: 1; translate: 0 0; }
-    &:is(:hover, :focus-within) &__default-label { opacity: 0; translate: 0 -10px; }
     &:is(:hover, :focus-within) :global(.project-art) { scale: 1.035; }
 
     &--oboxsteam &__art { padding: 1.25rem; min-height: 370px; }
@@ -143,13 +129,20 @@ const { project } = Astro.props
       font: 400 12px / 1.4 font-family(fraktion);
       text-transform: uppercase;
       letter-spacing: 0.035em;
-      .build-specimen__arrow { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color(line); border-radius: 50%; font-size: 18px; line-height: 1; transition: rotate 500ms cubic-bezier(.22, 1, .36, 1), border-color 300ms ease; }
     }
+    &__symbol { width: 40px; height: 40px; flex-shrink: 0; overflow: visible; }
+    &__symbol :is(.symbol-companion, .symbol-paper, .symbol-route, .symbol-door) { transform-origin: center; transition: translate .45s ease, rotate .45s ease, scale .45s ease; }
+    &--oboxsteam &__inspect { padding: .4rem .6rem .4rem .9rem; border: 1px solid currentColor; }
+    &--graphpaper &__inspect { border-bottom: 1px solid currentColor; padding-bottom: .3rem; }
+    &--museums &__inspect { font: italic 400 20px / 1.2 font-family(editorial); text-transform: none; letter-spacing: 0; }
+    &:is(:hover, :focus-within) .symbol-companion { translate: 3px -3px; rotate: 6deg; }
+    &:is(:hover, :focus-within) .symbol-paper { rotate: -7deg; }
+    &:is(:hover, :focus-within) .symbol-route { translate: 3px -2px; }
+    &:is(:hover, :focus-within) .symbol-door { scale: .6 1; translate: -3px 0; }
     &:is(:hover, :focus-within) &__caption { color: color(primary); &::before { scale: 1 1; } }
-    &:is(:hover, :focus-within) &__arrow { rotate: 45deg; border-color: currentColor; }
     @media (prefers-reduced-motion: reduce) {
-      &, &__caption, &__caption::before, &__folio, &__action-label > span, &__arrow, :global(.project-art), :global([data-specimen-layer]) { transition: none; }
-      &__folio, &__cue, &__default-label { translate: none !important; }
+      &, &__caption, &__caption::before, &__folio, &__symbol > *, :global(.project-art), :global([data-specimen-layer]) { transition: none; }
+      &__folio, &__symbol > * { translate: none !important; rotate: none !important; scale: none !important; }
       :global(.project-art) { scale: none !important; }
       :global([data-specimen-layer]) { translate: none !important; rotate: none !important; }
       :global(.art-connector), :global([data-graph-routes]), :global([data-graph-node]) { animation: none !important; }
@@ -168,8 +161,6 @@ const { project } = Astro.props
 
     @media (max-width: 767px) {
       &--oboxsteam, &--graphpaper, &--museums { grid-column: auto; grid-row: auto; }
-      &__meta { padding: 0.875rem 1rem; font-size: 10px; }
-      &__meta > span:last-child { display: none; }
       &__art, &--oboxsteam &__art {
         padding: 0.75rem;
         min-height: 0;
@@ -184,7 +175,6 @@ const { project } = Astro.props
   }
 
   .build-specimen {
-    &__meta { display: none; }
     &__caption { padding: 1rem; gap: .75rem; }
     &__inspect { font-size: 12px; }
     &--oboxsteam &__art { min-height: 0; padding: .75rem 2rem; }
@@ -192,7 +182,6 @@ const { project } = Astro.props
     &--oboxsteam h3 { font-size: clamp(2.5rem, 4vw, 3.75rem); }
     &--oboxsteam p { font-size: 18px; }
     &--oboxsteam &__inspect { flex-shrink: 0; }
-    &--oboxsteam &__action-label { display: none; }
     &:not(.build-specimen--oboxsteam) { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
     &:not(.build-specimen--oboxsteam) &__art { min-height: 0; padding: .5rem; }
     &:not(.build-specimen--oboxsteam) &__caption { justify-content: space-between; border-top: 0; border-left: 1px solid color(line); }
@@ -208,6 +197,7 @@ const { project } = Astro.props
       &:not(.build-specimen--oboxsteam) &__caption { border-left: 0; border-top: 1px solid color(line); }
       &--oboxsteam &__caption { align-items: center; }
     }
+    @media (max-width: 1199px) { &--oboxsteam &__caption { flex-wrap: wrap; } }
   }
   @media (min-width: 1200px) {
     .build-specimen {

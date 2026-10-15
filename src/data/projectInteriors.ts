@@ -1,4 +1,3 @@
-export type GraphStageId = 'document' | 'chunks' | 'entities' | 'graph'
 export const graphStages = [
   { id: 'document', label: 'Document', title: 'It starts with a paper.', description: 'The research paper is the source. An upload interface and document model provide the starting point.', detail: 'Complete text extraction remains part of the intended pipeline.' },
   { id: 'chunks', label: 'Passages', title: 'Give meaning a smaller canvas.', description: 'Passages break a document into smaller pieces. Embeddings represent their meaning numerically.', detail: 'Chunk models and an embedding service exist. Connecting document extraction to this stage remains intended work.' },

@@ -1,17 +1,16 @@
 ---
 import ProjectLinks from './ProjectLinks.astro'
 import type { ProjectLink } from '../../data/projects'
-import type { Architecture, ArchitectureNode } from '../../data/oboxArchitecture'
-import { oboxChapters } from '../../data/oboxChapters'
-interface Props { architecture: Architecture; links?: readonly ProjectLink[] }
-const { architecture, links } = Astro.props
+import type { Architecture, ArchitectureNode } from '../../data/projectArchitectures'
+interface Props { id: string; architecture: Architecture; links?: readonly ProjectLink[] }
+const { id, architecture, links } = Astro.props
 const { frame } = architecture
-const open = architecture.layers.filter((layer) => !frame.wraps.includes(layer.id))
-const wrapped = architecture.layers.filter((layer) => frame.wraps.includes(layer.id))
-const allNodes: ArchitectureNode[] = [...architecture.layers.flatMap((layer) => layer.nodes), frame]
-const chapterLabel = (id: string) => oboxChapters.find((chapter) => chapter.id === id)!.label
+const open = architecture.layers.filter((layer) => !frame?.wraps.includes(layer.id))
+const wrapped = architecture.layers.filter((layer) => frame?.wraps.includes(layer.id))
+const allNodes: ArchitectureNode[] = [...architecture.layers.flatMap((layer) => layer.nodes), ...(frame ? [frame] : [])]
 const initial = architecture.defaultNode
 const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.links])
+const panelId = (node: ArchitectureNode) => `arch-${id}-${node.id}`
 ---
 <div class="project-content arch-map" data-arch-map>
   <header class="arch-map__intro">
@@ -22,27 +21,31 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
   <div class="arch-map__body">
     <div class="arch-map__diagram" role="group" aria-label="System architecture">
       {[open, wrapped].map((layers, group) => {
+        if (layers.length === 0) return null
         const rows = layers.map((layer) => <div class="arch-map__layer" data-connect={layer.connect} style={`--count: ${layer.nodes.length}`}>
-          {layer.nodes.map((node) => <article class:list={['arch-node', { 'is-selected': node.id === initial, 'is-dimmed': !lit.has(node.id) }]} data-arch-node={node.id} data-arch-links={node.links.join(' ')}>
-            <button type="button" data-arch-select aria-pressed={String(node.id === initial)} aria-controls={`arch-panel-${node.id}`}>{node.label}</button>
-            <ul aria-label={`${node.label} technologies`}>{node.tools.map((tool) => <li>{tool}</li>)}</ul>
+          {layer.nodes.map((node) => <article class:list={['arch-node', { 'is-selected': node.id === initial, 'is-dimmed': !lit.has(node.id), 'arch-node--intended': node.status === 'intended' }]} data-arch-node={node.id} data-arch-links={node.links.join(' ')}>
+            {node.status === 'intended' && <p class="arch-node__status">Intended</p>}
+            <button type="button" data-arch-select aria-pressed={String(node.id === initial)} aria-controls={panelId(node)}>{node.label}</button>
+            {node.tools.length > 0
+              ? <ul aria-label={`${node.label} technologies`}>{node.tools.map((tool) => <li>{tool}</li>)}</ul>
+              : <p class="arch-node__role">{node.role}</p>}
           </article>)}
         </div>)
-        return group === 0 ? rows : <div class="arch-map__frame">
+        return group === 0 || !frame ? rows : <div class="arch-map__frame">
           {rows}
           <article class:list={['arch-node', 'arch-node--frame', { 'is-dimmed': !lit.has(frame.id) }]} data-arch-node={frame.id} data-arch-links={frame.links.join(' ')}>
-            <button type="button" data-arch-select aria-pressed="false" aria-controls={`arch-panel-${frame.id}`}>{frame.label}</button>
+            <button type="button" data-arch-select aria-pressed="false" aria-controls={panelId(frame)}>{frame.label}</button>
             <ul aria-label={`${frame.label} technologies`}>{frame.tools.map((tool) => <li>{tool}</li>)}</ul>
           </article>
         </div>
       })}
     </div>
     <aside class="arch-map__readout" aria-live="polite" aria-atomic="true">
-      {allNodes.map((node) => <section id={`arch-panel-${node.id}`} data-arch-panel={node.id} hidden={node.id !== initial} tabindex="-1">
-        <p class="project-content__label">{node.label}</p>
+      {allNodes.map((node) => <section id={panelId(node)} data-arch-panel={node.id} hidden={node.id !== initial} tabindex="-1">
+        <p class="project-content__label">{node.label}{node.status === 'intended' && ' / Intended'}</p>
         <h4>{node.role}</h4>
         <p>{node.note}</p>
-        <p class="arch-map__powers">{node.powers.length ? `Used in ${node.powers.map(chapterLabel).join(' · ')}` : 'Runs underneath every chapter'}</p>
+        {node.usedIn.length > 0 && <p class="arch-map__powers">Used in {node.usedIn.join(' · ')}</p>}
       </section>)}
     </aside>
   </div>
@@ -50,7 +53,7 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
 </div>
 
 <script>
-  const phone = matchMedia('(max-width: 987px)')
+  const compact = matchMedia('(max-width: 987px)')
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
   document.querySelectorAll<HTMLElement>('[data-arch-map]').forEach((map) => {
     const nodes = Array.from(map.querySelectorAll<HTMLElement>('[data-arch-node]'))
@@ -67,7 +70,7 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
       })
       panels.forEach((panel) => { panel.hidden = panel.dataset.archPanel !== id })
       const panel = panels.find((item) => !item.hidden)
-      if (reveal && phone.matches && panel) panel.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'instant' : 'smooth' })
+      if (reveal && compact.matches && panel) panel.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'instant' : 'smooth' })
     }
     map.addEventListener('click', (event) => {
       const node = (event.target as Element).closest<HTMLElement>('[data-arch-node]')
@@ -81,7 +84,7 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
     --arch-gap: 2.25rem;
     --arch-pad: 1.25rem;
     border-top: 1px solid color(line);
-    &__intro { max-width: 60ch; margin-bottom: 2.5rem; p:not(.project-content__label) { color: color(muted); } }
+    &__intro { max-width: 60ch; margin-bottom: 2.5rem; h3 { max-width: none; font-size: clamp(2.2rem, 3.4vw, 3.25rem); } p:not(.project-content__label) { color: color(muted); } }
     &__body { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
     &__diagram { display: flex; flex-direction: column; gap: var(--arch-gap); min-width: 0; }
     &__layer { display: grid; grid-template-columns: repeat(var(--count), minmax(0, 1fr)); gap: 1rem; }
@@ -101,6 +104,7 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
       --arch-pad: .75rem;
       &__layer { grid-template-columns: 1fr; gap: .75rem; }
     }
+    @media (prefers-reduced-motion: reduce) { &__frame { transition: none; } }
   }
   .arch-node {
     position: relative; min-width: 0; padding: 1rem; border: 1px solid color(line); background: color(primary); cursor: pointer;
@@ -108,12 +112,15 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
     button { display: block; width: 100%; min-height: 44px; margin: 0 0 .5rem; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; font: 400 1.5rem / 1.15 font-family(editorial); &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
     ul { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
     li { padding: .3rem .55rem; border: 1px solid color(line); font: 400 13px / 1.35 font-family(fraktion); overflow-wrap: anywhere; }
+    p.arch-node__role { margin: 0; color: color(muted); font: 400 1rem / 1.45 font-family(editorial); }
+    p.arch-node__status { margin: 0 0 .4rem; color: color(accent); font: 400 12px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
     &:hover { border-color: color(muted); }
     &.is-selected { border-color: color(accent); background: color(surface); }
     &.is-dimmed { opacity: .4; }
-    // Connector lines join each multi-node layer to the single API layer.
+    &--intended { border-style: dashed; background: transparent; }
+    // Connector lines join each multi-node layer to the single central layer.
     [data-connect='down'] > &::after, [data-connect='up'] > &::before { content: ''; position: absolute; left: 50%; width: 1px; background: color(line); pointer-events: none; }
-    [data-connect='down'] > &::after { top: 100%; height: calc(var(--arch-gap) + var(--arch-pad) + 1px); }
+    [data-connect='down'] > &::after { top: 100%; height: calc(var(--arch-gap) + 1px); }
     [data-connect='up'] > &::before { bottom: 100%; height: var(--arch-gap); }
     &--frame { border-style: dashed; background: transparent; button { font-size: 1.25rem; } }
     @media (max-width: 767px) {
@@ -122,4 +129,6 @@ const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.l
     }
     @media (prefers-reduced-motion: reduce) { transition: none; }
   }
+  // Client lines also cross the frame's padding when the next layer is framed.
+  .arch-map__layer:has(+ .arch-map__frame) > .arch-node::after { height: calc(var(--arch-gap) + var(--arch-pad) + 1px); }
 </style>

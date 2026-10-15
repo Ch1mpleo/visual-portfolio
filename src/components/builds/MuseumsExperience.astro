@@ -1,22 +1,32 @@
 ---
 import type { Project } from '../../data/projects'
 import { museumExhibits } from '../../data/museumExhibits'
-import ProjectLinks from './ProjectLinks.astro'
 interface Props { project: Project }
 const { project } = Astro.props
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/museums/`
 ---
-<div class="project-content museum-showcase" data-museum-experience>
-  <header class="museum-showcase__heading"><div><p class="project-content__label">Two exhibits / One collection</p><h3>Enter the exhibition.</h3></div><span>Content / Design / Interaction</span></header>
-  <div class="project-colophon"><span>My contribution</span><p>{project.contribution}</p></div>
-  <div class="museum-showcase__grid">
-  {museumExhibits.map((exhibit, index) => <section id={`exhibit-${exhibit.id}`} data-exhibit-panel={exhibit.id} aria-label={exhibit.label}>
-    <a class="museum-showcase__preview" href={exhibit.links[0].href} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${exhibit.label} exhibit (opens in a new tab)`}>
-      <img src={`${assets}${exhibit.id}-preview.jpg`} width="1440" height="1000" alt={exhibit.id === 'mln131' ? 'The Democracy exhibit: monumental Vietnamese typography, a portrait of Hồ Chí Minh, and a red and ink editorial composition.' : 'The Vietnam 1945–1954 exhibit: a flag fills the background behind monumental typography and historical chapter markers.'} loading="lazy" decoding="async" />
-      <span aria-hidden="true">Enter exhibit ↗</span>
-    </a>
-    <div class="museum-showcase__caption"><div><p class="project-content__label">{exhibit.label}</p><h4>{exhibit.title}</h4></div><p>{exhibit.description}</p></div>
-    <ProjectLinks links={exhibit.links} />
-  </section>)}
+<div class="project-content project-hero project-hero--text">
+  <div class="project-hero__copy">
+    <p class="project-content__label">Two exhibits / One collection</p>
+    <h3>Enter the exhibition.</h3>
+    <p>Coursework reimagined as interactive digital exhibits, each with its own editorial structure and visual rhythm.</p>
+    <p class="project-content__label project-hero__role">{project.contribution}</p>
   </div>
+</div>
+<div class="project-content museum-showcase" data-museum-experience>
+  {museumExhibits.map((exhibit) => {
+    const [visit, source] = exhibit.links
+    return <section id={`exhibit-${exhibit.id}`} data-exhibit-panel={exhibit.id} aria-labelledby={`exhibit-${exhibit.id}-title`}>
+      <a class="museum-showcase__preview" href={visit.href} target="_blank" rel="noopener noreferrer" aria-label={`Enter the ${exhibit.label} exhibit (opens in a new tab)`}>
+        <img src={`${assets}${exhibit.id}-preview.jpg`} width="1440" height="1000" alt={exhibit.id === 'mln131' ? 'The Democracy exhibit: monumental Vietnamese typography, a portrait of Hồ Chí Minh, and a red and ink editorial composition.' : 'The Vietnam 1945–1954 exhibit: a flag fills the background behind monumental typography and historical chapter markers.'} loading="lazy" decoding="async" />
+        <span aria-hidden="true">Enter exhibit ↗</span>
+      </a>
+      <div class="museum-showcase__caption">
+        <p class="project-content__label">{exhibit.label}</p>
+        <h4 id={`exhibit-${exhibit.id}-title`}>{exhibit.title}</h4>
+        <p>{exhibit.description}</p>
+        <a class="museum-showcase__source" href={source.href} target="_blank" rel="noopener noreferrer">View source<span aria-hidden="true"> ↗</span><span class="u-sr-only"> for {exhibit.label} (opens in a new tab)</span></a>
+      </div>
+    </section>
+  })}
 </div>

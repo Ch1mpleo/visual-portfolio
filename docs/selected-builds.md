@@ -1,8 +1,18 @@
 # Selected Builds handoff
 
-## Current implementation: OboxSTEAM focus redesign (2026-10-15)
+## Current implementation: focus redesign for all projects (2026-10-15)
 
-Pilot for a calmer project detail; GraphPaper and Museums are unchanged for now.
+The OboxSTEAM pilot below now applies to every project.
+
+- **Shared scroll story.** `ScrollStory.ts` drives every `[data-scroll-story]` chapter (scroll anchor, hotspot scroll, keyboard, reset), and `ProjectViewerController` owns a single instance. Story markup uses `data-story-stage`, `data-story-object`, `data-story-beat`, `data-story-view`, and `data-story-layer`; the styles live in `scroll-story.scss`. `OboxDetailController` now handles only the film and the screenshot zoom.
+- **Hero.** OboxSTEAM keeps the film hero. GraphPaper and Museums use a text-only hero (`project-hero--text`): headline, one sentence, and a role meta line.
+- **GraphPaper.** The pipeline is one scroll story with four beats ("From paper to graph."). Each stage's detail is a status note inside its beat. The scope aside and Previous/Next stage controls are removed.
+- **Museums.** Each exhibit is a single preview link ("Enter exhibit") with a caption and one "View source" link.
+- **Architecture maps everywhere.** `projectArchitectures.ts` replaces `oboxArchitecture.ts` and `projectStacks.ts`, and `ProjectStack.astro` is deleted. `ArchitectureMap.astro` is generic: the delivery frame is optional, nodes without tools show their role, and `status: 'intended'` nodes (GraphPaper's planned pipeline) are dashed and labelled "Intended". Tests check, for every project, that tools are unique, links resolve and are reciprocal, and intended nodes list no tools.
+
+Build, TypeScript, and 22 tests pass. Browser-checked on desktop: each project's story, map, and footer labels, plus the scroll reset when switching projects.
+
+## OboxSTEAM pilot (2026-10-15)
 
 - **Hero.** The film takes about 7/12 of the width as the single focal point. The copy column holds only the headline, one sentence, and the role as a meta line. The eyebrow labels and film caption are removed.
 - **Chapters are scrollytelling.** The illustration stays pinned beside a column of beats (label, title, one paragraph). The beat crossing the reading line selects its object (the middle of the scroller on desktop, 68% down on phones). Inactive objects and beats dim. Hotspots are the only per-chapter control: clicking one scrolls to its beat. The Previous/Next detail buttons and the screenshot thumbnail are removed.

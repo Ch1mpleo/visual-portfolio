@@ -14,16 +14,16 @@ function dataModule(path) {
   return exports
 }
 const projectData = dataModule('../src/data/projects.ts')
-const interiorData = dataModule('../src/data/projectInteriors.ts')
 
 function setup(projectId = 'oboxsteam') {
   const frames = []
   const locks = new Set()
   const pageScrolls = []
+  const stories = []
   const lenis = { isStopped: false, stop() { this.isStopped = true }, start() { this.isStopped = false }, scrollTo() {} }
   const document = { activeElement: null, addEventListener() {}, dispatchEvent() {}, querySelector: () => null, documentElement: { classList: { add: name => locks.add(name), remove: name => locks.delete(name) } } }
   const element = (dataset = {}) => ({
-    dataset, hidden: false, scrollTop: 0, scrollLeft: 0, attributes: {}, handlers: {}, selected: false,
+    dataset, hidden: false, scrollTop: 0, scrollLeft: 0, attributes: {}, handlers: {}, textContent: '',
     classList: { toggle() {} },
     addEventListener(name, handler) { this.handlers[name] = handler },
     setAttribute(name, value) { this.attributes[name] = value },
@@ -31,29 +31,24 @@ function setup(projectId = 'oboxsteam') {
     getClientRects() { return this.hidden ? [] : [{}] },
   })
   const panels = Array.from(projectData.projects, project => element({ viewerProject: project.id }))
-  const stages = interiorData.graphStages.map(stage => element({ graphStage: stage.id }))
-  const explanations = interiorData.graphStages.map(stage => element({ graphStagePanel: stage.id }))
-  const steps = [-1, 1].map(graphStep => element({ graphStep: String(graphStep) }))
-  for (const explanation of explanations) explanation.classList.toggle = (_name, selected) => { explanation.selected = selected }
+  const chapters = [element(), element()]
   const nodes = new Map(['scroller', 'close', 'previous', 'next', 'previous-label', 'next-label', 'logo', 'title', 'category', 'counter', 'announcement'].map(name => [`[data-viewer-${name}]`, element()]))
-  const scene = element()
   const dialog = {
     open: false, handlers: {},
     addEventListener(name, handler) { this.handlers[name] = handler },
     showModal() { this.open = true },
     close() { this.open = false; this.handlers.close() },
-    querySelector(selector) { return selector === '[data-graph-scene]' ? scene : nodes.get(selector) },
+    querySelector(selector) { return nodes.get(selector) },
     querySelectorAll(selector) {
       if (selector === '[data-viewer-project]') return panels
-      if (selector === '[data-graph-stage]') return stages
-      if (selector === '[data-graph-stage-panel]') return explanations
-      if (selector === '[data-graph-step]') return steps
+      if (selector === '[data-scroll-story]') return chapters
       if (selector.startsWith('button:')) return [nodes.get('[data-viewer-close]'), nodes.get('[data-viewer-next]')]
       return []
     },
   }
   class Motion { open(_trigger, _project, done) { done() } close(_trigger, _project, done) { done() } clear() {} finish() {} fade() {} }
   class Obox { reset() {} play() {} pause() {} dismissZoom() {} }
+  class Story { constructor(scroller, items) { this.scroller = scroller; this.items = items; this.resets = 0; stories.push(this) } reset() { this.resets++ } }
   const exports = {}
   vm.runInNewContext(compile('../src/components/builds/ProjectViewerController.ts'), {
     exports, document, Event, requestAnimationFrame: fn => frames.push(fn),
@@ -61,9 +56,9 @@ function setup(projectId = 'oboxsteam') {
     matchMedia: () => ({ matches: true }),
     require(name) {
       if (name.endsWith('/projects')) return projectData
-      if (name.endsWith('/projectInteriors')) return interiorData
       if (name === './ProjectViewerMotion') return { ProjectViewerMotion: Motion }
       if (name === './OboxDetailController') return { OboxDetailController: Obox }
+      if (name === './ScrollStory') return { ScrollStory: Story }
       if (name === './viewerEvents') return { OPEN_PROJECT: 'open-project' }
       throw new Error(`Unexpected dependency: ${name}`)
     },
@@ -73,7 +68,7 @@ function setup(projectId = 'oboxsteam') {
   viewer.open(projectId, trigger)
   const flushFrames = () => { while (frames.length) frames.shift()() }
   flushFrames()
-  return { viewer, panels, explanations, stages, steps, nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames }
+  return { viewer, panels, chapters, story: stories[0], nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames }
 }
 
 test('project switches expose one complete story and reset its shared scroll position', () => {
@@ -93,20 +88,22 @@ test('project switches expose one complete story and reset its shared scroll pos
   assert.deepEqual(s.panels.filter(panel => !panel.hidden).map(panel => panel.dataset.viewerProject), ['graphpaper'])
 })
 
-test('GraphPaper selection replaces the contextual detail and resets on project changes', () => {
+test('every story chapter shares one scroll story that resets on open and project changes', () => {
   const s = setup('graphpaper')
-  s.viewer.selectGraphStage('graph')
-  assert.equal(s.stages[3].attributes['aria-pressed'], 'true')
-  assert.equal(s.explanations[3].selected, true)
-  assert.deepEqual(Array.from(s.explanations.filter(panel => !panel.hidden), panel => panel.dataset.graphStagePanel), ['graph'])
-  s.steps[1].handlers.click()
-  assert.equal(s.stages[0].attributes['aria-pressed'], 'true')
-  s.steps[0].handlers.click()
-  assert.equal(s.stages[3].attributes['aria-pressed'], 'true')
+  assert.equal(s.story.scroller, s.nodes.get('[data-viewer-scroller]'))
+  assert.equal(s.story.items.length, s.chapters.length)
+  s.chapters.forEach((chapter, index) => assert.equal(s.story.items[index], chapter))
+  const opened = s.story.resets
+  assert.ok(opened >= 1)
   s.viewer.switchProject(1)
-  s.viewer.switchProject(-1)
-  assert.equal(s.stages[0].attributes['aria-pressed'], 'true')
-  assert.equal(s.explanations[0].selected, true)
+  assert.equal(s.story.resets, opened + 1)
+})
+
+test('footer controls name the neighbouring projects', () => {
+  const s = setup('graphpaper')
+  assert.equal(s.nodes.get('[data-viewer-previous-label]').textContent, 'OboxSTEAM')
+  assert.equal(s.nodes.get('[data-viewer-next-label]').textContent, 'Interactive Museums')
+  assert.equal(s.nodes.get('[data-viewer-next]').attributes['aria-label'], 'Next project: Interactive Museums')
 })
 
 test('Escape restores background scroll, scrolling availability, and the original gallery trigger', () => {

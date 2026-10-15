@@ -3,6 +3,11 @@ import type { Project } from '../../data/projects'
 interface Props { project: Project }
 const { project } = Astro.props
 ---
-<div class="project-content graph-overview">
-  <header class="graph-overview__intro"><div><p class="project-content__label">GraphRAG / Experiment in progress</p><h3>Paper to<br />possibility.</h3></div><div><p>An experiment in turning research papers into connected ideas, with an interface and backend foundations to explore the direction.</p><p class="graph-overview__contribution"><span>My contribution</span> {project.contribution}.</p></div></header>
+<div class="project-content project-hero project-hero--text">
+  <div class="project-hero__copy">
+    <p class="project-content__label">GraphRAG / Experiment in progress</p>
+    <h3>Paper to possibility.</h3>
+    <p>An experiment in turning research papers into connected ideas, with an interface and backend foundations to explore the direction.</p>
+    <p class="project-content__label project-hero__role">{project.contribution}</p>
+  </div>
 </div>

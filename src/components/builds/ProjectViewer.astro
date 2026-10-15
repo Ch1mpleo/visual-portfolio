@@ -5,11 +5,11 @@ import OboxUnderHood from './OboxUnderHood.astro'
 import GraphPaperExperience from './GraphPaperExperience.astro'
 import MuseumsExperience from './MuseumsExperience.astro'
 import GraphPaperUnderHood from './GraphPaperUnderHood.astro'
-import ProjectStack from './ProjectStack.astro'
 import ArchitectureMap from './ArchitectureMap.astro'
 import OboxLogo from './OboxLogo.astro'
-import { oboxArchitecture } from '../../data/oboxArchitecture'
+import { projectArchitectures } from '../../data/projectArchitectures'
 import '../../styles/components/project-content.scss'
+import '../../styles/components/scroll-story.scss'
 import '../../styles/components/project-interior.scss'
 ---
 
@@ -31,7 +31,7 @@ import '../../styles/components/project-interior.scss'
         {project.id === 'oboxsteam' && <><OboxExperience project={project} /><OboxUnderHood /></>}
         {project.id === 'graphpaper' && <><GraphPaperExperience project={project} /><GraphPaperUnderHood /></>}
         {project.id === 'museums' && <MuseumsExperience project={project} />}
-        {project.id === 'oboxsteam' ? <ArchitectureMap architecture={oboxArchitecture} links={project.links} /> : <ProjectStack project={project} />}
+        <ArchitectureMap id={project.id} architecture={projectArchitectures[project.id]} links={project.id === 'museums' ? undefined : project.links} />
       </article>)}
     </div>
     <footer class="project-viewer__footer">

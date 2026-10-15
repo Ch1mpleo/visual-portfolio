@@ -2,14 +2,27 @@
 import { graphStages } from '../../data/projectInteriors'
 import GraphConceptArtwork from './GraphConceptArtwork.astro'
 ---
-<div class="project-content graph-explorer">
-  <header class="graph-explorer__masthead"><p class="project-content__label">The document-to-graph pipeline</p><p id="graph-explore-hint">Choose a stage to read how it works.</p></header>
-  <div class="graph-explorer__stage" data-graph-scene role="region" aria-label="Interactive research pipeline" aria-describedby="graph-explore-hint" tabindex="0"><GraphConceptArtwork /></div>
-  <div class="graph-explorer__caption" aria-live="polite" aria-atomic="true">
-    {graphStages.map((stage, index) => <section id={`graph-stage-${stage.id}`} data-graph-stage-panel={stage.id} aria-label={stage.title} tabindex="-1" hidden={index !== 0}>
-      <div><p class="project-content__label">0{index + 1} / 04 — {stage.label}</p><h4>{stage.title}</h4></div><div><p>{stage.description}</p><p class="graph-explorer__foundation">{stage.detail}</p></div>
-    </section>)}
-  </div>
-  <div class="story-detail-controls" role="group" aria-label="Pipeline detail navigation"><button type="button" data-graph-step="-1">Previous stage</button><button type="button" data-graph-step="1">Next stage</button></div>
-  <aside class="graph-explorer__scope" aria-label="Project scope"><span>Experiment in progress</span><p>Upload and graph interfaces, data models, and an embedding service are in place. Complete extraction, graph construction, and grounded answers remain the intended direction.</p></aside>
+<div class="project-content project-content--story">
+  <section class="scroll-story" data-scroll-story aria-labelledby="graph-pipeline-title">
+    <header class="story-heading">
+      <p class="project-content__label">The pipeline / {String(graphStages.length).padStart(2, '0')} stages</p>
+      <h3 id="graph-pipeline-title">From paper to graph.</h3>
+      <p>How a research paper could become a map of connected ideas, and what exists today.</p>
+    </header>
+    <div class="scroll-story__body">
+      <div class="scroll-story__stage" data-story-stage data-view="art" style={`--focus: 0; --objects: ${graphStages.length}; --zoom: 2.4`}>
+        <div class="scroll-story__art" data-story-layer="art" role="region" aria-label="Research pipeline illustration. Select a stage to read its part of the story.">
+          <GraphConceptArtwork />
+        </div>
+      </div>
+      <ol class="scroll-story__beats">
+        {graphStages.map((stage, index) => <li id={`graph-stage-${stage.id}`} class:list={['story-beat', { 'is-selected': index === 0 }]} data-story-beat={stage.id}>
+          <p class="project-content__label">0{index + 1} / {stage.label}</p>
+          <h4>{stage.title}</h4>
+          <p>{stage.description}</p>
+          <p class="story-beat__status">{stage.detail}</p>
+        </li>)}
+      </ol>
+    </div>
+  </section>
 </div>

@@ -1,0 +1,55 @@
+// Pinned illustration beside scrolling beats; driven by ScrollStory.ts.
+// The stage sets --objects (hotspot count) and --zoom (phone magnification).
+.story-heading { max-width: 52ch; margin-bottom: 2.5rem;
+  .project-content__label { margin-bottom: .6rem; }
+  h3 { font-size: clamp(2.2rem, 3.4vw, 3.25rem); }
+  > p:not(.project-content__label) { color: color(muted); }
+}
+.project-content--story { padding-top: 0; }
+.scroll-story {
+  padding-top: 3rem; border-top: 1px solid color(line);
+  &__body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
+  &__stage { position: sticky; top: 1.5rem; overflow: hidden; border: 1px solid color(line); background: color(surface); }
+  &__art { padding: 1rem 0; transition: opacity .45s, visibility .45s; > svg { display: block; width: 100%; height: auto; transition: translate .6s cubic-bezier(.22, 1, .36, 1); } }
+  &__screen {
+    position: absolute; inset: 0; display: block; width: 100%; padding: 0; border: 0; background: color(primary); cursor: zoom-in;
+    opacity: 0; visibility: hidden; transition: opacity .45s, visibility .45s;
+    img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    span { position: absolute; right: .75rem; bottom: .75rem; padding: .5rem .75rem; background: color(secondary); color: color(primary); font: 400 12px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
+    &:focus-visible { outline: 1px dashed color(accent); outline-offset: -6px; }
+  }
+  &__stage[data-view='screen'] {
+    .scroll-story__art { opacity: 0; visibility: hidden; }
+    .scroll-story__screen { opacity: 1; visibility: visible; }
+  }
+  // Trailing space lets the final beat reach the reading line while the stage is pinned.
+  &__beats { list-style: none; margin: 0; padding: 0 0 clamp(3rem, 18dvh, 9rem); }
+}
+.story-beat {
+  min-height: clamp(200px, 40dvh, 360px); padding: .25rem 0 2rem 1.5rem; border-left: 1px solid color(line);
+  opacity: .38; transition: opacity .35s, border-color .35s;
+  &.is-selected { opacity: 1; border-left-color: color(accent); }
+  .project-content__label { margin-bottom: .6rem; }
+  h4 { margin-bottom: .5rem; }
+  p:not(.project-content__label) { margin-top: 0; max-width: 40ch; }
+  p.story-beat__status { margin-top: 1rem; padding-left: .75rem; border-left: 2px solid color(accent); color: color(muted); }
+}
+@media (max-width: 767px) {
+  .scroll-story {
+    &__body { grid-template-columns: 1fr; gap: 1.5rem; }
+    &__stage { top: 0; z-index: 1; margin-inline: -1rem; border-inline: 0; }
+    // Pan the wide illustration so the active object sits in the centre of the phone frame.
+    &__art { padding: .75rem 0; > svg { width: calc(var(--zoom, 2) * 100%); max-width: none; translate: clamp(calc(100% / var(--zoom, 2) - 100%), calc(50% / var(--zoom, 2) - (var(--focus, 0) + .5) * 100% / var(--objects, 3)), 0%) 0; } }
+  }
+  .story-beat { min-height: 44dvh; padding-left: 1rem; }
+}
+@media (max-height: 560px) {
+  .scroll-story {
+    &__stage { position: relative; top: auto; }
+    &__beats { padding-bottom: 0; }
+  }
+  .story-beat { min-height: 0; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-story__art, .scroll-story__art > svg, .scroll-story__screen, .story-beat { transition: none; }
+}

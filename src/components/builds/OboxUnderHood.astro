@@ -4,32 +4,32 @@ import { oboxEngineering } from '../../data/oboxEngineering'
 import OboxStoryArtwork from './OboxStoryArtwork.astro'
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
-<div class="project-content obox-detail obox-engine" data-obox-engine>
+<div class="project-content project-content--story obox-detail">
   {oboxChapters.map((chapter) => {
     const parts = oboxEngineering.find((item) => item.id === chapter.id)!.parts
-    return <section id={`obox-engine-${chapter.id}`} data-obox-engine-panel={chapter.id} aria-labelledby={`obox-chapter-${chapter.id}`}>
-      <header class="obox-chapter-heading">
+    return <section id={`obox-engine-${chapter.id}`} class="scroll-story" data-scroll-story aria-labelledby={`obox-chapter-${chapter.id}`}>
+      <header class="story-heading">
         <p class="project-content__label">{chapter.number} / {chapter.label}</p>
         <h3 id={`obox-chapter-${chapter.id}`}>{chapter.title}</h3>
         <p>{chapter.summary}</p>
       </header>
-      <div class="obox-engine__chapter-body">
-        <div class="obox-engine__stage" data-obox-stage data-view="art" style="--focus: 0">
-          <div class="obox-engine__art" role="region" aria-label={`${chapter.label} illustration. Select an object to read its part of the story.`}>
+      <div class="scroll-story__body">
+        <div class="scroll-story__stage" data-story-stage data-view="art" style={`--focus: 0; --objects: ${parts.length}; --zoom: 1.9`}>
+          <div class="scroll-story__art" data-story-layer="art" role="region" aria-label={`${chapter.label} illustration. Select an object to read its part of the story.`}>
             <OboxStoryArtwork chapter={chapter.id} />
           </div>
-          <button class="obox-engine__screen" type="button" tabindex="-1" data-obox-enlarge data-image={`${assets}generated/${chapter.image}-1600.webp`} data-caption={chapter.alt} aria-label={`Inspect the full ${chapter.screenLabel.toLowerCase()} screenshot`}>
+          <button class="scroll-story__screen" type="button" data-story-layer="screen" inert data-obox-enlarge data-image={`${assets}generated/${chapter.image}-1600.webp`} data-caption={chapter.alt} aria-label={`Inspect the full ${chapter.screenLabel.toLowerCase()} screenshot`}>
             <img src={`${assets}generated/${chapter.image}-960.webp`} width={chapter.width} height={chapter.height} alt="" loading="lazy" decoding="async" />
             <span aria-hidden="true">Inspect screen ↗</span>
           </button>
         </div>
-        <ol class="obox-engine__beats">
-          {parts.map((part, index) => <li id={`obox-note-${part.id}`} class:list={['obox-beat', { 'is-selected': index === 0 }]} data-obox-part-panel={part.id}>
+        <ol class="scroll-story__beats">
+          {parts.map((part, index) => <li id={`obox-note-${part.id}`} class:list={['story-beat', { 'is-selected': index === 0 }]} data-story-beat={part.id}>
             <p class="project-content__label">0{index + 1} / {part.label}</p>
             <h4>{part.title}</h4>
             <p>{part.caption}</p>
           </li>)}
-          <li class="obox-beat" data-obox-part-panel="screen">
+          <li class="story-beat" data-story-beat="screen" data-story-view="screen">
             <p class="project-content__label">0{parts.length + 1} / In the product</p>
             <h4>{chapter.screenLabel}.</h4>
             <p>The same chapter in the shipped product. Select the screen to inspect it in full.</p>

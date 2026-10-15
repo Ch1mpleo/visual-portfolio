@@ -5,18 +5,16 @@ interface Props { project: Project }
 const { project } = Astro.props
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
-<div class="project-content obox-detail obox-overview" data-obox-experience>
-  <div class="obox-overview__showcase">
-    <div class="obox-overview__copy">
-      <h3>A short tour of OboxSTEAM.</h3>
-      <p>From expert-built curricula to hands-on learning, and the portfolios that make a student’s growth visible.</p>
-      <p class="project-content__label obox-overview__role">{project.contribution}</p>
-    </div>
-    <figure class="obox-film">
-      <video data-obox-film muted controls playsinline preload="none" poster={`${assets}generated/hero-section-1600.webp`} aria-label="OboxSTEAM promotional showreel, 45 seconds">
-        <source src={`${assets}obox-showreel.mp4`} type="video/mp4" />
-        <p>Your browser cannot play this video. <a href={`${assets}obox-showreel.mp4`}>Watch the OboxSTEAM showreel</a>.</p>
-      </video>
-    </figure>
+<div class="project-content obox-detail project-hero" data-obox-experience>
+  <div class="project-hero__copy">
+    <h3>A short tour of OboxSTEAM.</h3>
+    <p>From expert-built curricula to hands-on learning, and the portfolios that make a student’s growth visible.</p>
+    <p class="project-content__label project-hero__role">{project.contribution}</p>
   </div>
+  <figure class="obox-film">
+    <video data-obox-film muted controls playsinline preload="none" poster={`${assets}generated/hero-section-1600.webp`} aria-label="OboxSTEAM promotional showreel, 45 seconds">
+      <source src={`${assets}obox-showreel.mp4`} type="video/mp4" />
+      <p>Your browser cannot play this video. <a href={`${assets}obox-showreel.mp4`}>Watch the OboxSTEAM showreel</a>.</p>
+    </video>
+  </figure>
 </div>

@@ -6,8 +6,8 @@ The desktop gallery now fills the available viewport height, rather than using a
 fixed 480px grid. At 1366×768, 1440×900, and 1920×1080 the section is 720px,
 852px, and 1032px tall respectively, allowing 24px of framing above and below.
 Short windows and smaller devices retain natural scrolling. The redundant
-section index and footer labels are removed. Platform, unfolding-paper, and
-doorway controls replace the repeated arrow, with distinct hover/focus gestures.
+section index and footer labels are removed. All three project controls share the
+Museums' italic type and animated doorway, with project-specific entry labels.
 
 OboxSTEAM opens with equal-width copy and film columns on desktop. The role
 description lives with the introduction. Each Create / Learn / Show chapter

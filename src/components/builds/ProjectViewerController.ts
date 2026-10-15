@@ -96,9 +96,9 @@ export class ProjectViewerController {
     window.lenis?.stop()
     document.documentElement.classList.add('is-project-viewer-open')
     this.dialog.showModal()
-    this.syncFilm()
     // A closed dialog has no layout, so reset its scroller after showModal.
     this.scroller.scrollTop = 0
+    this.syncFilm()
     // Native modal autofocus can move the document before focusing the sheet.
     // Keep Lenis and the browser at the position captured from the trigger.
     window.scrollTo(this.pagePosition.x, this.pagePosition.y)

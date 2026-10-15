@@ -43,7 +43,10 @@ export class OboxDetailController {
     // The inner native modal owns its focus cycle and Escape key.
     this.zoom.addEventListener('keydown', (event) => event.stopPropagation())
     this.zoom.addEventListener('close', (event) => event.stopPropagation())
-    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) this.pause() }, { root: viewer.querySelector('[data-viewer-scroller]'), threshold: .15 }).observe(this.film)
+    this.reducedMotion.addEventListener('change', () => { if (this.reducedMotion.matches) this.pause() })
+    // Observe the visibility boundary even when the short sheet exposes less
+    // than 15% of the film on entry.
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) this.pause() }, { root: viewer.querySelector('[data-viewer-scroller]'), threshold: 0 }).observe(this.film)
   }
 
   reset() {
@@ -56,6 +59,13 @@ export class OboxDetailController {
   }
 
   play() {
+    // Opening a short sheet can leave the film below the fold without a new
+    // intersection event. Only autoplay when it is visible in the open story.
+    const scroller = this.viewer.querySelector<HTMLElement>('[data-viewer-scroller]')!
+    const frame = scroller.getBoundingClientRect()
+    const film = this.film.getBoundingClientRect()
+    if (!this.viewer.open || this.zoom.open || this.reducedMotion.matches ||
+      film.height === 0 || film.bottom <= frame.top || film.top >= frame.bottom) return
     // A quick project change can abort loading; native controls remain available if autoplay is blocked.
     void this.film.play().catch(() => {})
   }

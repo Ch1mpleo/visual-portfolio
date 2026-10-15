@@ -10,7 +10,7 @@ export class OboxDetailController {
     this.film = viewer.querySelector('[data-obox-film]')!
     this.zoom = viewer.querySelector('[data-obox-zoom]')!
     viewer.querySelectorAll<SVGElement>('[data-story-object]').forEach((object) => {
-      const select = () => this.selectPart(object.closest<HTMLElement>('[data-obox-engine-panel]')!, object.dataset.storyObject!)
+      const select = () => this.selectPart(object.closest<HTMLElement>('[data-obox-engine-panel]')!, object.dataset.storyObject!, true)
       object.addEventListener('click', select)
       object.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); return }
@@ -26,6 +26,15 @@ export class OboxDetailController {
         const rect = objects[next].getBoundingClientRect()
         const frame = stage.getBoundingClientRect()
         stage.scrollTo({ left: stage.scrollLeft + rect.left + rect.width / 2 - frame.left - frame.width / 2, behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+      })
+    })
+    viewer.querySelectorAll<HTMLButtonElement>('[data-obox-step]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const panel = button.closest<HTMLElement>('[data-obox-engine-panel]')!
+        const objects = Array.from(panel.querySelectorAll<SVGElement>('[data-story-object]'))
+        const current = objects.findIndex((object) => object.getAttribute('aria-pressed') === 'true')
+        const next = (current + Number(button.dataset.oboxStep) + objects.length) % objects.length
+        this.selectPart(panel, objects[next].dataset.storyObject!)
       })
     })
     viewer.querySelectorAll<HTMLButtonElement>('[data-obox-enlarge]').forEach((button) => {
@@ -72,9 +81,14 @@ export class OboxDetailController {
   pause() { this.film.pause() }
   dismissZoom() { if (this.zoom.open) this.zoom.close() }
 
-  private selectPart(panel: HTMLElement, id: string) {
+  private selectPart(panel: HTMLElement, id: string, reveal = false) {
     panel.querySelectorAll<HTMLElement>('[data-obox-part-panel]').forEach((note) => {
+      note.hidden = note.dataset.oboxPartPanel !== id
       note.classList.toggle('is-selected', note.dataset.oboxPartPanel === id)
+      if (!note.hidden && reveal && matchMedia('(max-width: 767px)').matches) {
+        note.scrollIntoView({ block: 'nearest', behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+        note.focus({ preventScroll: true })
+      }
     })
     panel.querySelectorAll<SVGElement>('[data-story-object]').forEach((object) => {
       object.classList.toggle('is-selected', object.dataset.storyObject === id)

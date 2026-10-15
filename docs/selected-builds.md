@@ -1,6 +1,35 @@
 # Selected Builds handoff
 
-## Current implementation: compact gallery and continuous stories (2026-10-15)
+## Current implementation: review revision (2026-10-15)
+
+The desktop gallery now fills the available viewport height, rather than using a
+fixed 480px grid. At 1366×768, 1440×900, and 1920×1080 the section is 720px,
+852px, and 1032px tall respectively, allowing 24px of framing above and below.
+Short windows and smaller devices retain natural scrolling. The redundant
+section index and footer labels are removed. Platform, unfolding-paper, and
+doorway controls replace the repeated arrow, with distinct hover/focus gestures.
+
+OboxSTEAM opens with equal-width copy and film columns on desktop. The role
+description lives with the introduction. Each Create / Learn / Show chapter
+pairs its illustration with one contextual explanation, its implementation
+detail, Previous/Next detail controls, and screenshot access. Selecting an object
+changes the explanation, independently for each chapter. GraphPaper similarly
+shows one selected pipeline explanation with Previous/Next stage controls;
+the implemented-versus-intended scope remains permanently visible. On phones,
+explicit illustration activation brings the selected explanation into view and
+focuses it. Arrow-key exploration remains within the illustration. Technologies
+are grouped into responsibility rows at the end of each story.
+
+This intentionally replaces the previous pass's all-explanations-visible layout
+in response to review feedback. The continuous project documents, native modal,
+media lifecycle, screenshot zoom, project navigation, and sweep remain.
+
+Build and 16 regression tests pass. Responsive checks cover the target desktop
+sizes, a larger desktop, narrower desktop, tablet, phone, and 200% reflow-equivalent
+viewport. Actual browser zoom and browser reduced-motion emulation remain
+unavailable; preference logic is covered by tests and CSS review.
+
+## First continuous-story pass (2026-10-15)
 
 This section supersedes the historical tab-based notes below. Each project has
 one continuous document, with technology groups and destinations at the end.

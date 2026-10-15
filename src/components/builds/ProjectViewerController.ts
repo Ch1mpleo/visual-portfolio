@@ -50,9 +50,9 @@ export class ProjectViewerController {
     dialog.querySelector('[data-viewer-next]')!.addEventListener('click', () => this.switchProject(1))
 
     dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
-      button.addEventListener('click', () => this.selectGraphStage(button.dataset.graphStage as GraphStageId))
+      button.addEventListener('click', () => this.selectGraphStage(button.dataset.graphStage as GraphStageId, true))
       button.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.selectGraphStage(button.dataset.graphStage as GraphStageId); return }
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.selectGraphStage(button.dataset.graphStage as GraphStageId, true); return }
         const stages = Array.from(dialog.querySelectorAll<SVGElement>('[data-graph-stage]'))
         const index = stages.indexOf(button)
         const next = event.key === 'ArrowRight' ? (index + 1) % stages.length : event.key === 'ArrowLeft' ? (index + stages.length - 1) % stages.length : event.key === 'Home' ? 0 : event.key === 'End' ? stages.length - 1 : -1
@@ -64,6 +64,13 @@ export class ProjectViewerController {
         const rect = stages[next].getBoundingClientRect()
         const frame = scene.getBoundingClientRect()
         scene.scrollTo({ left: scene.scrollLeft + rect.left + rect.width / 2 - frame.left - frame.width / 2, behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+      })
+    })
+    dialog.querySelectorAll<HTMLButtonElement>('[data-graph-step]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const current = graphStages.findIndex((stage) => stage.id === this.graphStage)
+        const next = (current + Number(button.dataset.graphStep) + graphStages.length) % graphStages.length
+        this.selectGraphStage(graphStages[next].id)
       })
     })
 
@@ -148,13 +155,20 @@ export class ProjectViewerController {
     this.render()
   }
 
-  private selectGraphStage(id: GraphStageId) {
+  private selectGraphStage(id: GraphStageId, reveal = false) {
     if (!graphStages.some((stage) => stage.id === id)) return
     this.graphStage = id
     this.dialog.querySelectorAll<SVGElement>('[data-graph-stage]').forEach((button) => {
       button.setAttribute('aria-pressed', String(button.dataset.graphStage === this.graphStage))
     })
-    this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => { panel.classList.toggle('is-selected', panel.dataset.graphStagePanel === this.graphStage) })
+    this.dialog.querySelectorAll<HTMLElement>('[data-graph-stage-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.graphStagePanel !== this.graphStage
+      panel.classList.toggle('is-selected', !panel.hidden)
+      if (!panel.hidden && reveal && matchMedia('(max-width: 767px)').matches) {
+        panel.scrollIntoView({ block: 'nearest', behavior: this.reducedMotion.matches ? 'instant' : 'smooth' })
+        panel.focus({ preventScroll: true })
+      }
+    })
     this.dialog.querySelectorAll<SVGElement>('[data-graph-layer]').forEach((layer) => { layer.classList.toggle('is-selected', layer.dataset.graphLayer === this.graphStage) })
   }
 

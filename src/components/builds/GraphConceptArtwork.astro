@@ -27,7 +27,7 @@ import { graphStages } from '../../data/projectInteriors'
         <circle class="graph-orbit" cx="39" cy="157" r="23" /><text class="graph-small" x="12" y="283">AN IDEA, IN CONTEXT</text>
       </g>}
     </g>
-    <g class="graph-stage-label" transform={`translate(${index * 300 + 43} 428)`} aria-hidden="true"><circle class="graph-selector" cy="-5" r="15" /><text class="graph-step-number" y="0" text-anchor="middle">0{index + 1}</text><text class="graph-step-title" x="27" y="1">{stage.label}</text><text class="graph-plus" x="210" y="1">+</text></g>
+    <g class="graph-stage-label" transform={`translate(${index * 300 + 43} 428)`} aria-hidden="true"><circle class="graph-selector" cy="-5" r="15" /><text class="graph-step-number" y="0" text-anchor="middle">0{index + 1}</text><text class="graph-step-title" x="27" y="1">{stage.label}</text><g class="graph-inspect"><circle cx="210" cy="-6" r="7" /><path d="m215-1 7 7" /></g></g>
   </g>)}
 </svg>
 <style lang="scss">
@@ -54,7 +54,7 @@ import { graphStages } from '../../data/projectInteriors'
     .graph-selector { fill: color(primary); stroke: color(muted); }
     .graph-step-number { font-size: 11px; }
     .graph-step-title { font: 400 21px font-family(editorial); }
-    .graph-plus { font-size: 21px; fill: color(muted); }
+    .graph-inspect { fill: none; stroke: color(muted); stroke-width: 1.5; }
     .is-selected .graph-selector { fill: color(secondary); stroke: color(secondary); }
     .is-selected .graph-step-number { fill: color(primary); }
     @media (prefers-reduced-motion: reduce) { .graph-drawing { transition: none; translate: none !important; } }

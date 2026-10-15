@@ -33,6 +33,7 @@ function setup(projectId = 'oboxsteam') {
   const panels = Array.from(projectData.projects, project => element({ viewerProject: project.id }))
   const stages = interiorData.graphStages.map(stage => element({ graphStage: stage.id }))
   const explanations = interiorData.graphStages.map(stage => element({ graphStagePanel: stage.id }))
+  const steps = [-1, 1].map(graphStep => element({ graphStep: String(graphStep) }))
   for (const explanation of explanations) explanation.classList.toggle = (_name, selected) => { explanation.selected = selected }
   const nodes = new Map(['scroller', 'close', 'previous', 'next', 'logo', 'title', 'category', 'counter', 'announcement'].map(name => [`[data-viewer-${name}]`, element()]))
   const scene = element()
@@ -46,6 +47,7 @@ function setup(projectId = 'oboxsteam') {
       if (selector === '[data-viewer-project]') return panels
       if (selector === '[data-graph-stage]') return stages
       if (selector === '[data-graph-stage-panel]') return explanations
+      if (selector === '[data-graph-step]') return steps
       if (selector.startsWith('button:')) return [nodes.get('[data-viewer-close]'), nodes.get('[data-viewer-next]')]
       return []
     },
@@ -71,7 +73,7 @@ function setup(projectId = 'oboxsteam') {
   viewer.open(projectId, trigger)
   const flushFrames = () => { while (frames.length) frames.shift()() }
   flushFrames()
-  return { viewer, panels, explanations, stages, nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames }
+  return { viewer, panels, explanations, stages, steps, nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames }
 }
 
 test('project switches expose one complete story and reset its shared scroll position', () => {
@@ -91,12 +93,16 @@ test('project switches expose one complete story and reset its shared scroll pos
   assert.deepEqual(s.panels.filter(panel => !panel.hidden).map(panel => panel.dataset.viewerProject), ['graphpaper'])
 })
 
-test('selecting a GraphPaper stage highlights it while keeping every explanation visible', () => {
+test('GraphPaper selection replaces the contextual detail and resets on project changes', () => {
   const s = setup('graphpaper')
   s.viewer.selectGraphStage('graph')
   assert.equal(s.stages[3].attributes['aria-pressed'], 'true')
   assert.equal(s.explanations[3].selected, true)
-  assert.ok(s.explanations.every(panel => !panel.hidden))
+  assert.deepEqual(Array.from(s.explanations.filter(panel => !panel.hidden), panel => panel.dataset.graphStagePanel), ['graph'])
+  s.steps[1].handlers.click()
+  assert.equal(s.stages[0].attributes['aria-pressed'], 'true')
+  s.steps[0].handlers.click()
+  assert.equal(s.stages[3].attributes['aria-pressed'], 'true')
   s.viewer.switchProject(1)
   s.viewer.switchProject(-1)
   assert.equal(s.stages[0].attributes['aria-pressed'], 'true')

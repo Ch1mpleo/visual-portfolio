@@ -84,7 +84,7 @@ const descriptions = {
       </g>}
     </g>
     <g class="art-object-label" transform={`translate(${index * 400 + 80} 479)`} aria-hidden="true">
-      <circle class="art-selector" cx="0" cy="-5" r="16" /><text class="art-step-number" x="0" y="0" text-anchor="middle">0{index + 1}</text><text class="art-step-title" x="29" y="1">{part.label}</text><text class="art-plus" x="273" y="1">+</text>
+      <circle class="art-selector" cx="0" cy="-5" r="16" /><text class="art-step-number" x="0" y="0" text-anchor="middle">0{index + 1}</text><text class="art-step-title" x="29" y="1">{part.label}</text><g class="art-inspect"><circle cx="267" cy="-6" r="7" /><path d="m272-1 7 7" /></g>
     </g>
   </g>)}
 </svg>
@@ -116,10 +116,10 @@ const descriptions = {
     .art-selector { fill: color(primary); stroke: color(muted); }
     .art-step-number { font-size: 11px; }
     .art-step-title { font: 400 21px font-family(editorial); letter-spacing: 0; }
-    .art-plus { font-size: 22px; fill: color(muted); }
+    .art-inspect { fill: none; stroke: color(muted); stroke-width: 1.5; }
     .is-selected .art-selector { fill: color(secondary); stroke: color(secondary); }
     .is-selected .art-step-number { fill: color(primary); }
-    .is-selected .art-plus { fill: color(secondary); }
+    .is-selected .art-inspect { stroke: color(secondary); }
     @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } }
   }
 </style>

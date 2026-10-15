@@ -61,3 +61,18 @@ test('leaving view or enabling reduced motion pauses an already playing film', (
   s.reduceMotion()
   assert.equal(s.film.paused, true)
 })
+
+test('Obox detail selection exposes one note and remains scoped to its chapter', () => {
+  const s = setup()
+  const chapter = ids => {
+    const notes = ids.map((id, index) => ({ dataset: { oboxPartPanel: id }, hidden: index !== 0, classList: { toggle() {} } }))
+    const objects = ids.map(id => ({ dataset: { storyObject: id }, classList: { toggle() {} }, setAttribute() {} }))
+    return { notes, querySelectorAll: selector => selector === '[data-obox-part-panel]' ? notes : objects }
+  }
+  const create = chapter(['blueprint', 'review', 'release'])
+  const learn = chapter(['class', 'activity', 'evidence'])
+  s.controller.selectPart(create, 'review')
+  s.controller.selectPart(learn, 'activity')
+  assert.deepEqual(create.notes.filter(note => !note.hidden).map(note => note.dataset.oboxPartPanel), ['review'])
+  assert.deepEqual(learn.notes.filter(note => !note.hidden).map(note => note.dataset.oboxPartPanel), ['activity'])
+})

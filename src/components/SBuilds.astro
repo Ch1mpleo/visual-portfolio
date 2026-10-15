@@ -13,6 +13,7 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
   <div class="s-builds__gallery">
     {projects.map((project) => <BuildSpecimen project={project} />)}
   </div>
+  <p class="s-builds__ending">and so much more..</p>
 </section>
 
 <script>
@@ -29,7 +30,8 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
     background: color(primary);
     scroll-margin-top: 1.5rem;
 
-    &__intro, &__gallery { width: 100%; max-width: 1560px; margin-inline: auto; }
+    &__intro, &__gallery, &__ending { width: 100%; max-width: 1560px; margin-inline: auto; }
+    &__ending { flex-shrink: 0; margin: 1rem auto 0; text-align: right; color: color(secondary); font: italic 400 clamp(1.25rem, 2vw, 1.75rem) / 1.1 font-family(editorial); }
     &__heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 1.5rem; }
     h2 { margin: 0; font: 700 clamp(3.5rem, 6vw, 6rem) / 0.88 font-family(bigger); text-transform: uppercase; letter-spacing: -0.01em; }
     &__period { color: color(accent); }

@@ -53,4 +53,13 @@ import BuildSpecimen from './builds/BuildSpecimen.astro'
       &__footnote { flex-wrap: wrap; }
     }
   }
+  @media (min-width: 1200px) {
+    .s-builds {
+      padding-block: 28px;
+      &__heading { align-items: center; margin-bottom: 20px; }
+      h2 { white-space: nowrap; font-size: clamp(3rem, 5vw, 4.5rem); }
+      &__description { max-width: 34ch; font-size: 20px; }
+      &__gallery { height: 480px; min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+    }
+  }
 </style>

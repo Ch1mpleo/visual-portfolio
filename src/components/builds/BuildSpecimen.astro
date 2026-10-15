@@ -200,11 +200,23 @@ const { project } = Astro.props
     &:not(.build-specimen--oboxsteam) p { font-size: 18px; }
     &__folio { font-size: 5rem; }
     @media (max-width: 987px) {
+      &__scene { height: 100%; display: flex; align-items: center; }
+      &__art :global(.project-art) { height: 100%; width: 100%; object-fit: contain; }
       &--oboxsteam &__art { aspect-ratio: 7 / 4; }
       &:not(.build-specimen--oboxsteam) { display: flex; }
       &:not(.build-specimen--oboxsteam) &__art { aspect-ratio: 4 / 3; }
       &:not(.build-specimen--oboxsteam) &__caption { border-left: 0; border-top: 1px solid color(line); }
       &--oboxsteam &__caption { align-items: center; }
+    }
+  }
+  @media (min-width: 1200px) {
+    .build-specimen {
+      min-height: 0;
+      &__art { min-height: 0; }
+      &__scene { height: 100%; display: flex; align-items: center; }
+      &__art :global(.project-art) { height: 100%; width: 100%; object-fit: contain; }
+      &--oboxsteam &__art { flex: 1; overflow: hidden; }
+      &--oboxsteam &__caption { flex-shrink: 0; }
     }
   }
 </style>

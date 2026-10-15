@@ -14,7 +14,7 @@ function setup() {
   const media = { matches: false, addEventListener(_name, fn) { preferenceChange = fn } }
   const film = { paused: true, rect: { top: 150, bottom: 550, height: 400 }, play() { this.paused = false; return Promise.resolve() }, pause() { this.paused = true }, getBoundingClientRect() { return this.rect } }
   const zoom = { open: false, addEventListener() {}, querySelector: () => ({ addEventListener() {} }) }
-  const scroller = { getBoundingClientRect: () => ({ top: 100, bottom: 700 }) }
+  const scroller = { addEventListener() {}, getBoundingClientRect: () => ({ top: 100, bottom: 700 }) }
   const viewer = { open: true, querySelectorAll: () => [], querySelector: selector => selector === '[data-obox-film]' ? film : selector === '[data-obox-zoom]' ? zoom : scroller }
   const exports = {}
   vm.runInNewContext(source, {
@@ -62,17 +62,31 @@ test('leaving view or enabling reduced motion pauses an already playing film', (
   assert.equal(s.film.paused, true)
 })
 
-test('Obox detail selection exposes one note and remains scoped to its chapter', () => {
+test('Obox beat selection highlights one beat, drives its stage, and stays scoped to its chapter', () => {
   const s = setup()
+  const classes = () => { const set = new Set(); return { set, toggle(name, on) { on ? set.add(name) : set.delete(name) } } }
   const chapter = ids => {
-    const notes = ids.map((id, index) => ({ dataset: { oboxPartPanel: id }, hidden: index !== 0, classList: { toggle() {} } }))
-    const objects = ids.map(id => ({ dataset: { storyObject: id }, classList: { toggle() {} }, setAttribute() {} }))
-    return { notes, querySelectorAll: selector => selector === '[data-obox-part-panel]' ? notes : objects }
+    const notes = [...ids, 'screen'].map(id => ({ dataset: { oboxPartPanel: id }, classList: classes() }))
+    const objects = ids.map(id => ({ dataset: { storyObject: id }, classList: classes(), attributes: {}, setAttribute(name, value) { this.attributes[name] = value } }))
+    const art = { inert: false, toggleAttribute(_name, on) { this.inert = on } }
+    const enlarge = { tabIndex: -1 }
+    const stage = { dataset: {}, focus: null, style: { setProperty(_name, value) { stage.focus = value } }, querySelector: selector => selector === '.obox-engine__art' ? art : enlarge }
+    const selected = () => notes.filter(note => note.classList.set.has('is-selected')).map(note => note.dataset.oboxPartPanel)
+    return { notes, objects, stage, art, enlarge, selected, dataset: {}, querySelector: () => stage, querySelectorAll: selector => selector === '[data-obox-part-panel]' ? notes : objects }
   }
   const create = chapter(['blueprint', 'review', 'release'])
   const learn = chapter(['class', 'activity', 'evidence'])
   s.controller.selectPart(create, 'review')
   s.controller.selectPart(learn, 'activity')
-  assert.deepEqual(create.notes.filter(note => !note.hidden).map(note => note.dataset.oboxPartPanel), ['review'])
-  assert.deepEqual(learn.notes.filter(note => !note.hidden).map(note => note.dataset.oboxPartPanel), ['activity'])
+  assert.deepEqual(create.selected(), ['review'])
+  assert.deepEqual(learn.selected(), ['activity'])
+  assert.equal(create.objects[1].attributes['aria-pressed'], 'true')
+  assert.equal(create.stage.focus, '1')
+  assert.equal(create.stage.dataset.view, 'art')
+  s.controller.selectPart(create, 'screen')
+  assert.deepEqual(create.selected(), ['screen'])
+  assert.equal(create.stage.dataset.view, 'screen')
+  assert.equal(create.art.inert, true)
+  assert.equal(create.enlarge.tabIndex, 0)
+  assert.deepEqual(learn.selected(), ['activity'])
 })

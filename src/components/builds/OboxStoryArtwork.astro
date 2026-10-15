@@ -5,9 +5,9 @@ interface Props { chapter: OboxChapterId }
 const { chapter } = Astro.props
 const parts = oboxEngineering.find((item) => item.id === chapter)!.parts
 const descriptions = {
-  curriculum: 'Author a curriculum blueprint, review it with experts, and publish an approved program. Select any illustrated object to explore.',
-  learning: 'A connected class leads to mobile attendance and a lasting learning record. Select any illustrated object to explore.',
-  portfolio: 'Personal highlights become an editable portfolio and a published student story. Select any illustrated object to explore.',
+  curriculum: 'Author a curriculum blueprint, review it with experts, and publish an approved program.',
+  learning: 'A connected class leads to mobile attendance and a lasting learning record.',
+  portfolio: 'Personal highlights become an editable portfolio and a published student story.',
 }
 ---
 <svg class="obox-story-art" viewBox="0 0 1200 520" role="group" aria-label={descriptions[chapter]}>
@@ -110,8 +110,11 @@ const descriptions = {
     .art-display.art-inverse { fill: color(primary); }
     .art-hit { fill: transparent; stroke: transparent; stroke-width: 1; }
     .art-object { cursor: pointer; outline: none; }
-    .art-drawing { opacity: .7; translate: 0 0; transition: opacity .35s, translate .55s cubic-bezier(.22, 1, .36, 1); }
-    .art-object:is(.is-selected, :hover, :focus-visible) .art-drawing { opacity: 1; translate: 0 -9px; }
+    .art-drawing { opacity: .32; translate: 0 0; transition: opacity .35s, translate .55s cubic-bezier(.22, 1, .36, 1); }
+    .art-object:is(:hover, :focus-visible) .art-drawing { opacity: .7; }
+    .art-object.is-selected .art-drawing { opacity: 1; translate: 0 -9px; }
+    .art-object-label { transition: opacity .35s; }
+    .art-object:not(.is-selected) .art-object-label { opacity: .55; }
     .art-object:focus-visible .art-hit { stroke: color(accent); stroke-dasharray: 4 5; }
     .art-selector { fill: color(primary); stroke: color(muted); }
     .art-step-number { font-size: 11px; }
@@ -120,6 +123,6 @@ const descriptions = {
     .is-selected .art-selector { fill: color(secondary); stroke: color(secondary); }
     .is-selected .art-step-number { fill: color(primary); }
     .is-selected .art-inspect { stroke: color(secondary); }
-    @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } .art-object-label { transition: none; } }
   }
 </style>

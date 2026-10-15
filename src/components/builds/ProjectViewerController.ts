@@ -180,8 +180,12 @@ export class ProjectViewerController {
     this.dialog.querySelector('[data-viewer-category]')!.textContent = `${project.index} / ${project.category}`
     this.dialog.querySelector('[data-viewer-counter]')!.textContent = `${project.index} / 03`
     this.dialog.querySelector('[data-viewer-announcement]')!.textContent = ` — ${project.title}`
-    this.dialog.querySelector('[data-viewer-previous]')!.setAttribute('aria-label', `Previous project: ${projects[(index + projects.length - 1) % projects.length].title}`)
-    this.dialog.querySelector('[data-viewer-next]')!.setAttribute('aria-label', `Next project: ${projects[(index + 1) % projects.length].title}`)
+    const previous = projects[(index + projects.length - 1) % projects.length].title
+    const next = projects[(index + 1) % projects.length].title
+    this.dialog.querySelector('[data-viewer-previous]')!.setAttribute('aria-label', `Previous project: ${previous}`)
+    this.dialog.querySelector('[data-viewer-next]')!.setAttribute('aria-label', `Next project: ${next}`)
+    this.dialog.querySelector('[data-viewer-previous-label]')!.textContent = previous
+    this.dialog.querySelector('[data-viewer-next-label]')!.textContent = next
     this.panels.forEach((panel) => { panel.hidden = panel.dataset.viewerProject !== this.projectId })
     this.scroller.scrollTop = 0
     // Hidden project layout and interrupted fades must not anchor the new document.

@@ -1,6 +1,19 @@
 # Selected Builds handoff
 
-## Current implementation: review revision (2026-10-15)
+## Current implementation: OboxSTEAM focus redesign (2026-10-15)
+
+Pilot for a calmer project detail; GraphPaper and Museums are unchanged for now.
+
+- **Hero.** The film takes about 7/12 of the width as the single focal point. The copy column holds only the headline, one sentence, and the role as a meta line. The eyebrow labels and film caption are removed.
+- **Chapters are scrollytelling.** The illustration stays pinned beside a column of beats (label, title, one paragraph). The beat crossing the reading line selects its object (the middle of the scroller on desktop, 68% down on phones). Inactive objects and beats dim. Hotspots are the only per-chapter control: clicking one scrolls to its beat. The Previous/Next detail buttons and the screenshot thumbnail are removed.
+- **"In the product".** Each chapter's final beat crossfades the stage to the real screenshot, which opens the existing zoom dialog.
+- **Phones and short windows.** On phones the stage pins to the top and pans the illustration to the active object, so there is no horizontal scroll. Windows shorter than 560px fall back to a non-sticky layout.
+- **Architecture map.** "Built with" for OboxSTEAM is now an architecture map (`ArchitectureMap.astro`, `oboxArchitecture.ts`): clients, then the API, then data, media/AI, and connected services, inside a delivery frame. Tool names are always visible as chips. Selecting a node dims unrelated nodes and shows its role, an implementation note, and the chapters it powers. The implementation notes formerly under "How it works" in each detail now live on the map nodes. `projectStacks.oboxsteam` remains the stack inventory, and a test asserts that the map places every tool exactly once.
+- **Footer.** The footer buttons show the neighbouring project names, so they can't be confused with in-story navigation.
+
+Build, TypeScript, and 18 tests pass. Checked at 1106×673, 390×844, and 1366×500: sticky stage, scroll and hotspot selection, the screenshot beat, map selection, and no horizontal overflow.
+
+## Previous revision (2026-10-15)
 
 The desktop gallery now fills the available viewport height, rather than using a
 fixed 480px grid. At 1366×768, 1440×900, and 1920×1080 the section is 720px,

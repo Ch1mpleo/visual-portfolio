@@ -1,40 +1,63 @@
 .obox-detail {
-  .obox-film { min-width: 0; margin: 0; video { width: 100%; height: auto; aspect-ratio: 16 / 9; display: block; object-fit: contain; background: #151515; } figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding-top: 1rem; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; } }
-  .obox-overview__showcase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 2.5rem; }
-  .obox-overview__copy { > p:not(.project-content__label) { max-width: 42ch; margin-top: 1.25rem; font-size: 18px; } h3 { font-size: clamp(2.6rem, 4.5vw, 4.5rem); } }
-  .obox-overview__role { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid color(line); > span { color: color(muted); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; } > p { max-width: 40ch; margin-top: .4rem; font-size: 18px; } }
-  .obox-screen-link { display: flex; align-items: center; gap: 1rem; width: 100%; margin-top: 1.5rem; padding: 1rem 0 0; border: 0; border-top: 1px solid color(line); background: transparent; text-align: left; color: color(secondary); cursor: zoom-in; > img { display: block; width: 100px; height: 64px; object-fit: cover; object-position: top; border: 1px solid color(line); transition: opacity .2s; } > span { font: 400 18px / 1.3 font-family(editorial); } small { display: block; margin-top: .5rem; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); } &:hover > img { opacity: .7; } }
+  .obox-film { min-width: 0; margin: 0; video { width: 100%; height: auto; aspect-ratio: 16 / 9; display: block; object-fit: contain; background: #151515; } }
+  .obox-overview__showcase { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: end; gap: clamp(2rem, 4vw, 3.5rem); }
+  .obox-overview__copy { h3 { font-size: clamp(2.4rem, 4vw, 4rem); } > p:not(.project-content__label) { max-width: 36ch; margin-top: 1.25rem; } }
+  p.obox-overview__role { margin: 1.75rem 0 0; padding-top: 1rem; border-top: 1px solid color(line); color: color(secondary); }
   .obox-zoom { width: calc(100vw - 32px); max-width: 1800px; height: calc(100dvh - 32px); max-height: none; padding: 0; border: 1px solid color(line); background: color(primary); color: color(secondary); &[open] { display: flex; flex-direction: column; } &::backdrop { background: color(overlay); } header { display: flex; align-items: center; justify-content: space-between; padding: .5rem 1rem; border-bottom: 1px solid color(line); h4 { font: 400 12px / 1.4 font-family(fraktion); margin: 0; } } &__scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; img { display: block; width: 100%; min-width: 1100px; height: auto; } } > p:not(.project-content__label) { padding: .6rem 1rem; margin: 0; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); } }
 }
 .project-content.obox-engine { padding-top: 0; }
 .obox-engine {
-  &__masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 1.5rem; .project-content__label { margin: 0; } }
-  [data-obox-engine-panel] { padding-block: 2.5rem; border-top: 1px solid color(line); }
-  .obox-chapter-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: end; margin-bottom: 2rem; .project-content__label { margin-bottom: .6rem; } h3 { font-size: clamp(2.4rem, 3.6vw, 3.5rem); } > p { margin: 0; max-width: 60ch; font-size: 18px; } }
-  &__chapter-body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; gap: 2rem; }
-  &__stage { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: color(line) transparent; padding: 1.25rem 0; border-block: 1px solid color(line); background: color(surface); .obox-story-art { width: 100%; height: auto; } &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
-  &__inspector { min-width: 0; padding-left: 1.5rem; border-left: 1px solid color(line); }
-  &__readout { min-height: 310px; > section { outline: none; } .project-content__label { margin: 0 0 .75rem; } h4 { margin-bottom: 1rem; font-size: 28px; } p:not(.project-content__label) { margin: 0; font-size: 18px; } }
-  &__implementation { margin-top: 1.25rem; > p:last-child { color: color(muted); } }
+  [data-obox-engine-panel] { padding-block: 3rem 0; border-top: 1px solid color(line); }
+  .obox-chapter-heading { max-width: 52ch; margin-bottom: 2.5rem; .project-content__label { margin-bottom: .6rem; } h3 { font-size: clamp(2.2rem, 3.4vw, 3.25rem); } > p { color: color(muted); } }
+  &__chapter-body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
+  &__stage { position: sticky; top: 1.5rem; overflow: hidden; border: 1px solid color(line); background: color(surface); }
+  &__art { padding: 1rem 0; transition: opacity .45s, visibility .45s; .obox-story-art { width: 100%; height: auto; transition: translate .6s cubic-bezier(.22, 1, .36, 1); } }
+  &__screen {
+    position: absolute; inset: 0; display: block; width: 100%; padding: 0; border: 0; background: color(primary); cursor: zoom-in;
+    opacity: 0; visibility: hidden; transition: opacity .45s, visibility .45s;
+    img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    span { position: absolute; right: .75rem; bottom: .75rem; padding: .5rem .75rem; background: color(secondary); color: color(primary); font: 400 12px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
+    &:focus-visible { outline: 1px dashed color(accent); outline-offset: -6px; }
+  }
+  &__stage[data-view='screen'] {
+    .obox-engine__art { opacity: 0; visibility: hidden; }
+    .obox-engine__screen { opacity: 1; visibility: visible; }
+  }
+  // Trailing space lets the final beat reach the reading line while the stage is pinned.
+  &__beats { list-style: none; margin: 0; padding: 0 0 clamp(3rem, 18dvh, 9rem); }
+  .obox-beat {
+    min-height: clamp(200px, 40dvh, 360px); padding: .25rem 0 2rem 1.5rem; border-left: 1px solid color(line);
+    opacity: .38; transition: opacity .35s, border-color .35s;
+    &.is-selected { opacity: 1; border-left-color: color(accent); }
+    .project-content__label { margin-bottom: .6rem; }
+    h4 { margin-bottom: .5rem; }
+    p:not(.project-content__label) { margin-top: 0; max-width: 40ch; }
+  }
 }
-.project-content.obox-engine p.obox-engine__hint { margin: 0; color: color(muted); font: 400 12px / 1.5 font-family(fraktion); }
 .obox-detail .obox-zoom button { min-height: 44px; padding: .75rem 1rem; border: 0; background: transparent; color: inherit; cursor: pointer; font: 400 12px / 1.4 font-family(fraktion); }
 @media (max-width: 987px) {
   .obox-detail .obox-overview__showcase { grid-template-columns: 1fr; gap: 2rem; }
-  .obox-engine__chapter-body { grid-template-columns: 1fr; }
-  .obox-engine__inspector { border-left: 0; border-top: 1px solid color(line); padding: 1.5rem 0 0; }
-  .obox-engine__readout { min-height: 0; }
 }
 @media (max-width: 767px) {
   .obox-detail {
-    .obox-overview__copy h3 { font-size: clamp(2.6rem, 10vw, 3.5rem); }
+    .obox-overview__copy h3 { font-size: clamp(2.4rem, 10vw, 3.25rem); }
     .obox-zoom { width: 100%; height: 100dvh; border: 0; header { padding-top: max(.5rem, env(safe-area-inset-top)); } > p { padding-bottom: max(.6rem, env(safe-area-inset-bottom)); } }
   }
   .obox-engine {
-    &__masthead { display: block; .project-content__label { margin-bottom: .5rem; } }
-    .obox-chapter-heading { grid-template-columns: 1fr; gap: 1rem; }
-    &__stage { margin-inline: -1rem; padding-inline: 1rem; .obox-story-art { width: 900px; min-width: 900px; } }
-    &__readout h4 { font-size: 26px; }
+    &__chapter-body { grid-template-columns: 1fr; gap: 1.5rem; }
+    &__stage { top: 0; z-index: 1; margin-inline: -1rem; border-inline: 0; }
+    // Pan the wide illustration so the active object sits in the centre of the phone frame.
+    &__art { padding: .75rem 0; .obox-story-art { --zoom: 1.9; width: calc(var(--zoom) * 100%); max-width: none; translate: clamp(calc(100% / var(--zoom) - 100%), calc(50% / var(--zoom) - var(--focus) * 33.333% - 16.667%), 0%) 0; } }
+    .obox-beat { min-height: 44dvh; padding-left: 1rem; }
   }
 }
-@media (prefers-reduced-motion: reduce) { .obox-detail .obox-screen-link > img { transition: none; } }
+@media (max-height: 560px) {
+  .obox-engine {
+    &__stage { position: relative; top: auto; }
+    &__beats { padding-bottom: 0; }
+    .obox-beat { min-height: 0; opacity: 1; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .obox-engine { &__art, &__art .obox-story-art, &__screen, .obox-beat { transition: none; } }
+}

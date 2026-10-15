@@ -1,0 +1,125 @@
+---
+import ProjectLinks from './ProjectLinks.astro'
+import type { ProjectLink } from '../../data/projects'
+import type { Architecture, ArchitectureNode } from '../../data/oboxArchitecture'
+import { oboxChapters } from '../../data/oboxChapters'
+interface Props { architecture: Architecture; links?: readonly ProjectLink[] }
+const { architecture, links } = Astro.props
+const { frame } = architecture
+const open = architecture.layers.filter((layer) => !frame.wraps.includes(layer.id))
+const wrapped = architecture.layers.filter((layer) => frame.wraps.includes(layer.id))
+const allNodes: ArchitectureNode[] = [...architecture.layers.flatMap((layer) => layer.nodes), frame]
+const chapterLabel = (id: string) => oboxChapters.find((chapter) => chapter.id === id)!.label
+const initial = architecture.defaultNode
+const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.links])
+---
+<div class="project-content arch-map" data-arch-map>
+  <header class="arch-map__intro">
+    <p class="project-content__label">Built with</p>
+    <h3>{architecture.title}</h3>
+    <p>{architecture.introduction}</p>
+  </header>
+  <div class="arch-map__body">
+    <div class="arch-map__diagram" role="group" aria-label="System architecture">
+      {[open, wrapped].map((layers, group) => {
+        const rows = layers.map((layer) => <div class="arch-map__layer" data-connect={layer.connect} style={`--count: ${layer.nodes.length}`}>
+          {layer.nodes.map((node) => <article class:list={['arch-node', { 'is-selected': node.id === initial, 'is-dimmed': !lit.has(node.id) }]} data-arch-node={node.id} data-arch-links={node.links.join(' ')}>
+            <button type="button" data-arch-select aria-pressed={String(node.id === initial)} aria-controls={`arch-panel-${node.id}`}>{node.label}</button>
+            <ul aria-label={`${node.label} technologies`}>{node.tools.map((tool) => <li>{tool}</li>)}</ul>
+          </article>)}
+        </div>)
+        return group === 0 ? rows : <div class="arch-map__frame">
+          {rows}
+          <article class:list={['arch-node', 'arch-node--frame', { 'is-dimmed': !lit.has(frame.id) }]} data-arch-node={frame.id} data-arch-links={frame.links.join(' ')}>
+            <button type="button" data-arch-select aria-pressed="false" aria-controls={`arch-panel-${frame.id}`}>{frame.label}</button>
+            <ul aria-label={`${frame.label} technologies`}>{frame.tools.map((tool) => <li>{tool}</li>)}</ul>
+          </article>
+        </div>
+      })}
+    </div>
+    <aside class="arch-map__readout" aria-live="polite" aria-atomic="true">
+      {allNodes.map((node) => <section id={`arch-panel-${node.id}`} data-arch-panel={node.id} hidden={node.id !== initial} tabindex="-1">
+        <p class="project-content__label">{node.label}</p>
+        <h4>{node.role}</h4>
+        <p>{node.note}</p>
+        <p class="arch-map__powers">{node.powers.length ? `Used in ${node.powers.map(chapterLabel).join(' · ')}` : 'Runs underneath every chapter'}</p>
+      </section>)}
+    </aside>
+  </div>
+  {links && <ProjectLinks links={links} />}
+</div>
+
+<script>
+  const phone = matchMedia('(max-width: 987px)')
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
+  document.querySelectorAll<HTMLElement>('[data-arch-map]').forEach((map) => {
+    const nodes = Array.from(map.querySelectorAll<HTMLElement>('[data-arch-node]'))
+    const panels = Array.from(map.querySelectorAll<HTMLElement>('[data-arch-panel]'))
+    const select = (id: string, reveal: boolean) => {
+      const target = nodes.find((node) => node.dataset.archNode === id)
+      if (!target) return
+      const lit = new Set([id, ...target.dataset.archLinks!.split(' ')])
+      nodes.forEach((node) => {
+        const selected = node === target
+        node.classList.toggle('is-selected', selected)
+        node.classList.toggle('is-dimmed', !lit.has(node.dataset.archNode!))
+        node.querySelector('[data-arch-select]')!.setAttribute('aria-pressed', String(selected))
+      })
+      panels.forEach((panel) => { panel.hidden = panel.dataset.archPanel !== id })
+      const panel = panels.find((item) => !item.hidden)
+      if (reveal && phone.matches && panel) panel.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'instant' : 'smooth' })
+    }
+    map.addEventListener('click', (event) => {
+      const node = (event.target as Element).closest<HTMLElement>('[data-arch-node]')
+      if (node && map.contains(node)) select(node.dataset.archNode!, true)
+    })
+  })
+</script>
+
+<style lang="scss">
+  .arch-map {
+    --arch-gap: 2.25rem;
+    --arch-pad: 1.25rem;
+    border-top: 1px solid color(line);
+    &__intro { max-width: 60ch; margin-bottom: 2.5rem; p:not(.project-content__label) { color: color(muted); } }
+    &__body { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+    &__diagram { display: flex; flex-direction: column; gap: var(--arch-gap); min-width: 0; }
+    &__layer { display: grid; grid-template-columns: repeat(var(--count), minmax(0, 1fr)); gap: 1rem; }
+    &__frame { display: flex; flex-direction: column; gap: var(--arch-gap); padding: var(--arch-pad); border: 1px dashed color(line); transition: border-color .3s; &:has(> .arch-node--frame.is-selected) { border-color: color(accent); } }
+    &__readout { position: sticky; top: 1.5rem; padding-left: 1.5rem; border-left: 1px solid color(line);
+      section { outline: none; }
+      h4 { margin-bottom: 1rem; }
+      p:not(.project-content__label) { color: color(muted); }
+      p.arch-map__powers { margin-top: 1.5rem; color: color(secondary); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
+    }
+    @media (max-width: 987px) {
+      &__body { grid-template-columns: 1fr; }
+      &__readout { position: static; padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid color(line); }
+    }
+    @media (max-width: 767px) {
+      --arch-gap: 1.75rem;
+      --arch-pad: .75rem;
+      &__layer { grid-template-columns: 1fr; gap: .75rem; }
+    }
+  }
+  .arch-node {
+    position: relative; min-width: 0; padding: 1rem; border: 1px solid color(line); background: color(primary); cursor: pointer;
+    transition: opacity .3s, border-color .3s, background-color .3s;
+    button { display: block; width: 100%; min-height: 44px; margin: 0 0 .5rem; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; font: 400 1.5rem / 1.15 font-family(editorial); &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
+    ul { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+    li { padding: .3rem .55rem; border: 1px solid color(line); font: 400 13px / 1.35 font-family(fraktion); overflow-wrap: anywhere; }
+    &:hover { border-color: color(muted); }
+    &.is-selected { border-color: color(accent); background: color(surface); }
+    &.is-dimmed { opacity: .4; }
+    // Connector lines join each multi-node layer to the single API layer.
+    [data-connect='down'] > &::after, [data-connect='up'] > &::before { content: ''; position: absolute; left: 50%; width: 1px; background: color(line); pointer-events: none; }
+    [data-connect='down'] > &::after { top: 100%; height: calc(var(--arch-gap) + var(--arch-pad) + 1px); }
+    [data-connect='up'] > &::before { bottom: 100%; height: var(--arch-gap); }
+    &--frame { border-style: dashed; background: transparent; button { font-size: 1.25rem; } }
+    @media (max-width: 767px) {
+      [data-connect] > &::before, [data-connect] > &::after { display: none; }
+      [data-connect='down'] > &:last-child::after, [data-connect='up'] > &:first-child::before { display: block; }
+    }
+    @media (prefers-reduced-motion: reduce) { transition: none; }
+  }
+</style>

@@ -35,7 +35,7 @@ function setup(projectId = 'oboxsteam') {
   const explanations = interiorData.graphStages.map(stage => element({ graphStagePanel: stage.id }))
   const steps = [-1, 1].map(graphStep => element({ graphStep: String(graphStep) }))
   for (const explanation of explanations) explanation.classList.toggle = (_name, selected) => { explanation.selected = selected }
-  const nodes = new Map(['scroller', 'close', 'previous', 'next', 'logo', 'title', 'category', 'counter', 'announcement'].map(name => [`[data-viewer-${name}]`, element()]))
+  const nodes = new Map(['scroller', 'close', 'previous', 'next', 'previous-label', 'next-label', 'logo', 'title', 'category', 'counter', 'announcement'].map(name => [`[data-viewer-${name}]`, element()]))
   const scene = element()
   const dialog = {
     open: false, handlers: {},

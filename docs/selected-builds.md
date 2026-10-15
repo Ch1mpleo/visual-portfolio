@@ -1,5 +1,54 @@
 # Selected Builds handoff
 
+## Current implementation: compact gallery and continuous stories (2026-10-15)
+
+This section supersedes the historical tab-based notes below. Each project has
+one continuous document, with technology groups and destinations at the end.
+OboxSTEAM's three chapters and GraphPaper's four explanations remain visible;
+selection highlights the corresponding explanation. Both museum exhibits have
+their own preview and paired visit/source links, in two desktop columns and one
+phone column. Existing project IDs, assets, URLs, and opening events are retained.
+
+The gallery measures approximately 692px at 1366×768 and 695px at 1440×900.
+The right illustrations remain approximately 334×214px at 1366px. Its fixed
+480px grid starts at 1200px; narrower desktops grow naturally so captions do not
+clip. Tablet and phone SVGs are contained within their illustration frames.
+
+Project-switch investigation: OboxSTEAM at scroll position 2027 switched to
+GraphPaper at 0 and remained at 0 with no subsequent input. Next/Previous and
+rapid switches also reset to 0. Focusing GraphPaper's bottom links moved the
+scroller to approximately 1054px, reproducing the reported magnitude through
+focus navigation. The original late measurement's precise cause could not be
+established from the handoff; no additional scroll-reset workaround was added.
+
+Film playback now checks visibility after the modal scroller resets. A short
+sheet no longer autoplays an offscreen film. The intersection observer uses a
+zero threshold: rapid switches into a short sheet could leave the film below
+the old 15% threshold, so leaving view did not produce a pause callback. Both
+fully offscreen and barely visible entry cases were reproduced and rechecked.
+Switching projects, closing, screenshot zoom, and reduced-motion changes pause
+playback. Reduced motion suppresses autoplay; native controls remain available.
+
+Rendered checks covered 1366×768, 1440×900, 1024×768, 820×1180, 390×844,
+320×568, and 1366×500. Light and dark themes, readable captions, SVG containment,
+visible explanations, both loaded museum previews, independent Obox selections,
+GraphPaper keyboard selection/horizontal panning, native Tab wrapping, Escape,
+focus return, screenshot zoom, rapid project switching, interrupted sweeps, and
+film pause were checked. No viewer horizontal overflow or runtime errors were
+observed. A 683×384 CSS viewport checked the reflow equivalent of 1366×768 at
+200% zoom; actual browser zoom is unavailable in the in-app browser. Reduced
+motion is covered by lifecycle tests and CSS review because browser preference
+emulation is unavailable.
+
+`node --test tests/*.test.mjs` passes 15 tests, replacing the obsolete tab suite
+with story/scroll/focus coverage and adding film-visibility coverage. The
+production build passes. The five existing Lenis global-type errors and Sass
+deprecation warnings remain outside this change's scope. The showreel asset is
+preserved without being included in these commits. All work stays local; pushing
+remains with the user.
+
+## Historical implementation notes
+
 ## Follow-up: OboxSTEAM logo in the gallery
 
 The OboxSTEAM specimen now uses the shared logo beside its title. Its mask inherits

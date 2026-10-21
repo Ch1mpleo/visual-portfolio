@@ -1,6 +1,15 @@
 # Selected Builds handoff
 
-## Current implementation: focus redesign for all projects (2026-10-15)
+## Current architecture update (2026-10-21)
+
+The Built with sections now use source-inspected Anatomy scenes with technology
+labels on the graph, compact inspection bubbles, and a single finite flow trace.
+Each overview now has only three or four core parts with generous spacing. There is no separate stack list. See the Anatomy follow-up
+and `docs/infrastructure-figure.md` for the current model and validation.
+GraphPaper's implemented processing pipeline supersedes the older intended-only
+snapshot described in the historical notes below.
+
+## Focus redesign for all projects (2026-10-15 snapshot)
 
 The OboxSTEAM pilot below now applies to every project.
 
@@ -446,15 +455,48 @@ still unavailable; those branches are verified by tests and CSS review.
 `engaging-gallery-final.jpg` and the `viewer-sweep-*.jpg` frames in the proof
 directory above capture the completed gallery and the transition sequence.
 
+## Follow-up: Anatomy infrastructure figures (complete, 2026-10-21)
+
+The final Built with sections now use compact Anatomy overviews: four core
+parts for OboxSTEAM, four for GraphPaper, and three for Museums. Each part has a
+distinct physical silhouette, a visible core stack label, and a short hover/tap
+bubble with supporting technologies and source evidence.
+
+The prior 36-device inventory was too dense for a portfolio. Internal layers,
+provider-level integrations, deployment/telemetry and individual extraction
+steps have been folded into their parent responsibilities. Zone boxes,
+relationship lists, flow tabs and zoom/pan controls are removed. Desktop
+connections follow clear curves; smaller screens use readable rows with tracks
+in the left margin and no horizontal panning.
+
+Hover intent, gentle lift, related-path emphasis, pinned bubbles and spatial
+keyboard navigation make the drawing explorable. One control traces the core
+flow once, then offers replay. Reduced motion uses a static path. Offscreen
+scenes stop, and Escape closes the inspection before the viewer.
+
+Source truth is retained: Obox background jobs run in-process; GraphPaper's
+parsing/extraction/persistence/mindmap pipeline is implemented while grounded
+answers remain intended; the museum classifier is a configured browser Gemini
+call and the history game uses local state. Available shader components do not
+appear as a separate working service.
+
+Build, TypeScript, all 26 tests and the production browser checks pass. All six
+Anatomy line audits are clean; both themes and 4x details were reviewed.
+Current production browser proofs/report are in `.astro/infrastructure-qa-v3/`.
+Source provenance and validation instructions are in
+`docs/infrastructure-figure.md`.
+
 ## Content references
 
 The original planning inspection used the local OboxSTEAM API product overview
 (`D:/Project/Semester9/OboxSTEAM.API/docs/product/overview.md`) and cross-app flow
 index (`D:/Project/Semester9/OboxSTEAM-Architecture-Index/data-flow-structural-index.md`),
 plus mobile routes/API wrappers and attendance, media, and notification code.
-GraphPaper content distinguishes its inspected frontend screens, data models,
-and embedding service from its intended complete GraphRAG pipeline. Museum
-content follows the MLN131-Visual and VNR-Visual public READMEs.
+The 2026-10-21 reinspection uses the current Obox checkout under
+`E:/Semester 9`, GraphPaper's current GitHub source (processing, extraction,
+enrichment and mindmap services), and both museum repositories' actual section,
+classifier, game and motion implementations. See the infrastructure notes for
+the exact files. Older pipeline-status notes above are historical snapshots.
 
 Preserve the confirmed team-lead / primary-contributor attribution; do not invent sole
 authorship, performance figures, adoption metrics, or a working GraphPaper demo.

@@ -1,134 +1,63 @@
 ---
 import ProjectLinks from './ProjectLinks.astro'
 import type { ProjectLink } from '../../data/projects'
-import type { Architecture, ArchitectureNode } from '../../data/projectArchitectures'
+import type { Architecture } from '../../data/projectArchitectures'
+import { infrastructureGeometry } from './infrastructure/geometry'
+import '../../styles/components/infrastructure.scss'
 interface Props { id: string; architecture: Architecture; links?: readonly ProjectLink[] }
 const { id, architecture, links } = Astro.props
-const { frame } = architecture
-const open = architecture.layers.filter((layer) => !frame?.wraps.includes(layer.id))
-const wrapped = architecture.layers.filter((layer) => frame?.wraps.includes(layer.id))
-const allNodes: ArchitectureNode[] = [...architecture.layers.flatMap((layer) => layer.nodes), ...(frame ? [frame] : [])]
-const initial = architecture.defaultNode
-const lit = new Set([initial, ...allNodes.find((node) => node.id === initial)!.links])
-const panelId = (node: ArchitectureNode) => `arch-${id}-${node.id}`
+const drawing = infrastructureGeometry(architecture)
+const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
 ---
-<div class="project-content arch-map" data-arch-map>
+<section class="project-content arch-map" data-arch-map data-project-infra={id} data-default-node={architecture.defaultNode} data-world-width={architecture.width} data-world-height={architecture.height} aria-labelledby={`infra-heading-${id}`}>
   <header class="arch-map__intro">
     <p class="project-content__label">Built with</p>
-    <h3>{architecture.title}</h3>
+    <h3 id={`infra-heading-${id}`}>{architecture.title}</h3>
     <p>{architecture.introduction}</p>
   </header>
-  <div class="arch-map__body">
-    <div class="arch-map__diagram" role="group" aria-label="System architecture">
-      {[open, wrapped].map((layers, group) => {
-        if (layers.length === 0) return null
-        const rows = layers.map((layer) => <div class="arch-map__layer" data-connect={layer.connect} style={`--count: ${layer.nodes.length}`}>
-          {layer.nodes.map((node) => <article class:list={['arch-node', { 'is-selected': node.id === initial, 'is-dimmed': !lit.has(node.id), 'arch-node--intended': node.status === 'intended' }]} data-arch-node={node.id} data-arch-links={node.links.join(' ')}>
-            {node.status === 'intended' && <p class="arch-node__status">Intended</p>}
-            <button type="button" data-arch-select aria-pressed={String(node.id === initial)} aria-controls={panelId(node)}>{node.label}</button>
-            {node.tools.length > 0
-              ? <ul aria-label={`${node.label} technologies`}>{node.tools.map((tool) => <li>{tool}</li>)}</ul>
-              : <p class="arch-node__role">{node.role}</p>}
-          </article>)}
-        </div>)
-        return group === 0 || !frame ? rows : <div class="arch-map__frame">
-          {rows}
-          <article class:list={['arch-node', 'arch-node--frame', { 'is-dimmed': !lit.has(frame.id) }]} data-arch-node={frame.id} data-arch-links={frame.links.join(' ')}>
-            <button type="button" data-arch-select aria-pressed="false" aria-controls={panelId(frame)}>{frame.label}</button>
-            <ul aria-label={`${frame.label} technologies`}>{frame.tools.map((tool) => <li>{tool}</li>)}</ul>
-          </article>
-        </div>
-      })}
+  <figure class="infra-figure">
+    <div class="infra-toolbar">
+      <span class="infra-toolbar__identity"><span aria-hidden="true">◇</span> System anatomy</span>
+      <button type="button" class="infra-play" data-infra-play aria-pressed="false"><span data-play-icon aria-hidden="true">↗</span><span data-play-label>Trace flow</span></button>
     </div>
-    <aside class="arch-map__readout" aria-live="polite" aria-atomic="true">
-      {allNodes.map((node) => <section id={panelId(node)} data-arch-panel={node.id} hidden={node.id !== initial} tabindex="-1">
-        <p class="project-content__label">{node.label}{node.status === 'intended' && ' / Intended'}</p>
-        <h4>{node.role}</h4>
-        <p>{node.note}</p>
-        {node.usedIn.length > 0 && <p class="arch-map__powers">Used in {node.usedIn.join(' · ')}</p>}
-      </section>)}
-    </aside>
-  </div>
+    <div class="infra-viewport" data-infra-viewport role="group" aria-label="Interactive system anatomy. Select a part to see its stack.">
+      <div class="infra-space" data-infra-space>
+        <div class="infra-world" data-infra-world style={`width:${architecture.width}px;height:${architecture.height}px`}>
+          <svg class="iso-svg infra-svg" viewBox={`0 0 ${architecture.width} ${architecture.height}`} width={architecture.width} height={architecture.height} aria-hidden="true">
+            <defs><marker id={`infra-arrow-${id}`} viewBox="0 0 7 7" refX="6" refY="3.5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L7 3.5L0 7Z" fill="var(--anatomy-mid)" /></marker></defs>
+            <g class="infra-connections">
+              {drawing.connections.map(edge => <g class="infra-trace" data-infra-edge={edge.id} data-from={edge.from} data-to={edge.to} data-label={edge.label}>
+                <path class="infra-track" d={edge.d} marker-end={`url(#infra-arrow-${id})`} />
+                <circle class="infra-contact" r="3" opacity="0" />
+                <title>{edge.fromNode.label} → {edge.toNode.label}: {edge.label}</title>
+              </g>)}
+            </g>
+            {drawing.devices.map(({ node, body }) => <g class="infra-device" data-infra-part={node.id} transform={`translate(${node.at[0]} ${node.at[1]})`}>
+              <g class="infra-device__lift"><g class="infra-device__body" set:html={body} /></g>
+            </g>)}
+          </svg>
+          {architecture.nodes.map(node => <button type="button" class="infra-node" style={`left:${node.at[0]}px;top:${node.at[1] - 112}px`} data-arch-select={node.id} data-x={node.at[0]} data-y={node.at[1]} data-kind={node.kind} aria-pressed="false" aria-expanded="false" aria-controls={panelId(node.id)}>
+            <span class="infra-node__plate"><span class="infra-node__label">{node.label}<span class="infra-node__inspect" aria-hidden="true">+</span></span><span class="infra-node__stack">{node.stack}</span></span>
+          </button>)}
+        </div>
+      </div>
+    </div>
+    <figcaption class="infra-caption"><span class="infra-caption__hint">Hover to explore · Click to keep open</span><span data-infra-readout>Core parts, connected.</span></figcaption>
+  </figure>
+  <aside class="infra-bubble" data-infra-bubble hidden aria-label="Inside this part">
+    <button type="button" class="infra-bubble__close" data-infra-close aria-label="Close inspection">×</button>
+    {architecture.nodes.map(node => <section id={panelId(node.id)} data-arch-panel={node.id} hidden>
+      <p class="infra-bubble__eyebrow">A closer look</p>
+      <h4>{node.label}</h4><p class="infra-bubble__role">{node.role}</p>
+      <ul class="infra-bubble__tools" aria-label={`${node.label} stack`}>{node.tools.map(tool => <li>{tool}</li>)}</ul>
+      <p class="infra-bubble__note">{node.note}</p>
+      <a href={node.source} target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
+    </section>)}
+  </aside>
+  <span class="u-sr-only" data-infra-announcement aria-live="polite"></span>
   {links && <ProjectLinks links={links} />}
-</div>
-
+</section>
 <script>
-  const compact = matchMedia('(max-width: 987px)')
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
-  document.querySelectorAll<HTMLElement>('[data-arch-map]').forEach((map) => {
-    const nodes = Array.from(map.querySelectorAll<HTMLElement>('[data-arch-node]'))
-    const panels = Array.from(map.querySelectorAll<HTMLElement>('[data-arch-panel]'))
-    const select = (id: string, reveal: boolean) => {
-      const target = nodes.find((node) => node.dataset.archNode === id)
-      if (!target) return
-      const lit = new Set([id, ...target.dataset.archLinks!.split(' ')])
-      nodes.forEach((node) => {
-        const selected = node === target
-        node.classList.toggle('is-selected', selected)
-        node.classList.toggle('is-dimmed', !lit.has(node.dataset.archNode!))
-        node.querySelector('[data-arch-select]')!.setAttribute('aria-pressed', String(selected))
-      })
-      panels.forEach((panel) => { panel.hidden = panel.dataset.archPanel !== id })
-      const panel = panels.find((item) => !item.hidden)
-      if (reveal && compact.matches && panel) panel.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'instant' : 'smooth' })
-    }
-    map.addEventListener('click', (event) => {
-      const node = (event.target as Element).closest<HTMLElement>('[data-arch-node]')
-      if (node && map.contains(node)) select(node.dataset.archNode!, true)
-    })
-  })
+  import { InfrastructureController } from './infrastructure/InfrastructureController'
+  document.querySelectorAll<HTMLElement>('[data-arch-map]').forEach(map => new InfrastructureController(map))
 </script>
-
-<style lang="scss">
-  .arch-map {
-    --arch-gap: 2.25rem;
-    --arch-pad: 1.25rem;
-    border-top: 1px solid color(line);
-    &__intro { max-width: 60ch; margin-bottom: 2.5rem; h3 { max-width: none; font-size: clamp(2.2rem, 3.4vw, 3.25rem); } p:not(.project-content__label) { color: color(muted); } }
-    &__body { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
-    &__diagram { display: flex; flex-direction: column; gap: var(--arch-gap); min-width: 0; }
-    &__layer { display: grid; grid-template-columns: repeat(var(--count), minmax(0, 1fr)); gap: 1rem; }
-    &__frame { display: flex; flex-direction: column; gap: var(--arch-gap); padding: var(--arch-pad); border: 1px dashed color(line); transition: border-color .3s; &:has(> .arch-node--frame.is-selected) { border-color: color(accent); } }
-    &__readout { position: sticky; top: 1.5rem; padding-left: 1.5rem; border-left: 1px solid color(line);
-      section { outline: none; }
-      h4 { margin-bottom: 1rem; }
-      p:not(.project-content__label) { color: color(muted); }
-      p.arch-map__powers { margin-top: 1.5rem; color: color(secondary); font: 400 12px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
-    }
-    @media (max-width: 987px) {
-      &__body { grid-template-columns: 1fr; }
-      &__readout { position: static; padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid color(line); }
-    }
-    @media (max-width: 767px) {
-      --arch-gap: 1.75rem;
-      --arch-pad: .75rem;
-      &__layer { grid-template-columns: 1fr; gap: .75rem; }
-    }
-    @media (prefers-reduced-motion: reduce) { &__frame { transition: none; } }
-  }
-  .arch-node {
-    position: relative; min-width: 0; padding: 1rem; border: 1px solid color(line); background: color(primary); cursor: pointer;
-    transition: opacity .3s, border-color .3s, background-color .3s;
-    button { display: block; width: 100%; min-height: 44px; margin: 0 0 .5rem; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; font: 400 1.5rem / 1.15 font-family(editorial); &:focus-visible { outline: 1px dashed color(accent); outline-offset: 4px; } }
-    ul { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
-    li { padding: .3rem .55rem; border: 1px solid color(line); font: 400 13px / 1.35 font-family(fraktion); overflow-wrap: anywhere; }
-    p.arch-node__role { margin: 0; color: color(muted); font: 400 1rem / 1.45 font-family(editorial); }
-    p.arch-node__status { margin: 0 0 .4rem; color: color(accent); font: 400 12px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: .055em; }
-    &:hover { border-color: color(muted); }
-    &.is-selected { border-color: color(accent); background: color(surface); }
-    &.is-dimmed { opacity: .4; }
-    &--intended { border-style: dashed; background: transparent; }
-    // Connector lines join each multi-node layer to the single central layer.
-    [data-connect='down'] > &::after, [data-connect='up'] > &::before { content: ''; position: absolute; left: 50%; width: 1px; background: color(line); pointer-events: none; }
-    [data-connect='down'] > &::after { top: 100%; height: calc(var(--arch-gap) + 1px); }
-    [data-connect='up'] > &::before { bottom: 100%; height: var(--arch-gap); }
-    &--frame { border-style: dashed; background: transparent; button { font-size: 1.25rem; } }
-    @media (max-width: 767px) {
-      [data-connect] > &::before, [data-connect] > &::after { display: none; }
-      [data-connect='down'] > &:last-child::after, [data-connect='up'] > &:first-child::before { display: block; }
-    }
-    @media (prefers-reduced-motion: reduce) { transition: none; }
-  }
-  // Client lines also cross the frame's padding when the next layer is framed.
-  .arch-map__layer:has(+ .arch-map__frame) > .arch-node::after { height: calc(var(--arch-gap) + var(--arch-pad) + 1px); }
-</style>

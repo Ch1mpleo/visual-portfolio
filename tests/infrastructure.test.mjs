@@ -35,6 +35,27 @@ test('core flow endpoints remain resolvable in both the desktop and narrow layou
     }
   }
 })
+
+test('speech tails point back to the object from the available side', () => {
+  const viewport = { w: 1200, h: 900 }, bubble = { w: 348, h: 400 }
+  const right = bubblePosition({ x: 100, y: 300, w: 180, h: 150 }, viewport, bubble)
+  assert.equal(right.side, 'left')
+  assert.ok(right.x > 280, 'leave the selected object visible')
+  const left = bubblePosition({ x: 940, y: 300, w: 180, h: 150 }, viewport, bubble)
+  assert.equal(left.side, 'right')
+  assert.ok(left.x + bubble.w < 940)
+  const narrow = bubblePosition({ x: 0, y: 550, w: 350, h: 174 }, { w: 350, h: 1000 }, { w: 326, h: 400 })
+  assert.equal(narrow.side, 'bottom')
+  assert.equal(narrow.detached, false)
+  assert.ok(narrow.y + 400 < 550, 'phone bubble sits above the selected row')
+  assert.ok(narrow.tail >= 28 && narrow.tail <= 298)
+})
+
+test('a constrained viewer omits the tail when no separated placement fits', () => {
+  const pos = bubblePosition({ x: 0, y: 100, w: 350, h: 174 }, { w: 350, h: 450 }, { w: 326, h: 400 })
+  assert.equal(pos.detached, true)
+  assert.ok(pos.y >= 12 && pos.y + 400 <= 438)
+})
 test('desktop objects and labels have independent space around them', () => {
   for (const graph of Object.values(projects)) for (const a of graph.nodes) {
     assert.ok(a.at[0] >= 118 && a.at[0] <= graph.width - 118)

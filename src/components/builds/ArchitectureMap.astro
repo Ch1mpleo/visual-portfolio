@@ -42,17 +42,32 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
         </div>
       </div>
     </div>
-    <figcaption class="infra-caption"><span class="infra-caption__hint">Hover to explore · Click to keep open</span><span data-infra-readout>Core parts, connected.</span></figcaption>
+    <figcaption class="infra-caption"><span class="infra-caption__hint">Hover to peek · Click to stay a while</span><span data-infra-readout>Core parts, connected.</span></figcaption>
   </figure>
   <aside class="infra-bubble" data-infra-bubble hidden aria-label="Inside this part">
-    <button type="button" class="infra-bubble__close" data-infra-close aria-label="Close inspection">×</button>
-    {architecture.nodes.map(node => <section id={panelId(node.id)} data-arch-panel={node.id} hidden>
-      <p class="infra-bubble__eyebrow">A closer look</p>
-      <h4>{node.label}</h4><p class="infra-bubble__role">{node.role}</p>
-      <ul class="infra-bubble__tools" aria-label={`${node.label} stack`}>{node.tools.map(tool => <li>{tool}</li>)}</ul>
-      <p class="infra-bubble__note">{node.note}</p>
-      <a href={node.source} target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
-    </section>)}
+    <header class="infra-bubble__bar">
+      <span class="infra-bubble__eyebrow"><span class="infra-bubble__spark" aria-hidden="true">✳</span> Inside the build</span>
+      <div class="infra-bubble__actions">
+        <button type="button" class="infra-bubble__pin" data-infra-pin aria-pressed="false">Keep open</button>
+        <button type="button" class="infra-bubble__close" data-infra-close aria-label="Close inspection">×</button>
+      </div>
+    </header>
+    <div class="infra-bubble__content">
+      {architecture.nodes.map(node => <section id={panelId(node.id)} data-arch-panel={node.id} hidden>
+        <h4 id={`${panelId(node.id)}-title`}>{node.label}</h4>
+        <p class="infra-bubble__role">{node.role}</p>
+        <ul class="infra-bubble__tools" aria-label={`${node.label} stack`}>{node.tools.map(tool => <li>{tool}</li>)}</ul>
+        <div class="infra-bubble__detail"><p class="infra-bubble__eyebrow">The little details</p><p class="infra-bubble__note">{node.note}</p></div>
+        <a class="infra-bubble__source" href={node.source} target="_blank" rel="noopener noreferrer">Peek at the source <span aria-hidden="true">↗</span></a>
+      </section>)}
+    </div>
+    <footer class="infra-bubble__footer">
+      <span class="infra-bubble__count" data-infra-count>01 / {String(architecture.nodes.length).padStart(2, '0')} parts</span>
+      <div class="infra-bubble__browse" aria-label="Explore system parts">
+        <button type="button" data-infra-previous aria-label="Inspect previous part">←</button>
+        <button type="button" data-infra-next aria-label="Inspect next part">→</button>
+      </div>
+    </footer>
   </aside>
   <span class="u-sr-only" data-infra-announcement aria-live="polite"></span>
   {links && <ProjectLinks links={links} />}

@@ -67,6 +67,11 @@ export class InfrastructureController {
       if (!this.pinned && !this.bubble.contains(event.relatedTarget as Node)) this.scheduleClose()
     })
     root.querySelector('[data-infra-close]')!.addEventListener('click', () => this.close(true))
+    root.querySelector('[data-infra-pin]')!.addEventListener('click', () => {
+      if (this.inspected) this.inspect(this.inspected, !this.pinned)
+    })
+    root.querySelector('[data-infra-previous]')!.addEventListener('click', () => this.browse(-1))
+    root.querySelector('[data-infra-next]')!.addEventListener('click', () => this.browse(1))
     root.addEventListener('keydown', event => {
       if (event.key === 'Escape' && this.inspected) { event.preventDefault(); event.stopPropagation(); this.close(true) }
     })
@@ -161,26 +166,59 @@ export class InfrastructureController {
   }
   private inspect(id: string, pin: boolean) {
     clearTimeout(this.openTimer); clearTimeout(this.closeTimer)
+    const changed = this.inspected !== id || this.bubble.hidden
     this.inspected = id; this.pinned = pin; this.bubble.hidden = false
+    this.bubble.dataset.pinned = String(pin)
+    this.bubble.setAttribute('aria-labelledby', `${this.panels.find(panel => panel.dataset.archPanel === id)!.id}-title`)
+    const index = this.buttons.findIndex(button => button.dataset.archSelect === id)
+    this.root.querySelector('[data-infra-count]')!.textContent = `${String(index + 1).padStart(2, '0')} / ${String(this.buttons.length).padStart(2, '0')} parts`
+    const pinButton = this.root.querySelector<HTMLButtonElement>('[data-infra-pin]')!
+    pinButton.setAttribute('aria-pressed', String(pin))
+    pinButton.textContent = pin ? 'Pinned' : 'Keep open'
+    this.root.querySelector('[data-infra-previous]')!.setAttribute('aria-label', `Inspect previous part: ${this.partLabel((index - 1 + this.buttons.length) % this.buttons.length)}`)
+    this.root.querySelector('[data-infra-next]')!.setAttribute('aria-label', `Inspect next part: ${this.partLabel((index + 1) % this.buttons.length)}`)
     this.panels.forEach(panel => { panel.hidden = panel.dataset.archPanel !== id })
     this.buttons.forEach(button => {
       button.setAttribute('aria-expanded', String(button.dataset.archSelect === id))
-      button.setAttribute('aria-pressed', String(button.dataset.archSelect === id))
+      button.setAttribute('aria-pressed', String(button.dataset.archSelect === id && pin))
     })
+    if (changed) {
+      this.bubble.querySelector('.infra-bubble__content')!.scrollTop = 0
+      if (this.root.dataset.layout === 'stacked') {
+        // Seat the selected row below its speech bubble, keeping both in view.
+        const anchor = this.buttons[index].getBoundingClientRect(), scroll = this.scroller.getBoundingClientRect()
+        this.scroller.scrollTop += anchor.bottom - scroll.bottom + 16
+      }
+      if (!this.reduced.matches) {
+        this.bubble.getAnimations().forEach(animation => animation.cancel())
+        this.bubble.animate([{ opacity: 0, transform: 'translateY(8px) scale(.96)' }, { opacity: 1, transform: 'translateY(0) scale(1)' }], { duration: 240, easing: 'cubic-bezier(.2, .8, .2, 1)' })
+      }
+    }
     this.stop(); this.highlight(id); this.positionBubble()
     if (pin) this.root.querySelector('[data-infra-announcement]')!.textContent = `${this.buttons.find(button => button.dataset.archSelect === id)!.innerText.replace(/\s+/g, ' ')}. Inspection open.`
+  }
+  private partLabel(index: number) { return this.buttons[index].querySelector('.infra-node__label')!.textContent!.replace('+', '').trim() }
+  private browse(direction: number) {
+    const index = this.buttons.findIndex(button => button.dataset.archSelect === this.inspected)
+    const next = this.buttons[(index + direction + this.buttons.length) % this.buttons.length]
+    // Keep the bubble controls focused while bringing the new part into view.
+    const box = next.getBoundingClientRect(), scroll = this.scroller.getBoundingClientRect()
+    if (box.top < scroll.top + 20) this.scroller.scrollTop += box.top - scroll.top - 20
+    else if (box.bottom > scroll.bottom - 20) this.scroller.scrollTop += box.bottom - scroll.bottom + 20
+    this.inspect(next.dataset.archSelect!, true)
   }
   private scheduleClose() {
     clearTimeout(this.closeTimer)
     this.closeTimer = window.setTimeout(() => {
       if (this.buttons.some(button => button.matches(':hover')) || this.bubble.contains(document.activeElement) || (this.keyboardFocused() && (document.activeElement as HTMLElement).dataset.archSelect === this.inspected)) return
       this.close()
-    }, 180)
+    }, 300)
   }
   private close(restore = false) {
     clearTimeout(this.openTimer); clearTimeout(this.closeTimer)
     const id = this.inspected
     this.inspected = null; this.pinned = false; this.bubble.hidden = true
+    this.bubble.getAnimations().forEach(animation => animation.cancel())
     this.buttons.forEach(button => { button.setAttribute('aria-expanded', 'false'); button.setAttribute('aria-pressed', 'false') })
     this.highlight()
     if (restore && id) {
@@ -193,23 +231,25 @@ export class InfrastructureController {
   private positionBubble() {
     if (!this.inspected) return
     const button = this.buttons.find(button => button.dataset.archSelect === this.inspected)!
-    const anchor = button.querySelector('.infra-node__plate')!.getBoundingClientRect()
+    const anchor = this.root.dataset.layout === 'stacked' ? button.getBoundingClientRect() : this.part(this.inspected)!.getBoundingClientRect()
     const plot = this.viewport.getBoundingClientRect(), scroll = this.scroller.getBoundingClientRect()
     const left = Math.max(plot.left, scroll.left), right = Math.min(plot.right, scroll.right)
-    const top = Math.max(plot.top, scroll.top), bottom = Math.min(plot.bottom, scroll.bottom)
-    if (anchor.bottom < top || anchor.top > bottom || bottom - top < 120) { this.bubble.style.visibility = 'hidden'; return }
+    const top = Math.max(0, scroll.top), bottom = Math.min(window.innerHeight, scroll.bottom)
+    if (anchor.bottom < top || anchor.top > bottom || plot.bottom < top || plot.top > bottom || bottom - top < 160) { this.bubble.style.visibility = 'hidden'; return }
     this.bubble.style.visibility = 'visible'
-    this.bubble.style.width = `${Math.min(320, right - left - 24)}px`
-    this.bubble.style.maxHeight = `${Math.max(120, Math.min(400, bottom - top - 24))}px`
+    this.bubble.style.width = `${Math.min(348, right - left - 24)}px`
+    const availableHeight = this.root.dataset.layout === 'stacked'
+      ? Math.max(160, Math.max(anchor.top - top, bottom - anchor.bottom) - 34)
+      : bottom - top - 24
+    this.bubble.style.maxHeight = `${availableHeight}px`
     const pos = bubblePosition({ x: anchor.left - left, y: anchor.top - top, w: anchor.width, h: anchor.height }, { w: right - left, h: bottom - top }, { w: this.bubble.offsetWidth, h: this.bubble.offsetHeight })
-    if (this.root.dataset.layout === 'stacked') {
-      const below = anchor.bottom - top + 12, above = anchor.top - top - this.bubble.offsetHeight - 12
-      if (below + this.bubble.offsetHeight <= bottom - top - 12) pos.y = below
-      else if (above >= 12) pos.y = above
-    }
+    this.bubble.dataset.tail = pos.detached ? 'none' : pos.side
+    this.bubble.style.setProperty('--tail-offset', `${pos.tail}px`)
+    this.bubble.style.transformOrigin = pos.side === 'top' || pos.side === 'bottom' ? `${pos.tail}px ${pos.side === 'top' ? '0%' : '100%'}` : `${pos.side === 'left' ? '0%' : '100%'} ${pos.tail}px`
     this.bubble.style.left = `${left + pos.x}px`; this.bubble.style.top = `${top + pos.y}px`
   }
   private highlight(id?: string) {
+    this.root.classList.toggle('is-inspecting', Boolean(id))
     this.edges.forEach(({ el }) => el.classList.toggle('is-active', id ? el.dataset.from === id || el.dataset.to === id : this.playing && this.reduced.matches))
     this.parts.forEach(part => part.classList.toggle('is-selected', part.dataset.infraPart === id))
     this.root.querySelector('[data-infra-readout]')!.textContent = id ? this.buttons.find(button => button.dataset.archSelect === id)!.querySelector('.infra-node__label')!.textContent!.replace('+', '').trim() : this.playing && this.reduced.matches ? 'Core flow highlighted.' : 'Core parts, connected.'

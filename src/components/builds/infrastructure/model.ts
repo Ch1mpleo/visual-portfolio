@@ -23,12 +23,29 @@ export function connectionPath(from: Point, to: Point, stacked = false, index = 
   return `M${x} ${y}C${x + handle * direction} ${y} ${tx - handle * direction} ${ty} ${tx} ${ty}`
 }
 
-/** Keep an anchored inspection bubble inside the visible canvas. */
+/** Prefer free space beside the object, then above/below, within the visible viewer. */
 export function bubblePosition(anchor: { x: number; y: number; w: number; h: number }, viewport: { w: number; h: number }, bubble: { w: number; h: number }) {
-  const margin = 12
-  const right = anchor.x + anchor.w + 16
-  const left = anchor.x - bubble.w - 16
-  const x = right + bubble.w <= viewport.w - margin ? right : left >= margin ? left : Math.max(margin, Math.min(anchor.x + anchor.w / 2 - bubble.w / 2, viewport.w - bubble.w - margin))
-  const y = Math.max(margin, Math.min(anchor.y + anchor.h / 2 - bubble.h / 2, viewport.h - bubble.h - margin))
-  return { x, y }
+  const margin = 12, gap = 22
+  const clamp = (value: number, size: number, limit: number) => Math.max(margin, Math.min(value, limit - size - margin))
+  const centerX = anchor.x + anchor.w / 2, centerY = anchor.y + anchor.h / 2
+  const right = anchor.x + anchor.w + gap, left = anchor.x - bubble.w - gap
+  const above = anchor.y - bubble.h - gap, below = anchor.y + anchor.h + gap
+  let side: 'left' | 'right' | 'top' | 'bottom'
+  let x: number, y: number
+  if (right + bubble.w <= viewport.w - margin || left >= margin) {
+    const onRight = right + bubble.w <= viewport.w - margin
+    side = onRight ? 'left' : 'right'
+    x = onRight ? right : left
+    y = clamp(centerY - bubble.h / 2, bubble.h, viewport.h)
+  } else {
+    const onTop = above >= margin || (below + bubble.h > viewport.h - margin && anchor.y > viewport.h - anchor.y - anchor.h)
+    side = onTop ? 'bottom' : 'top'
+    x = clamp(centerX - bubble.w / 2, bubble.w, viewport.w)
+    y = clamp(onTop ? above : below, bubble.h, viewport.h)
+  }
+  const vertical = side === 'top' || side === 'bottom'
+  const tail = Math.max(28, Math.min(vertical ? centerX - x : centerY - y, (vertical ? bubble.w : bubble.h) - 28))
+  // If the viewer is too short to leave a gap, omit a misleading pointer.
+  const detached = side === 'top' ? y < anchor.y + anchor.h : side === 'bottom' ? y + bubble.h > anchor.y : false
+  return { x, y, side, tail, detached }
 }

@@ -5,7 +5,7 @@ import { createRequire } from 'node:module'
 import assert from 'node:assert/strict'
 const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT_PACKAGE || 'playwright')
-const out = resolve(process.env.INFRA_QA_OUT || '.astro/infrastructure-qa-v3')
+const out = resolve(process.env.INFRA_QA_OUT || '.astro/infrastructure-qa-v4')
 await mkdir(out, { recursive: true })
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.mp4': 'video/mp4' }
 const server = createServer(async (request, response) => {
@@ -27,7 +27,7 @@ page.on('pageerror', error => errors.push(error.message))
 const closeInspection = async map => {
   if (await map.locator('[data-infra-bubble]').isVisible()) await map.locator('[data-infra-close]').click()
   await page.mouse.move(1, 1)
-  await page.waitForTimeout(220)
+  await page.waitForTimeout(380)
 }
 const proof = async (map, name, width = 1440) => {
   const css = await page.locator('link[rel="stylesheet"]').evaluateAll(async links => (await Promise.all(links.map(link => fetch(link.href).then(r => r.text())))).join('\n'))
@@ -67,17 +67,34 @@ try {
     const defaults = { oboxsteam: 'api', graphpaper: 'analysis', museums: 'foundation' }
     await map.locator(`[data-arch-select="${defaults[project]}"]`).click()
     await page.screenshot({ path: resolve(out, `${project}-bubble.png`) })
+    const selected = await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select')
+    await map.locator('[data-infra-next]').click()
+    assert.notEqual(await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select'), selected, 'browse opens the next part')
+    assert.equal(await map.locator('[data-infra-pin]').getAttribute('aria-pressed'), 'true', 'browsing keeps the bubble pinned')
+    await map.locator('[data-infra-previous]').click()
+    assert.equal(await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select'), selected, 'browse returns to the original part')
+    await map.locator('[data-infra-pin]').click()
+    assert.equal(await map.locator('[data-infra-pin]').getAttribute('aria-pressed'), 'false')
+    await map.locator('[data-infra-pin]').click()
+    await page.mouse.move(1, 1); await page.waitForTimeout(380)
+    assert.equal(await map.locator('[data-infra-bubble]').isVisible(), true, 'pinned bubble survives pointer leave')
     await page.keyboard.press('Escape')
     assert.equal(await page.locator('#project-viewer').evaluate(el => el.open), true)
     await page.locator('[data-viewer-close]').evaluate(el => el.focus({ preventScroll: true }))
-    await page.mouse.move(1, 1); await page.waitForTimeout(220)
+    await page.mouse.move(1, 1); await page.waitForTimeout(380)
     await buttons.first().hover(); await page.waitForTimeout(260)
     assert.equal(await buttons.first().getAttribute('aria-expanded'), 'true', 'intentional hover opens inspection')
-    await page.mouse.move(1, 1); await page.waitForTimeout(220)
+    await map.locator('[data-infra-bubble]').hover()
+    await page.waitForTimeout(380)
+    assert.equal(await map.locator('[data-infra-bubble]').isVisible(), true, 'pointer can travel from a part into its bubble')
+    await page.mouse.move(1, 1); await page.waitForTimeout(380)
     assert.equal(await map.locator('[data-infra-bubble]').isVisible(), false)
     for (const theme of ['light', 'dark']) {
       await page.evaluate(dark => document.documentElement.classList.toggle('theme-dark', dark), theme === 'dark')
       await proof(map, `${project}-${theme}`)
+      await map.locator(`[data-arch-select="${defaults[project]}"]`).click()
+      await page.screenshot({ path: resolve(out, `${project}-${theme}-bubble.png`) })
+      await closeInspection(map)
     }
     await page.evaluate(() => document.documentElement.classList.remove('theme-dark'))
     await buttons.first().press('End')
@@ -98,6 +115,14 @@ try {
       const bubble = await map.locator('[data-infra-bubble]').boundingBox()
       assert.ok(bubble.x >= 0 && bubble.x + bubble.width <= width + 1)
       await page.screenshot({ path: resolve(out, `${project}-${width}-bubble.png`) })
+      if (await map.getAttribute('data-layout') === 'stacked') {
+        for (let i = 0; i < await buttons.count(); i++) {
+          const selected = map.locator('[data-arch-select][aria-expanded="true"]')
+          const anchor = await selected.boundingBox(), detail = await map.locator('[data-infra-bubble]').boundingBox()
+          assert.ok(detail.y + detail.height <= anchor.y + 1 || detail.y >= anchor.y + anchor.height - 1, 'the mobile bubble leaves its selected part visible')
+          await map.locator('[data-infra-next]').click()
+        }
+      }
       await closeInspection(map)
       await map.locator('.infra-toolbar').scrollIntoViewIfNeeded()
       await proof(map, `${project}-${width}`, width)
@@ -108,7 +133,7 @@ try {
       if (await map.getAttribute('data-layout') === 'stacked') assert.ok(last.y > first.y, 'narrow layout retains reading order')
     }
     await page.setViewportSize({ width: 1440, height: 1100 })
-    reports.push({ project, parts: await buttons.count(), checked: ['every inspection', 'hover intent', 'Escape', 'keyboard', 'static flow', 'both themes', '390/768/1024 widths', 'no horizontal panning'] })
+    reports.push({ project, parts: await buttons.count(), checked: ['every inspection', 'hover intent and bubble entry', 'pin/unpin', 'previous/next parts', 'Escape', 'keyboard', 'static flow', 'both themes', '390/768/1024 widths', 'no horizontal panning'] })
   }
   await page.keyboard.press('Escape')
   assert.equal(await page.locator('#project-viewer').evaluate(el => el.open), false)

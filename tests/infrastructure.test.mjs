@@ -11,7 +11,7 @@ function moduleOf(path) {
   }).outputText, { exports })
   return exports
 }
-const { bubblePosition, infrastructureModel, connectionPath } = moduleOf('../src/components/builds/infrastructure/model.ts')
+const { bubblePosition, infrastructureModel, connectionPath, networkBounds } = moduleOf('../src/components/builds/infrastructure/model.ts')
 const { projectArchitectures: projects } = moduleOf('../src/data/projectArchitectures.ts')
 
 test('inspection bubbles stay within the visible canvas near every edge, including phone width', () => {
@@ -61,5 +61,30 @@ test('desktop objects and labels have independent space around them', () => {
     assert.ok(a.at[0] >= 118 && a.at[0] <= graph.width - 118)
     assert.ok(a.at[1] >= 130 && a.at[1] + 125 <= graph.height)
     for (const b of graph.nodes) if (a !== b) assert.ok(Math.abs(a.at[0] - b.at[0]) >= 250 || Math.abs(a.at[1] - b.at[1]) >= 230, `${a.id}/${b.id} overlap`)
+  }
+})
+
+test('the private network leaves space for its heading and labels while excluding clients and AWS', () => {
+  const graph = projects.oboxsteam
+  const positions = new Map(graph.nodes.map(node => [node.id, node.at]))
+  const bounds = networkBounds(graph.network, positions, graph.width)
+  assert.ok(bounds.left >= 0 && bounds.left + bounds.width <= graph.width)
+  assert.ok(bounds.top >= 0 && bounds.top + bounds.height <= graph.height)
+  for (const node of graph.nodes) {
+    const [x, y] = node.at
+    if (graph.network.nodeIds.includes(node.id)) {
+      assert.ok(x - 118 >= bounds.left && x + 118 <= bounds.left + bounds.width)
+      assert.ok(y - 100 >= bounds.top + 44, `${node.id} leaves room for the heading`)
+      assert.ok(y + 145 <= bounds.top + bounds.height - 40, `${node.id} leaves room for the footnote`)
+    } else {
+      assert.ok(x + 118 < bounds.left || y - 112 > bounds.top + bounds.height, `${node.id} belongs outside the Docker network`)
+    }
+  }
+  for (const width of [320, 390, 768]) {
+    const mobile = new Map(graph.nodes.map((node, index) => [node.id, [Math.max(90, width * .28), 130 + index * 180 + (index >= 1 ? 72 : 0) + (index > 4 ? 80 : 0)]]))
+    const narrow = networkBounds(graph.network, mobile, width, true)
+    assert.ok(narrow.left >= 0 && narrow.left + narrow.width <= width)
+    assert.ok(mobile.get('clients')[1] + 62 < narrow.top)
+    assert.ok(mobile.get('media')[1] - 100 > narrow.top + narrow.height)
   }
 })

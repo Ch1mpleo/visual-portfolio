@@ -1,4 +1,4 @@
-import type { Architecture, ArchitectureEdge } from '../../../data/projectArchitectures'
+import type { Architecture, ArchitectureEdge, ArchitectureNetwork } from '../../../data/projectArchitectures'
 
 export const edgeId = (edge: ArchitectureEdge) => `${edge.from}-${edge.to}`
 export function infrastructureModel(architecture: Architecture) {
@@ -8,6 +8,16 @@ export function infrastructureModel(architecture: Architecture) {
   })) }
 }
 export type Point = readonly [number, number]
+
+/** Leave room for device labels, with a quiet network heading and footnote. */
+export function networkBounds(network: ArchitectureNetwork, positions: ReadonlyMap<string, Point>, width: number, stacked = false) {
+  const members = network.nodeIds.map(id => positions.get(id)!)
+  const left = stacked ? 8 : Math.min(...members.map(point => point[0])) - 136
+  const right = stacked ? width - 8 : Math.max(...members.map(point => point[0])) + 136
+  const top = Math.min(...members.map(point => point[1])) - 145
+  const bottom = Math.max(...members.map(point => point[1])) + (stacked ? 95 : 190)
+  return { left, top, width: right - left, height: bottom - top }
+}
 
 /** A few open, curved tracks; on narrow screens they move to the left margin. */
 export function connectionPath(from: Point, to: Point, stacked = false, index = 0, wide = false) {

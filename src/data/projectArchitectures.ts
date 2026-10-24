@@ -10,7 +10,13 @@ export interface ArchitectureNode {
   role: string
   note: string
   tools: readonly string[]
-  source: string
+  source?: string
+  deployment?: string
+}
+export interface ArchitectureNetwork {
+  name: string
+  note: string
+  nodeIds: readonly string[]
 }
 export interface ArchitectureEdge { from: string; to: string; label: string }
 export interface Architecture {
@@ -21,6 +27,7 @@ export interface Architecture {
   height: number
   nodes: readonly ArchitectureNode[]
   edges: readonly ArchitectureEdge[]
+  network?: ArchitectureNetwork
 }
 const obox = 'https://github.com/OboxSTEAM/OboxSTEAM.API/blob/main/'
 const gp = 'https://github.com/Ch1mpleo/GraphPaper/blob/main/'
@@ -28,22 +35,27 @@ const mln = 'https://github.com/Ch1mpleo/MLN131-Visual/blob/main/'
 const vnr = 'https://github.com/Ch1mpleo/VNR-Visual/blob/main/'
 
 // Portfolio overviews, grounded in the source inspection of 2026-10-21.
-// A part represents a responsibility, not a separate deployed service.
+// Parts represent responsibilities; deployment labels identify confirmed Compose projects.
 export const projectArchitectures = {
   oboxsteam: {
-    title: 'A shared core. Two ways in.',
-    introduction: 'Web and mobile meet one backend, with learning records and personal media behind it.',
-    defaultNode: 'api', width: 1100, height: 590,
+    title: 'One front door. A connected core.',
+    introduction: 'Nginx welcomes the traffic. Separate Compose projects keep the web, API and shared infrastructure connected over one private Docker network.',
+    defaultNode: 'api', width: 1320, height: 980,
+    network: { name: 'shared-network', note: 'Container traffic stays private · Only Nginx publishes public ports', nodeIds: ['proxy', 'web', 'api', 'data'] },
     nodes: [
-      { id: 'clients', label: 'Web + mobile', stack: 'Next.js · Expo', kind: 'clients', at: [175, 285], role: 'One learning platform, on any screen.', note: 'The web workspace and student app use the same authenticated API.', tools: ['React / TypeScript', 'Next.js', 'Expo / React Native'], source: 'https://github.com/OboxSTEAM/OboxSTEAM.FE/blob/main/package.json' },
-      { id: 'api', label: 'Shared backend', stack: 'ASP.NET Core · SignalR', kind: 'server', at: [520, 285], role: 'Keep the learning experience connected.', note: 'Application rules, realtime updates and in-process background jobs share the .NET host. Docker ships it to the VPS.', tools: ['.NET 8 / JWT', 'SignalR', 'BackgroundService', 'Docker'], source: obox + 'OboxSteam.API/Architecture/IocContainer.cs' },
-      { id: 'data', label: 'Learning records', stack: 'PostgreSQL · EF Core', kind: 'database', at: [900, 165], role: 'A lasting record of student progress.', note: 'Curricula, assessments and published portfolio snapshots are persisted through EF Core and Npgsql.', tools: ['PostgreSQL', 'Entity Framework Core'], source: obox + 'OboxSteam.API/Architecture/IocContainer.cs' },
-      { id: 'media', label: 'Personal highlights', stack: 'AWS media · AI', kind: 'media', at: [900, 410], role: 'Turn classroom footage into a personal story.', note: 'S3 holds the footage; managed video processing and strength matching help assemble highlights. Signed SNS callbacks report completion.', tools: ['S3', 'MediaConvert / Rekognition', 'Bedrock'], source: obox + 'OboxSteam.Application/Services/MediaService.cs' },
+      { id: 'clients', label: 'Browser + mobile', stack: 'Web workspace · Expo app', kind: 'clients', at: [150, 340], role: 'One learning platform, on any screen.', note: 'Browsers and the student app reach the platform through Nginx. Container IPs and internal service ports stay behind the proxy.', tools: ['React / TypeScript', 'Expo / React Native'], source: 'https://github.com/OboxSTEAM/OboxSTEAM.FE/blob/main/package.json' },
+      { id: 'proxy', label: 'Public entry', stack: 'Nginx reverse proxy', kind: 'switch', at: [480, 340], deployment: 'Infrastructure compose', role: 'One public entry. Private services behind it.', note: 'Nginx and PostgreSQL run as separate containers in the infrastructure Compose project. Nginx forwards public requests to the frontend and API over shared-network.', tools: ['Nginx', 'Docker Compose', 'shared-network'] },
+      { id: 'web', label: 'Web workspace', stack: 'Next.js · React', kind: 'terminal', at: [810, 180], deployment: 'Frontend compose', role: 'Give the platform a place on the web.', note: 'The frontend has its own Compose project and joins shared-network. Nginx reaches its container internally; the browser uses the public proxy for API requests.', tools: ['Next.js / React', 'TypeScript', 'Docker Compose'], source: 'https://github.com/OboxSTEAM/OboxSTEAM.FE/blob/main/package.json' },
+      { id: 'api', label: 'Shared backend', stack: 'ASP.NET Core · SignalR', kind: 'server', at: [810, 510], deployment: 'Backend compose', role: 'Keep the learning experience connected.', note: 'The backend Compose project joins shared-network with no public API port. Application rules, realtime updates and in-process background jobs share the .NET host.', tools: ['.NET 8 / JWT', 'SignalR', 'BackgroundService', 'Docker Compose'], source: obox + 'OboxSteam.API/Architecture/IocContainer.cs' },
+      { id: 'data', label: 'Learning records', stack: 'PostgreSQL · EF Core', kind: 'database', at: [1140, 510], deployment: 'Infrastructure compose', role: 'A lasting record, kept inside the network.', note: 'PostgreSQL belongs to the shared infrastructure Compose project. The API persists learning records over shared-network through EF Core and Npgsql, without a public database port.', tools: ['PostgreSQL', 'Entity Framework Core', 'Docker Compose'], source: obox + 'OboxSteam.API/Architecture/IocContainer.cs' },
+      { id: 'media', label: 'Personal highlights', stack: 'AWS media · AI', kind: 'media', at: [1140, 830], role: 'Turn classroom footage into a personal story.', note: 'S3 holds the footage; managed video processing and strength matching help assemble highlights. Signed SNS callbacks report completion through Nginx.', tools: ['S3', 'MediaConvert / Rekognition', 'Bedrock'], source: obox + 'OboxSteam.Application/Services/MediaService.cs' },
     ],
     edges: [
-      { from: 'clients', to: 'api', label: 'Authenticated requests' },
-      { from: 'api', to: 'data', label: 'Save learning progress' },
-      { from: 'api', to: 'media', label: 'Create personal highlights' },
+      { from: 'clients', to: 'proxy', label: 'Public requests reach Nginx' },
+      { from: 'proxy', to: 'web', label: 'Serve the web workspace over shared-network' },
+      { from: 'proxy', to: 'api', label: 'Forward API requests over shared-network' },
+      { from: 'api', to: 'data', label: 'Persist learning records over shared-network' },
+      { from: 'api', to: 'media', label: 'Call AWS services for personal highlights' },
     ],
   },
   graphpaper: {

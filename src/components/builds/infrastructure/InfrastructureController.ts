@@ -1,4 +1,4 @@
-import { bubblePosition, connectionPath, type Point } from './model'
+import { bubblePosition, connectionPath, networkBounds, type Point } from './model'
 
 type Track = { el: SVGGElement; path: SVGPathElement; contact: SVGCircleElement; length: number }
 export class InfrastructureController {
@@ -116,9 +116,13 @@ export class InfrastructureController {
     if (!available) return
     this.stop()
     const stacked = available < 900
+    const network = this.root.querySelector<HTMLElement>('[data-infra-network]')
+    const members = network?.dataset.members!.split(',') ?? []
+    const memberIndexes = this.buttons.flatMap((button, index) => members.includes(button.dataset.archSelect!) ? [index] : [])
+    const firstMember = Math.min(...memberIndexes), lastMember = Math.max(...memberIndexes)
     this.root.dataset.layout = stacked ? 'stacked' : 'wide'
     const width = stacked ? available : Number(this.root.dataset.worldWidth)
-    const height = stacked ? this.buttons.length * 180 + 40 : Number(this.root.dataset.worldHeight)
+    const height = stacked ? this.buttons.length * 180 + 40 + (network ? 152 : 0) : Number(this.root.dataset.worldHeight)
     const scale = stacked ? 1 : available / width
     const svg = this.world.querySelector('svg')!
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
@@ -128,7 +132,8 @@ export class InfrastructureController {
     this.space.style.width = `${width * scale}px`; this.space.style.height = `${height * scale}px`
     this.buttons.forEach((button, index) => {
       const id = button.dataset.archSelect!
-      const point: Point = stacked ? [Math.max(90, width * .28), 130 + index * 180] : this.original.get(id)!
+      const networkGap = network ? (index >= firstMember ? 72 : 0) + (index > lastMember ? 80 : 0) : 0
+      const point: Point = stacked ? [Math.max(90, width * .28), 130 + index * 180 + networkGap] : this.original.get(id)!
       this.positions.set(id, point)
       button.dataset.x = String(point[0]); button.dataset.y = String(point[1])
       button.style.left = stacked ? '0' : `${point[0]}px`
@@ -136,6 +141,10 @@ export class InfrastructureController {
       this.part(id)!.setAttribute('transform', `translate(${point[0]} ${point[1]})`)
       this.part(id)!.querySelector('.infra-device__body')!.setAttribute('transform', `scale(${stacked ? .92 : 1.25})`)
     })
+    if (network) {
+      const bounds = networkBounds({ name: '', note: '', nodeIds: members }, this.positions, width, stacked)
+      for (const [property, value] of Object.entries(bounds)) network.style.setProperty(property, `${value}px`)
+    }
     this.edges.forEach((edge, index) => {
       const from = edge.el.dataset.from!, to = edge.el.dataset.to!
       edge.path.setAttribute('d', connectionPath(this.positions.get(from)!, this.positions.get(to)!, stacked, index, this.buttons.find(button => button.dataset.archSelect === from)!.dataset.kind === 'clients'))

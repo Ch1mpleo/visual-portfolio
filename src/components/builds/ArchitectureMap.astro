@@ -3,10 +3,13 @@ import ProjectLinks from './ProjectLinks.astro'
 import type { ProjectLink } from '../../data/projects'
 import type { Architecture } from '../../data/projectArchitectures'
 import { infrastructureGeometry } from './infrastructure/geometry'
+import { networkBounds } from './infrastructure/model'
 import '../../styles/components/infrastructure.scss'
 interface Props { id: string; architecture: Architecture; links?: readonly ProjectLink[] }
 const { id, architecture, links } = Astro.props
 const drawing = infrastructureGeometry(architecture)
+const network = architecture.network
+const bounds = network && networkBounds(network, new Map(architecture.nodes.map(node => [node.id, node.at])), architecture.width)
 const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
 ---
 <section class="project-content arch-map" data-arch-map data-project-infra={id} data-default-node={architecture.defaultNode} data-world-width={architecture.width} data-world-height={architecture.height} aria-labelledby={`infra-heading-${id}`}>
@@ -23,6 +26,10 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
     <div class="infra-viewport" data-infra-viewport role="group" aria-label="Interactive system anatomy. Select a part to see its stack.">
       <div class="infra-space" data-infra-space>
         <div class="infra-world" data-infra-world style={`width:${architecture.width}px;height:${architecture.height}px`}>
+          {network && bounds && <div class="infra-network" data-infra-network data-members={network.nodeIds.join(',')} style={`left:${bounds.left}px;top:${bounds.top}px;width:${bounds.width}px;height:${bounds.height}px`} role="group" aria-label={`${network.name}. ${network.note}`}>
+            <p class="infra-network__heading"><span>Shared Docker network</span><strong>{network.name}</strong></p>
+            <p class="infra-network__note">{network.note}</p>
+          </div>}
           <svg class="iso-svg infra-svg" viewBox={`0 0 ${architecture.width} ${architecture.height}`} width={architecture.width} height={architecture.height} aria-hidden="true">
             <defs><marker id={`infra-arrow-${id}`} viewBox="0 0 7 7" refX="6" refY="3.5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L7 3.5L0 7Z" fill="var(--anatomy-mid)" /></marker></defs>
             <g class="infra-connections">
@@ -37,7 +44,7 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
             </g>)}
           </svg>
           {architecture.nodes.map(node => <button type="button" class="infra-node" style={`left:${node.at[0]}px;top:${node.at[1] - 112}px`} data-arch-select={node.id} data-x={node.at[0]} data-y={node.at[1]} data-kind={node.kind} aria-pressed="false" aria-expanded="false" aria-controls={panelId(node.id)}>
-            <span class="infra-node__plate"><span class="infra-node__label">{node.label}<span class="infra-node__inspect" aria-hidden="true">+</span></span><span class="infra-node__stack">{node.stack}</span></span>
+            <span class="infra-node__plate"><span class="infra-node__label">{node.label}<span class="infra-node__inspect" aria-hidden="true">+</span></span><span class="infra-node__stack">{node.stack}</span>{node.deployment && <span class="infra-node__deployment">{node.deployment}</span>}</span>
           </button>)}
         </div>
       </div>
@@ -61,7 +68,7 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
         <p class="infra-bubble__role">{node.role}</p>
         <ul class="infra-bubble__tools" aria-label={`${node.label} stack`}>{node.tools.map(tool => <li>{tool}</li>)}</ul>
         <div class="infra-bubble__detail"><p class="infra-bubble__eyebrow">The little details</p><p class="infra-bubble__note">{node.note}</p></div>
-        <a class="infra-bubble__source" href={node.source} target="_blank" rel="noopener noreferrer">Peek at the source <span aria-hidden="true">↗</span></a>
+        {node.source && <a class="infra-bubble__source" href={node.source} target="_blank" rel="noopener noreferrer">Peek at the source <span aria-hidden="true">↗</span></a>}
       </section>)}
     </div>
   </aside>

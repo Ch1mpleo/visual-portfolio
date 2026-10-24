@@ -13,7 +13,7 @@ const { projectArchitectures: projects } = exports
 test('portfolio overviews stay small, connected and grounded in source evidence', () => {
   assert.deepEqual(Object.keys(projects).sort(), ['graphpaper', 'museums', 'oboxsteam'])
   for (const [id, graph] of Object.entries(projects)) {
-    assert.ok(graph.nodes.length <= 4, `${id} has too many competing parts`)
+    assert.ok(graph.nodes.length <= (id === 'oboxsteam' ? 6 : 4), `${id} has too many competing parts`)
     assert.equal(new Set(graph.nodes.map(node => node.kind)).size, graph.nodes.length, `${id} repeats a device silhouette`)
     const ids = new Set(graph.nodes.map(node => node.id))
     assert.equal(ids.size, graph.nodes.length)
@@ -26,7 +26,8 @@ test('portfolio overviews stay small, connected and grounded in source evidence'
       assert.ok(!edges.has(key)); edges.add(key)
     }
     for (const node of graph.nodes) {
-      assert.match(node.source, /^https:\/\/github.com\//)
+      if (node.source) assert.match(node.source, /^https:\/\/github.com\//)
+      else assert.equal(node.id, 'proxy', 'owner-confirmed infrastructure has no invented source link')
       assert.ok(graph.edges.some(edge => edge.from === node.id || edge.to === node.id))
       assert.ok(node.tools.length <= 4, 'bubbles contain only the supporting stack')
       assert.ok(node.note.split(/\s+/).length <= 30, 'inspection copy stays concise')
@@ -43,12 +44,27 @@ test('GraphPaper retains the implemented processing story without promoting plan
   assert.match(graph.nodes.find(node => node.id === 'workspace').note, /Grounded answers remain an intended extension/)
 })
 
-test('Obox clients access a shared backend and background work stays in process', () => {
+test('Obox public traffic enters through Nginx and background work stays in process', () => {
   const graph = projects.oboxsteam
-  assert.equal(graph.edges.filter(edge => edge.from === 'clients').map(edge => edge.to).join(), 'api')
+  assert.equal(graph.edges.filter(edge => edge.from === 'clients').map(edge => edge.to).join(), 'proxy')
+  assert.equal(graph.edges.filter(edge => edge.from === 'proxy').map(edge => edge.to).sort().join(), 'api,web')
   assert.match(graph.nodes.find(node => node.id === 'api').note, /in-process/)
   assert.match(graph.nodes.find(node => node.id === 'media').note, /SNS callbacks/)
   assert.ok(!graph.nodes.flatMap(node => node.tools).some(tool => /SQS|Redis|RabbitMQ/.test(tool)))
+})
+
+test('Obox separates Compose ownership from shared private network membership', () => {
+  const graph = projects.oboxsteam
+  assert.equal(graph.network.name, 'shared-network')
+  assert.equal([...graph.network.nodeIds].sort().join(), 'api,data,proxy,web')
+  const node = id => graph.nodes.find(part => part.id === id)
+  assert.equal(node('proxy').deployment, 'Infrastructure compose')
+  assert.equal(node('data').deployment, node('proxy').deployment)
+  assert.equal(node('web').deployment, 'Frontend compose')
+  assert.equal(node('api').deployment, 'Backend compose')
+  assert.match(node('api').note, /no public API port/)
+  assert.match(node('data').note, /without a public database port/)
+  assert.match(graph.network.note, /Only Nginx/)
 })
 
 test('museum overview keeps the independent browser experiences distinct', () => {

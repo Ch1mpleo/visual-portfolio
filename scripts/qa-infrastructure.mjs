@@ -62,20 +62,20 @@ try {
       assert.equal(await map.locator(`[data-infra-part="${id}"].is-selected`).count(), 1)
       const bounds = await map.locator('[data-infra-bubble]').boundingBox()
       assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 1441)
+      await button.click()
+      assert.equal(await map.locator(`[data-arch-panel="${id}"]`).isVisible(), true, 'clicking the selected part again keeps its inspection open')
+      assert.equal(await map.locator('[data-infra-pin] svg').evaluate(el => el.getAnimations().length), 0, 'component clicks respect reduced motion')
     }
     await closeInspection(map)
     const defaults = { oboxsteam: 'api', graphpaper: 'analysis', museums: 'foundation' }
     await map.locator(`[data-arch-select="${defaults[project]}"]`).click()
     await page.screenshot({ path: resolve(out, `${project}-bubble.png`) })
-    const selected = await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select')
-    await map.locator('[data-infra-next]').click()
-    assert.notEqual(await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select'), selected, 'browse opens the next part')
-    assert.equal(await map.locator('[data-infra-pin]').getAttribute('aria-pressed'), 'true', 'browsing keeps the bubble pinned')
-    await map.locator('[data-infra-previous]').click()
-    assert.equal(await map.locator('[data-arch-select][aria-expanded="true"]').getAttribute('data-arch-select'), selected, 'browse returns to the original part')
+    assert.equal(await map.locator('[data-infra-next], [data-infra-previous], [data-infra-count], .infra-bubble__footer').count(), 0, 'inspect parts directly on the anatomy')
     await map.locator('[data-infra-pin]').click()
     assert.equal(await map.locator('[data-infra-pin]').getAttribute('aria-pressed'), 'false')
     await map.locator('[data-infra-pin]').click()
+    assert.equal(await map.locator('[data-infra-pin] svg').count(), 1, 'pin label updates preserve the icon')
+    assert.equal(await map.locator('[data-infra-pin] svg').evaluate(el => el.getAnimations().length), 0, 'reduced motion skips the pin press')
     await page.mouse.move(1, 1); await page.waitForTimeout(380)
     assert.equal(await map.locator('[data-infra-bubble]').isVisible(), true, 'pinned bubble survives pointer leave')
     await page.keyboard.press('Escape')
@@ -117,10 +117,10 @@ try {
       await page.screenshot({ path: resolve(out, `${project}-${width}-bubble.png`) })
       if (await map.getAttribute('data-layout') === 'stacked') {
         for (let i = 0; i < await buttons.count(); i++) {
+          if (i) { await closeInspection(map); await buttons.nth(i).click() }
           const selected = map.locator('[data-arch-select][aria-expanded="true"]')
           const anchor = await selected.boundingBox(), detail = await map.locator('[data-infra-bubble]').boundingBox()
           assert.ok(detail.y + detail.height <= anchor.y + 1 || detail.y >= anchor.y + anchor.height - 1, 'the mobile bubble leaves its selected part visible')
-          await map.locator('[data-infra-next]').click()
         }
       }
       await closeInspection(map)
@@ -133,7 +133,7 @@ try {
       if (await map.getAttribute('data-layout') === 'stacked') assert.ok(last.y > first.y, 'narrow layout retains reading order')
     }
     await page.setViewportSize({ width: 1440, height: 1100 })
-    reports.push({ project, parts: await buttons.count(), checked: ['every inspection', 'hover intent and bubble entry', 'pin/unpin', 'previous/next parts', 'Escape', 'keyboard', 'static flow', 'both themes', '390/768/1024 widths', 'no horizontal panning'] })
+    reports.push({ project, parts: await buttons.count(), checked: ['every inspection', 'hover intent and bubble entry', 'pin/unpin', 'direct anatomy selection', 'Escape', 'keyboard', 'static flow', 'both themes', '390/768/1024 widths', 'no horizontal panning'] })
   }
   await page.keyboard.press('Escape')
   assert.equal(await page.locator('#project-viewer').evaluate(el => el.open), false)
@@ -142,6 +142,64 @@ try {
   await page.locator('[data-open-project="oboxsteam"]').click(); await page.waitForTimeout(800)
   const map = page.locator('#viewer-oboxsteam [data-arch-map]')
   await map.locator('.infra-toolbar').scrollIntoViewIfNeeded()
+  await map.locator('[data-arch-select="api"]').click()
+  const pin = map.locator('[data-infra-pin]'), pinIcon = pin.locator('svg')
+  const componentPress = await pinIcon.evaluateHandle(el => el.getAnimations().find(animation => animation.animationName === 'infra-pin-press'))
+  assert.equal(await componentPress.evaluate(animation => Boolean(animation)), true, 'clicking an anatomy component plays the pin press')
+  await map.locator('[data-arch-select="api"]').click()
+  assert.equal(await pinIcon.evaluate((el, previous) => {
+    const current = el.getAnimations().find(animation => animation.animationName === 'infra-pin-press')
+    return Boolean(current && current !== previous)
+  }, componentPress), true, 'clicking the selected component again replays the pin press')
+  await componentPress.dispose()
+  await pin.click(); await pin.click()
+  assert.equal(await pin.getAttribute('aria-pressed'), 'true')
+  const press = await pinIcon.evaluate(el => {
+    const motion = el.getAnimations().find(animation => animation.animationName === 'infra-pin-press')
+    if (!motion) return null
+    const settle = el.closest('[data-infra-pin]').getAnimations().find(animation => animation.animationName === 'infra-pin-settle')
+    motion.pause(); motion.currentTime = 0
+    const start = new DOMMatrixReadOnly(getComputedStyle(el).transform)
+    const staysInPlace = [0, 60, 100, 160, 240, 330].every(time => {
+      motion.currentTime = time
+      const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform)
+      return Math.abs(matrix.m41) < .01 && Math.abs(matrix.m42) <= 4.01 && getComputedStyle(el).opacity === '1'
+    })
+    motion.currentTime = 80
+    if (settle) { settle.pause(); settle.currentTime = 80 }
+    return { transform: getComputedStyle(el).transform, staysInPlace, startsAtUnpinnedTilt: start.m12 < 0 && start.m41 === 0 && start.m42 === 0, duration: motion.effect.getTiming().duration, hasButtonSettle: Boolean(settle) }
+  })
+  assert.ok(press, 'existing pin presses into the button on click')
+  assert.ok(press.startsAtUnpinnedTilt, 'press begins at the existing unpinned pose')
+  assert.ok(press.staysInPlace, 'pin stays visible in its original slot with only a small vertical press')
+  assert.equal(press.duration, 360, 'press and recoil settle quickly')
+  assert.equal(press.hasButtonSettle, true)
+  await page.screenshot({ path: resolve(out, 'pin-turn.png') })
+  const impact = await pinIcon.evaluate(el => {
+    const motion = el.getAnimations().find(animation => animation.animationName === 'infra-pin-press')
+    motion.currentTime = 180
+    const button = el.closest('[data-infra-pin]')
+    button.getAnimations().find(animation => animation.animationName === 'infra-pin-settle').currentTime = 180
+    const icon = new DOMMatrixReadOnly(getComputedStyle(el).transform)
+    const recoil = new DOMMatrixReadOnly(getComputedStyle(button).transform)
+    return { transform: getComputedStyle(el).transform, downward: Math.abs(icon.m12) < .01 && icon.m42 > 2.5, recoil: recoil.m42 > 1 }
+  })
+  assert.notEqual(press.transform, impact.transform, 'pin turns down and presses into the button')
+  assert.ok(impact.downward, 'pin points straight down at impact')
+  assert.ok(impact.recoil, 'button recoils downward at impact')
+  await page.screenshot({ path: resolve(out, 'pin-impact.png') })
+  await pinIcon.evaluate(el => el.getAnimations().forEach(animation => animation.finish()))
+  await page.waitForTimeout(50)
+  assert.equal(await pin.evaluate(el => el.classList.contains('is-pinning')), false)
+  for (let i = 0; i < 4; i++) await pin.click()
+  await page.waitForTimeout(650)
+  assert.equal(await pin.getAttribute('aria-pressed'), 'true', 'rapid toggles settle in the correct state')
+  assert.equal(await pin.evaluate(el => el.classList.contains('is-pinning')), false)
+  await pin.click(); await pin.click()
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await page.waitForTimeout(100)
+  assert.equal(await pinIcon.evaluate(el => el.getAnimations().length), 0, 'enabling reduced motion cancels an active press')
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await closeInspection(map)
   await map.locator('[data-infra-play]').click()
   await page.mouse.move(1, 1); await page.waitForTimeout(400)
   const contact = map.locator('[data-infra-edge="clients-api"] .infra-contact')

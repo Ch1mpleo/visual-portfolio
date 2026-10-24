@@ -48,7 +48,10 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
     <header class="infra-bubble__bar">
       <span class="infra-bubble__eyebrow"><span class="infra-bubble__spark" aria-hidden="true">✳</span> Inside the build</span>
       <div class="infra-bubble__actions">
-        <button type="button" class="infra-bubble__pin" data-infra-pin aria-pressed="false">Keep open</button>
+        <button type="button" class="infra-bubble__pin" data-infra-pin aria-pressed="false" aria-label="Pin inspection">
+          <span class="infra-bubble__pin-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4-1-6Z" /><path d="M12 15v6" /></svg></span>
+          <span data-infra-pin-label>Pin</span>
+        </button>
         <button type="button" class="infra-bubble__close" data-infra-close aria-label="Close inspection">×</button>
       </div>
     </header>
@@ -61,13 +64,6 @@ const panelId = (nodeId: string) => `arch-${id}-${nodeId}`
         <a class="infra-bubble__source" href={node.source} target="_blank" rel="noopener noreferrer">Peek at the source <span aria-hidden="true">↗</span></a>
       </section>)}
     </div>
-    <footer class="infra-bubble__footer">
-      <span class="infra-bubble__count" data-infra-count>01 / {String(architecture.nodes.length).padStart(2, '0')} parts</span>
-      <div class="infra-bubble__browse" aria-label="Explore system parts">
-        <button type="button" data-infra-previous aria-label="Inspect previous part">←</button>
-        <button type="button" data-infra-next aria-label="Inspect next part">→</button>
-      </div>
-    </footer>
   </aside>
   <span class="u-sr-only" data-infra-announcement aria-live="polite"></span>
   {links && <ProjectLinks links={links} />}

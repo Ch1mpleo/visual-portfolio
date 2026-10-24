@@ -55,9 +55,7 @@ export class InfrastructureController {
       })
       button.addEventListener('focus', () => { if (!this.restoring && !this.pinned && button.matches(':focus-visible')) this.inspect(id, false) })
       button.addEventListener('blur', () => { if (!this.pinned) this.scheduleClose() })
-      button.addEventListener('click', () => {
-        if (this.inspected === id && this.pinned) this.close(); else this.inspect(id, true)
-      })
+      button.addEventListener('click', () => this.inspect(id, true))
       button.addEventListener('keydown', event => this.navigate(event, button))
     })
     this.bubble.addEventListener('pointerenter', () => clearTimeout(this.closeTimer))
@@ -67,11 +65,14 @@ export class InfrastructureController {
       if (!this.pinned && !this.bubble.contains(event.relatedTarget as Node)) this.scheduleClose()
     })
     root.querySelector('[data-infra-close]')!.addEventListener('click', () => this.close(true))
-    root.querySelector('[data-infra-pin]')!.addEventListener('click', () => {
-      if (this.inspected) this.inspect(this.inspected, !this.pinned)
+    const pinButton = root.querySelector<HTMLButtonElement>('[data-infra-pin]')!
+    pinButton.addEventListener('click', () => {
+      if (!this.inspected) return
+      this.inspect(this.inspected, !this.pinned)
     })
-    root.querySelector('[data-infra-previous]')!.addEventListener('click', () => this.browse(-1))
-    root.querySelector('[data-infra-next]')!.addEventListener('click', () => this.browse(1))
+    pinButton.addEventListener('animationend', event => {
+      if (event.animationName === 'infra-pin-press') pinButton.classList.remove('is-pinning')
+    })
     root.addEventListener('keydown', event => {
       if (event.key === 'Escape' && this.inspected) { event.preventDefault(); event.stopPropagation(); this.close(true) }
     })
@@ -99,7 +100,7 @@ export class InfrastructureController {
       observer.observe(dialog, { attributes: true, attributeFilter: ['open'] })
       observer.observe(project, { attributes: true, attributeFilter: ['hidden'] })
     }
-    this.reduced.addEventListener('change', () => { this.playing = false; this.stop(); this.highlight(); this.updatePlayback() })
+    this.reduced.addEventListener('change', () => { pinButton.classList.remove('is-pinning'); this.playing = false; this.stop(); this.highlight(); this.updatePlayback() })
     document.addEventListener('visibilitychange', () => { this.stop(); this.run() })
     new IntersectionObserver(entries => {
       this.visible = entries[entries.length - 1].isIntersecting
@@ -171,12 +172,11 @@ export class InfrastructureController {
     this.bubble.dataset.pinned = String(pin)
     this.bubble.setAttribute('aria-labelledby', `${this.panels.find(panel => panel.dataset.archPanel === id)!.id}-title`)
     const index = this.buttons.findIndex(button => button.dataset.archSelect === id)
-    this.root.querySelector('[data-infra-count]')!.textContent = `${String(index + 1).padStart(2, '0')} / ${String(this.buttons.length).padStart(2, '0')} parts`
     const pinButton = this.root.querySelector<HTMLButtonElement>('[data-infra-pin]')!
+    pinButton.classList.remove('is-pinning')
     pinButton.setAttribute('aria-pressed', String(pin))
-    pinButton.textContent = pin ? 'Pinned' : 'Keep open'
-    this.root.querySelector('[data-infra-previous]')!.setAttribute('aria-label', `Inspect previous part: ${this.partLabel((index - 1 + this.buttons.length) % this.buttons.length)}`)
-    this.root.querySelector('[data-infra-next]')!.setAttribute('aria-label', `Inspect next part: ${this.partLabel((index + 1) % this.buttons.length)}`)
+    pinButton.setAttribute('aria-label', pin ? 'Unpin inspection' : 'Pin inspection')
+    pinButton.querySelector('[data-infra-pin-label]')!.textContent = pin ? 'Pinned' : 'Pin'
     this.panels.forEach(panel => { panel.hidden = panel.dataset.archPanel !== id })
     this.buttons.forEach(button => {
       button.setAttribute('aria-expanded', String(button.dataset.archSelect === id))
@@ -195,17 +195,12 @@ export class InfrastructureController {
       }
     }
     this.stop(); this.highlight(id); this.positionBubble()
+    if (pin && !this.reduced.matches) {
+      // Both anatomy clicks and the pin toggle use the same replayable press.
+      void pinButton.offsetWidth
+      pinButton.classList.add('is-pinning')
+    }
     if (pin) this.root.querySelector('[data-infra-announcement]')!.textContent = `${this.buttons.find(button => button.dataset.archSelect === id)!.innerText.replace(/\s+/g, ' ')}. Inspection open.`
-  }
-  private partLabel(index: number) { return this.buttons[index].querySelector('.infra-node__label')!.textContent!.replace('+', '').trim() }
-  private browse(direction: number) {
-    const index = this.buttons.findIndex(button => button.dataset.archSelect === this.inspected)
-    const next = this.buttons[(index + direction + this.buttons.length) % this.buttons.length]
-    // Keep the bubble controls focused while bringing the new part into view.
-    const box = next.getBoundingClientRect(), scroll = this.scroller.getBoundingClientRect()
-    if (box.top < scroll.top + 20) this.scroller.scrollTop += box.top - scroll.top - 20
-    else if (box.bottom > scroll.bottom - 20) this.scroller.scrollTop += box.bottom - scroll.bottom + 20
-    this.inspect(next.dataset.archSelect!, true)
   }
   private scheduleClose() {
     clearTimeout(this.closeTimer)
@@ -218,6 +213,7 @@ export class InfrastructureController {
     clearTimeout(this.openTimer); clearTimeout(this.closeTimer)
     const id = this.inspected
     this.inspected = null; this.pinned = false; this.bubble.hidden = true
+    this.root.querySelector('[data-infra-pin]')!.classList.remove('is-pinning')
     this.bubble.getAnimations().forEach(animation => animation.cancel())
     this.buttons.forEach(button => { button.setAttribute('aria-expanded', 'false'); button.setAttribute('aria-pressed', 'false') })
     this.highlight()

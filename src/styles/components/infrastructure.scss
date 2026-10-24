@@ -113,10 +113,20 @@
   button:hover { background: color-mix(in srgb, var(--bubble-accent) 25%, var(--bubble-paper)); }
   button:active { transform: translateY(2px); }
   button:focus-visible, a:focus-visible { outline: 2px solid var(--bubble-ink); outline-offset: 3px; }
-  .infra-bubble__pin { border-color: color-mix(in srgb, var(--bubble-ink) 24%, transparent); white-space: nowrap; }
+  .infra-bubble__pin { gap: .35rem; min-width: 72px; border-color: color-mix(in srgb, var(--bubble-ink) 24%, transparent); white-space: nowrap; }
+  .infra-bubble__pin-icon { position: relative; display: inline-flex; width: 16px; height: 16px; pointer-events: none;
+    svg { overflow: visible; transform: rotate(-30deg); transform-origin: 50% 87.5%; transition: transform .2s; }
+    &::after { content: ''; position: absolute; inset: -5px; border: 1px solid currentColor; border-radius: 50%; opacity: 0; pointer-events: none; }
+  }
   .infra-bubble__pin[aria-pressed='true'] { color: #241811; border-color: #241811; background: var(--bubble-accent); }
+  .infra-bubble__pin[aria-pressed='true'] svg { transform: rotate(0); }
+  .infra-bubble__pin.is-pinning {
+    animation: infra-pin-settle .36s ease-out both;
+    svg { animation: infra-pin-press .36s cubic-bezier(.3, 0, .25, 1) both; }
+    .infra-bubble__pin-icon::after { animation: infra-pin-impact .36s ease-out both; }
+  }
   .infra-bubble__close { width: 32px; padding: 0; font: 400 23px / 1 font-family(editorial); }
-  .infra-bubble__content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: .35rem 1.25rem 0; }
+  .infra-bubble__content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: .35rem 1.25rem .65rem; }
   h4 { margin: 0; font: 700 1.9rem / 1.05 font-family(bigger); text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
   .infra-bubble__role { margin: .65rem 0 0; font: 400 18px / 1.4 font-family(editorial); text-wrap: pretty; }
   .infra-bubble__tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1rem 0 0; padding: 0; list-style: none;
@@ -128,12 +138,26 @@
     span { font-size: 18px; transition: transform .2s; }
     &:hover { text-decoration: underline; text-underline-offset: 4px; span { transform: translate(2px, -2px); } }
   }
-  .infra-bubble__footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-shrink: 0; margin: 0 1.25rem; padding: .65rem 0 .85rem; border-top: 1px solid color-mix(in srgb, var(--bubble-ink) 20%, transparent); }
-  .infra-bubble__count { color: color(muted); font: 400 9px / 1.5 font-family(fraktion); letter-spacing: .03em; }
-  .infra-bubble__browse { display: flex; gap: .45rem;
-    button { width: 34px; height: 32px; padding: 0; border-color: var(--bubble-ink); font-size: 17px; }
-    button:hover { color: #241811; background: var(--bubble-accent); box-shadow: 2px 2px 0 var(--bubble-ink); transform: translate(-1px, -1px); }
-  }
+}
+@keyframes infra-pin-press {
+  0% { transform: translateY(0) rotate(-30deg) scale(1); }
+  28% { transform: translateY(-2px) rotate(0) scale(1.03); }
+  48% { transform: translateY(4px) rotate(0) scale(.94, .9); }
+  66% { transform: translateY(-1px) rotate(0) scale(1.02); }
+  82% { transform: translateY(.4px) rotate(0) scale(1); }
+  100% { transform: translateY(0) rotate(0) scale(1); }
+}
+@keyframes infra-pin-settle {
+  0%, 44% { transform: translateY(0) scale(1); }
+  52% { transform: translateY(2px) scale(.98, .96); }
+  70% { transform: translateY(-.7px) scale(1.01); }
+  85% { transform: translateY(.2px) scale(.997); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes infra-pin-impact {
+  0%, 44% { opacity: 0; transform: scale(.3); }
+  52% { opacity: .4; transform: scale(.5); }
+  100% { opacity: 0; transform: scale(1.45); }
 }
 .is-inspecting .infra-device:not(.is-selected):not(.is-hovered) { opacity: .48; }
 .infra-device { transition: opacity .25s; }
@@ -148,9 +172,8 @@
     border-radius: 20px; box-shadow: 4px 5px 0 var(--bubble-ink);
     .infra-bubble__bar { padding: .65rem .65rem .4rem 1rem; }
     .infra-bubble__content { padding-inline: 1rem; }
-    .infra-bubble__footer { margin-inline: 1rem; padding-block: .5rem .65rem; }
     button { min-height: 44px; }
-    .infra-bubble__close, .infra-bubble__browse button { width: 44px; height: 44px; }
+    .infra-bubble__close { width: 44px; height: 44px; }
   }
 }
 @media (prefers-reduced-motion: reduce) { .arch-map *, .arch-map *::before, .arch-map *::after { transition: none !important; animation: none !important; } }

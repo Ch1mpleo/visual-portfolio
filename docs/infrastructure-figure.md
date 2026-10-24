@@ -59,15 +59,20 @@ the left margin, without horizontal scrolling or shrinking the typography.
 ## Interaction
 
 Hover has a short intent delay, then lifts the object, highlights its related
-paths and opens a compact bubble. Click/tap pins it; clicking again dismisses it.
+paths and opens a compact bubble. Click/tap pins it with the pin press and recoil;
+clicking the same part again keeps it open and replays that feedback.
 Comic speech bubbles have an ink outline, offset shadow and a tail pointing to
 the selected object. Each project has its own muted accent. The headline and
 role lead, followed by rounded stack tags, a separated implementation note and
-a source link. A Keep open toggle pins/unpins a preview; previous/next controls
-browse the parts without closing the bubble, and a counter shows the position.
-On narrow layouts, selecting or browsing seats the part below its bubble so
-both stay visible. Bubble headers and browse controls remain accessible while
-long content scrolls inside. Escape closes the bubble before the project viewer. Arrow
+a source link. Select parts directly on the anatomy; bubbles have no part
+navigation or counter. A pin icon toggle pins/unpins a preview. Pinning from
+either the anatomy component or the Pin button
+turns the existing tilted icon downward, then presses it 4 px into the button.
+A small button recoil, bounce and impact ripple settle within 360 ms; unpinning,
+closing or switching parts clears the animation. Reduced motion skips the
+press animation and shows the pinned state immediately.
+On narrow layouts, selecting a part seats it below its bubble so both stay
+visible. Bubble headers remain accessible while long content scrolls inside. Escape closes the bubble before the project viewer. Arrow
 keys navigate spatially; Home/End move to the first/last part.
 
 One Trace flow button plays a finite tour, with a travelling contact and a subtle
@@ -87,7 +92,7 @@ Run `npm run build`, `node --test tests/*.test.mjs`, and
 `node node_modules/typescript/bin/tsc --noEmit`.
 
 `scripts/qa-infrastructure.mjs` exercises production output in Edge/Playwright:
-every inspection, hover intent and bubble entry, pin/unpin, previous/next parts,
+every inspection, hover intent and bubble entry, pin/unpin and pin animation,
 keyboard/Escape/focus restoration,
 both themes, 390/768/1024 px widths, static and animated flow, finite completion,
 pause, offscreen suspension and reduced motion. Proofs/report go to
@@ -103,8 +108,11 @@ license in the infrastructure directory.
 ### Bubble refresh validation — 2026-10-24
 
 Production build, TypeScript and all 28 tests pass. The updated browser suite
-checks all 11 parts, pin/unpin, in-bubble browsing and hover-to-bubble travel.
-At 390/768/1024 px, browsing every stacked part verifies its bubble does not
+checks all 11 parts, pin/unpin, direct anatomy selection and hover-to-bubble travel.
+The pin refinement removes the bubble navigation and counter. Browser checks
+verify the in-place downward press and recoil, rapid toggles, animation cleanup,
+and reduced motion both before clicking and when enabled during a press.
+At 390/768/1024 px, selecting every stacked part verifies its bubble does not
 cover the selected row. Light/dark screenshots, keyboard/Escape behavior,
 reduced motion and finite flow playback pass with no page errors.
 

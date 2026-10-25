@@ -1,6 +1,7 @@
 ---
 import { graphStages } from '../../data/projectInteriors'
 import GraphConceptArtwork from './GraphConceptArtwork.astro'
+import StoryStepIcon from './StoryStepIcon.astro'
 ---
 <div class="project-content project-content--story">
   <section class="scroll-story" data-scroll-story aria-labelledby="graph-pipeline-title">
@@ -17,7 +18,7 @@ import GraphConceptArtwork from './GraphConceptArtwork.astro'
       </div>
       <ol class="scroll-story__beats">
         {graphStages.map((stage, index) => <li id={`graph-stage-${stage.id}`} class:list={['story-beat', { 'is-selected': index === 0 }]} data-story-beat={stage.id}>
-          <p class="project-content__label">0{index + 1} / {stage.label}</p>
+          <p class="project-content__label story-beat__label"><StoryStepIcon id={stage.id} /><span>0{index + 1} / {stage.label}</span></p>
           <h4>{stage.title}</h4>
           <p>{stage.description}</p>
           <p class="story-beat__status">{stage.detail}</p>

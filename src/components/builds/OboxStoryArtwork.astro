@@ -11,16 +11,11 @@ const descriptions = {
   learning: 'A connected class leads to mobile attendance and a lasting learning record.',
   portfolio: 'Personal highlights become an editable portfolio and a published student story.',
 }
-const transitions = {
-  curriculum: ['revise together', 'ready to teach'],
-  learning: ['join a session', 'capture progress'],
-  portfolio: ['make it yours', 'put it out there'],
-}
 ---
 <svg class="obox-story-art" viewBox="0 0 1200 590" role="group" aria-label={descriptions[chapter]}>
   <path class="art-grid" d="M0 104H1200M0 208H1200M0 312H1200M0 416H1200M100 0V520M200 0V520M300 0V520M400 0V520M500 0V520M600 0V520M700 0V520M800 0V520M900 0V520M1000 0V520M1100 0V520" />
-  <StoryConnection path="M346 142C381 142 369 56 421 56S460 92 496 102" label={transitions[chapter][0]} x={423} y={33} />
-  <StoryConnection path="M726 325C776 325 758 405 809 405S846 340 879 329" label={transitions[chapter][1]} x={804} y={433} delay={-2} />
+  <StoryConnection path="M346 142C381 142 369 56 421 56S460 92 496 102" />
+  <StoryConnection path="M726 325C776 325 758 405 809 405S846 340 879 329" delay={-2} />
   {parts.map((part, index) => <g class:list={['art-object', { 'is-selected': index === 0 }]} data-story-object={part.id} role="button" tabindex="0" aria-label={`Inspect ${part.label}`} aria-pressed={index === 0} aria-controls={`obox-note-${part.id}`}>
     <rect class="art-hit" x={index * 400 + 14} y="14" width="372" height="564" rx="2" />
     <g class="art-drawing">
@@ -107,12 +102,6 @@ const transitions = {
     .art-small { font-size: 11px; }
     .art-display { font: 700 45px font-family(bigger); }
     .art-display.art-inverse { fill: color(primary); }
-    .art-hit { fill: transparent; stroke: transparent; stroke-width: 1; }
     .art-object { cursor: pointer; outline: none; }
-    .art-drawing { opacity: .66; translate: 0 0; transition: opacity .35s, translate .55s cubic-bezier(.22, 1, .36, 1); }
-    .art-object:is(:hover, :focus-visible) .art-drawing { opacity: .9; }
-    .art-object.is-selected .art-drawing { opacity: 1; translate: 0 -9px; }
-    .art-object:focus-visible .art-hit { stroke: color(accent); stroke-dasharray: 4 5; }
-    @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } }
   }
 </style>

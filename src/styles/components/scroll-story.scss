@@ -6,6 +6,30 @@
   > p:not(.project-content__label) { color: color(muted); }
 }
 .project-content--story { padding-top: 0; }
+// Selection stays visibly stronger than a pointer or keyboard preview.
+.scroll-story__art {
+  .art-hit, .graph-hit { fill: transparent; stroke: transparent; stroke-width: 1; }
+  .art-drawing, .graph-drawing {
+    opacity: .26; filter: grayscale(1);
+    transition: opacity .32s, filter .32s;
+  }
+  .story-annotation { opacity: .62; transition: opacity .25s; }
+  @media (hover: hover) {
+    [data-story-object]:hover {
+      .art-drawing, .graph-drawing { opacity: .55; filter: grayscale(.5); }
+      .story-annotation { opacity: .85; }
+    }
+  }
+  [data-story-object]:focus-visible {
+    .art-drawing, .graph-drawing { opacity: .55; filter: grayscale(.5); }
+    .story-annotation { opacity: .85; }
+    .art-hit, .graph-hit { stroke: color(accent); stroke-width: 2; stroke-dasharray: 4 5; }
+  }
+  [data-story-object].is-selected {
+    .art-drawing, .graph-drawing { opacity: 1; filter: grayscale(0); }
+    .story-annotation { opacity: 1; }
+  }
+}
 .scroll-story {
   padding-top: 3rem; border-top: 1px solid color(line);
   &__body { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
@@ -30,6 +54,7 @@
   opacity: .38; transition: opacity .35s, border-color .35s;
   &.is-selected { opacity: 1; border-left-color: color(accent); }
   .project-content__label { margin-bottom: .6rem; }
+  .story-beat__label { display: flex; align-items: center; gap: .65rem; }
   h4 { margin-bottom: .5rem; }
   p:not(.project-content__label) { margin-top: 0; max-width: 40ch; }
   p.story-beat__status { margin-top: 1rem; padding-left: .75rem; border-left: 2px solid color(accent); color: color(muted); }
@@ -59,4 +84,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .scroll-story__art, .scroll-story__art > svg, .scroll-story__screen, .story-beat { transition: none; }
+  .scroll-story__art {
+    .story-annotation, .art-drawing, .graph-drawing { transition: none; }
+  }
 }

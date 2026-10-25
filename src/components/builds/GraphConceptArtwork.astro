@@ -5,9 +5,9 @@ import StoryConnection from './StoryConnection.astro'
 ---
 <svg class="graph-concept" viewBox="0 0 1200 560" role="group" aria-label="Illustrated research pipeline: document, passages and embeddings, entity connections, and graph exploration.">
   <path class="graph-grid" d="M0 94H1200M0 188H1200M0 282H1200M0 376H1200M100 0V470M200 0V470M300 0V470M400 0V470M500 0V470M600 0V470M700 0V470M800 0V470M900 0V470M1000 0V470M1100 0V470" />
-  <StoryConnection path="M238 112C271 112 261 46 296 46S320 76 343 87" label="break it down" x={294} y={27} />
-  <StoryConnection path="M538 330C567 330 559 383 595 383S622 332 649 324" label="find the links" x={596} y={409} delay={-1.3} />
-  <StoryConnection path="M839 131C875 131 862 47 902 47S923 85 949 100" label="follow an idea" x={901} y={28} delay={-2.6} />
+  <StoryConnection path="M238 112C271 112 261 46 296 46S320 76 343 87" />
+  <StoryConnection path="M538 330C567 330 559 383 595 383S622 332 649 324" delay={-1.3} />
+  <StoryConnection path="M839 131C875 131 862 47 902 47S923 85 949 100" delay={-2.6} />
   {graphStages.map((stage, index) => <g class:list={['graph-concept__layer', { 'is-selected': index === 0 }]} data-story-object={stage.id} role="button" tabindex="0" aria-label={`Inspect ${stage.label.toLowerCase()}`} aria-pressed={index === 0} aria-controls={`graph-stage-${stage.id}`}>
     <rect class="graph-hit" x={index * 300 + 8} y="12" width="284" height="536" />
     <g class="graph-drawing">
@@ -49,12 +49,6 @@ import StoryConnection from './StoryConnection.astro'
     .graph-small { font-size: 10px; }
     .graph-editorial { font: 400 32px font-family(editorial); }
     .graph-node-label { font-size: 24px; }
-    .graph-hit { fill: transparent; stroke: transparent; }
     &__layer { cursor: pointer; outline: none; }
-    .graph-drawing { opacity: .66; translate: 0 0; transition: opacity .3s, translate .5s cubic-bezier(.22, 1, .36, 1); }
-    &__layer:is(:hover, :focus-visible) .graph-drawing { opacity: .9; }
-    &__layer.is-selected .graph-drawing { opacity: 1; translate: 0 -8px; }
-    &__layer:focus-visible .graph-hit { stroke: color(accent); stroke-dasharray: 4 5; }
-    @media (prefers-reduced-motion: reduce) { .graph-drawing { transition: none; translate: none !important; } }
   }
 </style>

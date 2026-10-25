@@ -2,6 +2,7 @@
 import { oboxChapters } from '../../data/oboxChapters'
 import { oboxEngineering } from '../../data/oboxEngineering'
 import OboxStoryArtwork from './OboxStoryArtwork.astro'
+import StoryStepIcon from './StoryStepIcon.astro'
 const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/`
 ---
 <div class="project-content project-content--story obox-detail">
@@ -25,7 +26,7 @@ const assets = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/builds/oboxsteam/
         </div>
         <ol class="scroll-story__beats">
           {parts.map((part, index) => <li id={`obox-note-${part.id}`} class:list={['story-beat', { 'is-selected': index === 0 }]} data-story-beat={part.id}>
-            <p class="project-content__label">0{index + 1} / {part.label}</p>
+            <p class="project-content__label story-beat__label"><StoryStepIcon id={part.id} /><span>0{index + 1} / {part.label}</span></p>
             <h4>{part.title}</h4>
             <p>{part.caption}</p>
           </li>)}

@@ -1,19 +1,18 @@
 ---
-interface Props { path: string; label: string; x: number; y: number; delay?: number }
-const { path, label, x, y, delay = 0 } = Astro.props
+interface Props { path: string; delay?: number }
+const { path, delay = 0 } = Astro.props
 ---
 <g class="story-connection" aria-hidden="true" style={`--flow-delay: ${delay}s`}>
   <path class="story-connection__track" d={path} />
   <path class="story-connection__pulse" d={path} pathLength="100" />
-  <text class="story-connection__label" x={x} y={y} text-anchor="middle">{label}</text>
 </g>
 <style lang="scss">
   .story-connection {
     pointer-events: none;
+    opacity: .45;
     path { fill: none; stroke: color(accent); stroke-linecap: round; }
     &__track { stroke-width: 1.5; opacity: .24; }
     &__pulse { stroke-width: 3; stroke-dasharray: 5 95; animation: story-flow 4s linear infinite; animation-delay: var(--flow-delay, 0s); }
-    .story-connection__label { fill: color(accent); font: italic 400 16px font-family(editorial); letter-spacing: .01em; }
   }
   @keyframes story-flow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
   @media (prefers-reduced-motion: reduce) { .story-connection__pulse { animation: none; stroke-dasharray: 2 12; stroke-width: 1.5; opacity: .6; } }

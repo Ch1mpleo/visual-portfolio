@@ -1,0 +1,15 @@
+export const storyStepVisuals: Record<string, { action: string; lines: string[]; symbol: string }> = {
+  blueprint: { action: 'Structure', lines: ['Give every module, course', 'and activity a place.'], symbol: 'M-10-8H10V-1H-10ZM0-1V6M-10 6H10M-10 6V13M0 6V13M10 6V13' },
+  review: { action: 'Refine', lines: ['Bring expert feedback', 'into the next revision.'], symbol: 'M-11-10H11V6H1L-6 12V6H-11ZM-5-2L-1 2L6-5' },
+  release: { action: 'Release', lines: ['One approved foundation,', 'ready for the classroom.'], symbol: 'M-10-12H5L11-6V12H-10ZM5-12V-6H11M-5 3L-1 7L6-1' },
+  class: { action: 'Connect', lines: ['Bring schedules, mentors', 'and learners together.'], symbol: 'M-12-9H12V11H-12ZM-12-3H12M-6-13V-6M6-13V-6M-6 3H-2M3 3H7' },
+  activity: { action: 'Take part', lines: ['Scan a session QR.', 'Leave a lasting record.'], symbol: 'M-11-11H-3V-3H-11ZM3-11H11V-3H3ZM-11 3H-3V11H-11ZM3 3H7V7H11V11H3' },
+  evidence: { action: 'Grow', lines: ['Turn completed work', 'into evidence of growth.'], symbol: 'M-12-6H-3L1-2H12V12H-12ZM-7 7L-2 2L3 5L8-1' },
+  media: { action: 'Discover', lines: ['Find the moments that', 'show a student’s strengths.'], symbol: 'M-12-10H12V10H-12ZM-7-10V10M7-10V10M-2-4L4 0L-2 4Z' },
+  draft: { action: 'Compose', lines: ['Arrange the evidence.', 'Make the story your own.'], symbol: 'M-12-10H12V11H-12ZM-12-4H12M-5-4V11M0 1H8M0 6H5' },
+  publish: { action: 'Share', lines: ['Publish a snapshot of', 'a personal learning story.'], symbol: 'M-10-2V12H10V-2M0 5V-12M-6-6L0-12L6-6' },
+  document: { action: 'Ingest', lines: ['A research paper,', 'ready to be processed.'], symbol: 'M-9-12H4L10-6V12H-9ZM4-12V-6H10M-4 0H5M-4 5H5' },
+  chunks: { action: 'Break down', lines: ['Smaller passages.', 'Meaning as vectors.'], symbol: 'M-12-11H5V-5H-12ZM-7-2H11V4H-7ZM-12 7H5V13H-12Z' },
+  entities: { action: 'Find links', lines: ['Concepts and methods', 'gain shared context.'], symbol: 'M-8-7L9-2L-2 10L-8-7M-8-7L-11 7M-8-7A3 3 0 1 0-8.1-7M9-2A3 3 0 1 0 9.1-2M-2 10A3 3 0 1 0-2.1 10' },
+  graph: { action: 'Explore', lines: ['Follow an idea through', 'a map of connections.'], symbol: 'M-10-9H12V11H-10ZM-10-3H12M-5 5L1 0L7 6M1 0V8' },
+}

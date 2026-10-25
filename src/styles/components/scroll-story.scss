@@ -8,7 +8,7 @@
 .project-content--story { padding-top: 0; }
 .scroll-story {
   padding-top: 3rem; border-top: 1px solid color(line);
-  &__body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
+  &__body { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: start; }
   &__stage { position: sticky; top: 1.5rem; overflow: hidden; border: 1px solid color(line); background: color(surface); }
   &__art { padding: 1rem 0; transition: opacity .45s, visibility .45s; > svg { display: block; width: 100%; height: auto; transition: translate .6s cubic-bezier(.22, 1, .36, 1); } }
   &__screen {
@@ -42,6 +42,13 @@
     &__art { padding: .75rem 0; > svg { width: calc(var(--zoom, 2) * 100%); max-width: none; translate: clamp(calc(100% / var(--zoom, 2) - 100%), calc(50% / var(--zoom, 2) - (var(--focus, 0) + .5) * 100% / var(--objects, 3)), 0%) 0; } }
   }
   .story-beat { min-height: 44dvh; padding-left: 1rem; }
+}
+// Keep the taller annotated scenes from filling the reading area on wide phones.
+@media (min-width: 440px) and (max-width: 767px) {
+  .scroll-story__art { --zoom: 1.6; }
+}
+@media (min-width: 600px) and (max-width: 767px) {
+  .scroll-story__art { --zoom: 1.15; }
 }
 @media (max-height: 560px) {
   .scroll-story {

@@ -1,6 +1,8 @@
 ---
 import type { OboxChapterId } from '../../data/oboxChapters'
 import { oboxEngineering } from '../../data/oboxEngineering'
+import StoryAnnotation from './StoryAnnotation.astro'
+import StoryConnection from './StoryConnection.astro'
 interface Props { chapter: OboxChapterId }
 const { chapter } = Astro.props
 const parts = oboxEngineering.find((item) => item.id === chapter)!.parts
@@ -9,16 +11,18 @@ const descriptions = {
   learning: 'A connected class leads to mobile attendance and a lasting learning record.',
   portfolio: 'Personal highlights become an editable portfolio and a published student story.',
 }
+const transitions = {
+  curriculum: ['revise together', 'ready to teach'],
+  learning: ['join a session', 'capture progress'],
+  portfolio: ['make it yours', 'put it out there'],
+}
 ---
-<svg class="obox-story-art" viewBox="0 0 1200 520" role="group" aria-label={descriptions[chapter]}>
+<svg class="obox-story-art" viewBox="0 0 1200 590" role="group" aria-label={descriptions[chapter]}>
   <path class="art-grid" d="M0 104H1200M0 208H1200M0 312H1200M0 416H1200M100 0V520M200 0V520M300 0V520M400 0V520M500 0V520M600 0V520M700 0V520M800 0V520M900 0V520M1000 0V520M1100 0V520" />
-  <g aria-hidden="true" class="art-connections">
-    <path class="art-route" d="M399 251H467M752 251H841" />
-    <path class="art-arrow" d="M456 245L467 251L456 257M830 245L841 251L830 257" />
-    <circle class="art-route-dot" cx="426" cy="251" r="3" /><circle class="art-route-dot" cx="790" cy="251" r="3" />
-  </g>
+  <StoryConnection path="M346 142C381 142 369 56 421 56S460 92 496 102" label={transitions[chapter][0]} x={423} y={33} />
+  <StoryConnection path="M726 325C776 325 758 405 809 405S846 340 879 329" label={transitions[chapter][1]} x={804} y={433} delay={-2} />
   {parts.map((part, index) => <g class:list={['art-object', { 'is-selected': index === 0 }]} data-story-object={part.id} role="button" tabindex="0" aria-label={`Inspect ${part.label}`} aria-pressed={index === 0} aria-controls={`obox-note-${part.id}`}>
-    <rect class="art-hit" x={index * 400 + 14} y="24" width="372" height="477" rx="2" />
+    <rect class="art-hit" x={index * 400 + 14} y="14" width="372" height="564" rx="2" />
     <g class="art-drawing">
       {part.id === 'blueprint' && <g transform="translate(94 55) rotate(-5 150 180)">
         <rect class="art-shadow" x="16" y="18" width="292" height="342" />
@@ -83,9 +87,7 @@ const descriptions = {
         <g transform="translate(-50 270) rotate(-12 111 48)"><rect class="art-paper" width="222" height="101" /><path class="art-line" d="M18 25H150M18 46H104M18 71H121" /><circle class="art-stamp" cx="178" cy="53" r="26" /><path class="art-accent-line" d="M165 52L175 62L191 43" /></g>
       </g>}
     </g>
-    <g class="art-object-label" transform={`translate(${index * 400 + 80} 479)`} aria-hidden="true">
-      <circle class="art-selector" cx="0" cy="-5" r="16" /><text class="art-step-number" x="0" y="0" text-anchor="middle">0{index + 1}</text><text class="art-step-title" x="29" y="1">{part.label}</text><g class="art-inspect"><circle cx="267" cy="-6" r="7" /><path d="m272-1 7 7" /></g>
-    </g>
+    <StoryAnnotation id={part.id} index={index} label={part.label} x={index * 400 + 28} y={458} width={344} />
   </g>)}
 </svg>
 <style lang="scss">
@@ -100,9 +102,6 @@ const descriptions = {
     .art-soft { fill: color(surface-raised); stroke: color(secondary); stroke-width: 1.5; }
     .art-highlight { fill: color(accent); fill-opacity: .16; stroke: color(accent); stroke-width: 1.5; }
     .art-accent-line, .art-stamp { fill: none; stroke: color(accent); stroke-width: 2.5; }
-    .art-route { fill: none; stroke: color(accent); stroke-width: 1.5; stroke-dasharray: 4 5; }
-    .art-arrow { fill: none; stroke: color(accent); stroke-width: 1.5; }
-    .art-route-dot { fill: color(accent); }
     .art-inverse-line { fill: none; stroke: color(primary); stroke-width: 1.5; }
     text { fill: currentColor; font: 400 13px font-family(fraktion); letter-spacing: .02em; }
     .art-small { font-size: 11px; }
@@ -110,19 +109,10 @@ const descriptions = {
     .art-display.art-inverse { fill: color(primary); }
     .art-hit { fill: transparent; stroke: transparent; stroke-width: 1; }
     .art-object { cursor: pointer; outline: none; }
-    .art-drawing { opacity: .32; translate: 0 0; transition: opacity .35s, translate .55s cubic-bezier(.22, 1, .36, 1); }
-    .art-object:is(:hover, :focus-visible) .art-drawing { opacity: .7; }
+    .art-drawing { opacity: .66; translate: 0 0; transition: opacity .35s, translate .55s cubic-bezier(.22, 1, .36, 1); }
+    .art-object:is(:hover, :focus-visible) .art-drawing { opacity: .9; }
     .art-object.is-selected .art-drawing { opacity: 1; translate: 0 -9px; }
-    .art-object-label { transition: opacity .35s; }
-    .art-object:not(.is-selected) .art-object-label { opacity: .55; }
     .art-object:focus-visible .art-hit { stroke: color(accent); stroke-dasharray: 4 5; }
-    .art-selector { fill: color(primary); stroke: color(muted); }
-    .art-step-number { font-size: 11px; }
-    .art-step-title { font: 400 21px font-family(editorial); letter-spacing: 0; }
-    .art-inspect { fill: none; stroke: color(muted); stroke-width: 1.5; }
-    .is-selected .art-selector { fill: color(secondary); stroke: color(secondary); }
-    .is-selected .art-step-number { fill: color(primary); }
-    .is-selected .art-inspect { stroke: color(secondary); }
-    @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } .art-object-label { transition: none; } }
+    @media (prefers-reduced-motion: reduce) { .art-drawing { transition: none; translate: none !important; } }
   }
 </style>

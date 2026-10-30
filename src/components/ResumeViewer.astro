@@ -1,0 +1,192 @@
+---
+const resumeUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/documents/resume.pdf`
+const pages = [1, 2].map((page) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/documents/resume-page-${page}.webp`)
+---
+
+<dialog id="resume-viewer" class="resume-viewer" aria-labelledby="resume-title" data-lenis-prevent>
+  <header class="resume-viewer__head">
+    <div>
+      <span class="resume-viewer__eyebrow">Viet Anh / Curriculum vitae</span>
+      <h2 id="resume-title">A little more about me.</h2>
+    </div>
+    <button class="resume-viewer__close" type="button" aria-label="Close resume" autofocus>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+    </button>
+  </header>
+
+  <div class="resume-viewer__toolbar">
+    <span class="resume-viewer__file">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5Zm0 0v5h5M8 12h8M8 16h6" /></svg>
+      Resume <span class="resume-viewer__format">/ 02 pages</span>
+    </span>
+    <div class="resume-viewer__actions">
+      <button class="resume-viewer__zoom" type="button" aria-label="Zoom in on resume" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="6" /><path d="m15 15 5 5M7 10h6M10 7v6" /></svg>
+      </button>
+      <a href={resumeUrl} target="_blank" rel="noopener" aria-label="Open resume PDF in a new tab">
+        Open PDF <span aria-hidden="true">↗</span>
+      </a>
+      <a class="resume-viewer__download" href={resumeUrl} download="Viet-Anh-Resume.pdf">
+        Download <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5" /></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="resume-viewer__document" tabindex="0" role="region" aria-label="Resume preview, two pages. Use the zoom button for a closer look." data-lenis-prevent>
+    <div class="resume-viewer__pages">
+      {pages.map((src, index) => (
+        <figure>
+          <img data-src={src} width="1192" height="1686" alt={`Viet Anh's resume, page ${index + 1} of 2. Open the PDF for selectable, accessible text.`} decoding="async" />
+          <figcaption>Viet Anh / Resume <span>0{index + 1} / 02</span></figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+
+  <footer class="resume-viewer__foot">
+    <span>Prefer the original? <a href={resumeUrl} target="_blank" rel="noopener">Open the PDF ↗</a></span>
+    <span class="resume-viewer__hint">ESC to close</span>
+  </footer>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#resume-viewer')!
+  const trigger = document.querySelector<HTMLAnchorElement>('[data-open-resume]')!
+  const closeButton = dialog.querySelector<HTMLButtonElement>('.resume-viewer__close')!
+  const scroller = dialog.querySelector<HTMLElement>('.resume-viewer__document')!
+  const zoom = dialog.querySelector<HTMLButtonElement>('.resume-viewer__zoom')!
+  let wasLenisStopped = false
+  let overflow = ''
+  let pagePosition = { x: 0, y: 0 }
+  let backdropPointer: number | null = null
+  let entrance: Animation | undefined
+
+  trigger.addEventListener('click', (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+    event.preventDefault()
+    if (dialog.open) return
+    pagePosition = { x: window.scrollX, y: window.scrollY }
+    overflow = document.documentElement.style.overflow
+    wasLenisStopped = window.lenis?.isStopped ?? false
+    window.lenis?.stop()
+    document.documentElement.style.overflow = 'hidden'
+    dialog.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((image) => {
+      if (!image.hasAttribute('src')) image.src = image.dataset.src!
+    })
+    dialog.showModal()
+    scroller.scrollTo(0, 0)
+    closeButton.focus({ preventScroll: true })
+    window.scrollTo(pagePosition.x, pagePosition.y)
+    document.dispatchEvent(new Event('pause-goat-videos'))
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      entrance = dialog.animate(
+        [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'translateY(0)' }],
+        { duration: 260, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+      )
+    }
+  })
+
+  closeButton.addEventListener('click', () => dialog.close())
+  zoom.addEventListener('click', () => {
+    const expanded = dialog.classList.toggle('is-zoomed')
+    zoom.setAttribute('aria-pressed', String(expanded))
+    zoom.setAttribute('aria-label', expanded ? 'Fit resume to width' : 'Zoom in on resume')
+    if (!expanded) scroller.scrollLeft = 0
+  })
+  dialog.addEventListener('close', () => {
+    entrance?.cancel()
+    dialog.classList.remove('is-zoomed')
+    zoom.setAttribute('aria-pressed', 'false')
+    zoom.setAttribute('aria-label', 'Zoom in on resume')
+    document.documentElement.style.overflow = overflow
+    window.scrollTo(pagePosition.x, pagePosition.y)
+    window.lenis?.scrollTo(pagePosition.y, { immediate: true, force: true })
+    if (!wasLenisStopped) window.lenis?.start()
+    document.dispatchEvent(new Event('resume-goat-videos'))
+    trigger.focus({ preventScroll: true })
+    backdropPointer = null
+  })
+
+  // Only a complete click outside the sheet dismisses it; dragging out does not.
+  const isBackdrop = (event: PointerEvent) => {
+    const rect = dialog.getBoundingClientRect()
+    return event.target === dialog && (
+      event.clientX < rect.left || event.clientX > rect.right ||
+      event.clientY < rect.top || event.clientY > rect.bottom
+    )
+  }
+  dialog.addEventListener('pointerdown', (event) => {
+    backdropPointer = isBackdrop(event) ? event.pointerId : null
+  })
+  dialog.addEventListener('pointerup', (event) => {
+    if (backdropPointer === event.pointerId && isBackdrop(event)) dialog.close()
+    backdropPointer = null
+  })
+  dialog.addEventListener('pointercancel', () => { backdropPointer = null })
+</script>
+
+<style lang="scss">
+  .resume-viewer {
+    width: min(1000px, calc(100% - 4rem));
+    max-width: none;
+    height: min(1040px, calc(100dvh - 4rem));
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid color(line);
+    background: color(primary);
+    color: color(secondary);
+    box-shadow: 0 24px 100px rgb(0 0 0 / 0.25);
+
+    &[open] { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+    &::backdrop { background: rgb(10 8 8 / 0.65); backdrop-filter: blur(8px); }
+
+    svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    a { color: inherit; }
+    &__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.5rem 1.75rem; }
+    &__eyebrow { font: 400 10px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: 0.1em; color: color(muted); }
+    h2 { margin: 0.4rem 0 0; font: 400 clamp(1.65rem, 4vw, 2.5rem) / 1.1 font-family(editorial); letter-spacing: -0.04em; }
+    &__close { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; padding: 0; border: 1px solid color(line); background: transparent; color: inherit; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    &__close:hover { background: color(secondary); color: color(primary); }
+    &__toolbar { display: flex; align-items: center; justify-content: space-between; border-block: 1px solid color(line); font: 400 11px / 1 font-family(fraktion); text-transform: uppercase; letter-spacing: 0.04em; }
+    &__file { display: flex; align-items: center; gap: 0.6rem; padding-left: 1.75rem; }
+    &__format { color: color(muted); }
+    &__actions { display: flex; align-self: stretch; }
+    &__actions a, &__zoom { display: flex; align-items: center; justify-content: center; gap: 0.75rem; min-height: 48px; padding: 0.9rem 1.25rem; border: 0; border-left: 1px solid color(line); background: transparent; color: inherit; text-decoration: none; white-space: nowrap; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    &__actions a:hover, &__zoom:hover, &__zoom[aria-pressed='true'] { background: color(secondary); color: color(primary); }
+    &__actions a:focus-visible, &__zoom:focus-visible { outline-offset: -5px; }
+    &__actions .resume-viewer__download { background: color(secondary); color: color(primary); }
+    &__actions .resume-viewer__download:hover { background: color(primary); color: color(secondary); }
+    &__document { min-height: 0; overflow: auto; overscroll-behavior: contain; background: color(surface-raised); scrollbar-width: thin; }
+    &__document:focus-visible { outline: 2px solid color(accent); outline-offset: -3px; }
+    &__pages { width: min(100%, 820px); margin: auto; padding: 1.75rem; }
+    figure { margin: 0; }
+    figure + figure { margin-top: 1.5rem; }
+    img { display: block; width: 100%; height: auto; background: white; box-shadow: 0 3px 20px rgb(0 0 0 / 0.08); }
+    figcaption { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.65rem; color: color(muted); font: 400 9px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: 0.05em; }
+    &.is-zoomed .resume-viewer__pages { width: 1160px; max-width: none; }
+    &__foot { display: flex; justify-content: space-between; gap: 1rem; padding: 0.85rem 1.75rem; border-top: 1px solid color(line); font: 400 10px / 1.6 font-family(fraktion); color: color(muted); }
+    &__foot a { text-underline-offset: 3px; }
+    &__hint { white-space: nowrap; }
+
+    @include mq(phone) {
+      width: calc(100% - 1rem);
+      height: calc(100dvh - 1rem);
+      &__head { padding: 1.25rem 1rem; }
+      &__eyebrow { font-size: 9px; }
+      &__file { padding-left: 1rem; gap: 0.4rem; font-size: 10px; }
+      &__format { display: none; }
+      &__actions a { gap: 0.4rem; padding-inline: 0.5rem; font-size: 10px; }
+      &__zoom { padding-inline: 0.5rem; }
+      &__pages { padding: 0.75rem; }
+      &.is-zoomed .resume-viewer__pages { width: 800px; }
+      &__foot { padding: 0.75rem 1rem; }
+      &__hint { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &__close, &__zoom, &__actions a { transition: none; }
+    }
+  }
+</style>

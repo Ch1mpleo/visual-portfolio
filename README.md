@@ -29,6 +29,14 @@ npm install
 npm run dev
 ```
 
+## Resume
+
+The header opens a responsive two-page preview, with zoom and links to open or download the original PDF. Resume assets live in `public/documents/`.
+
+After replacing `public/documents/resume.pdf`, regenerate its preview images with `node scripts/prepare-resume-assets.mjs`. This optional preparation script requires `pdfjs-dist` and `@napi-rs/canvas` (`npm install --no-save --package-lock=false pdfjs-dist @napi-rs/canvas`). If the page count changes, update the `pages` list and page labels in `src/components/ResumeViewer.astro`.
+
+To check the production viewer, build the site and run `node scripts/qa-resume.mjs` with Playwright available. The check covers responsive layouts, themes, zoom, dismissal, focus, scrolling, downloads, and production asset paths.
+
 ## GOAT video assets
 
 The original edits live in `src/assets/goats/` and play at their original quality in the popup. The smaller, streaming-friendly copies in `public/goats/full/` play silently on the gallery cards. Opening a card starts the original video from the beginning with sound and controls; closing it resumes the card where it paused. Card videos load as they enter the scene, and posters cover the short wait before playback begins.

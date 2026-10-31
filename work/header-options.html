@@ -1,0 +1,102 @@
+<div id="va-header-options" class="viz-carousel viz-dotted-background" aria-label="Portfolio header layout options">
+  <section data-variant="Bounded console" aria-label="Bounded console header">
+    <div class="va-stage">
+      <div class="va-product va-bounded">
+        <header class="va-head">
+          <a class="va-logo" href="#" aria-label="VA home">VA</a>
+          <div class="va-console" aria-label="Decorative gaming quote"><span>IF I'M TO CHOOSE BETWEEN ONE EVIL AND ANOTHER, I'D RATHER NOT CHOOSE.<br>RISE, TARNISHED. ▌</span></div>
+          <nav aria-label="Preview navigation"><span>ABOUT</span><span>BUILDS</span><span>GOAT</span><span>CONTACT</span></nav>
+          <button class="va-resume" type="button">RESUME ↗</button>
+          <div class="va-social" aria-label="Facebook and Steam"><span>f</span><i data-lucide="gamepad-2" aria-hidden="true"></i></div>
+          <button class="va-theme" type="button" aria-label="Switch appearance"><i data-lucide="moon" aria-hidden="true"></i></button>
+          <div class="va-hire"><span>From Viet Nam.</span><span>Available → <u>Hire me</u></span></div>
+        </header>
+        <div class="va-page"><span>CREATIVE DEVELOPER / VIET NAM</span><p>Viet Anh.</p></div>
+      </div>
+    </div>
+  </section>
+  <section data-variant="Utility strip" aria-label="Header with a separate quote strip" hidden>
+    <div class="va-stage">
+      <div class="va-product va-strip">
+        <header class="va-head">
+          <a class="va-logo" href="#" aria-label="VA home">VA</a>
+          <nav aria-label="Preview navigation"><span>ABOUT</span><span>BUILDS</span><span>GOAT</span><span>CONTACT</span></nav>
+          <button class="va-resume" type="button">RESUME ↗</button>
+          <button class="va-theme" type="button" aria-label="Switch appearance"><i data-lucide="moon" aria-hidden="true"></i></button>
+        </header>
+        <div class="va-utility"><span class="va-strip-quote">&gt; BE LOYAL TO WHAT MATTERS. ▌</span><span>Viet Nam · Available → <u>Hire me</u></span></div>
+        <div class="va-page"><span>CREATIVE DEVELOPER / VIET NAM</span><p>Viet Anh.</p></div>
+      </div>
+    </div>
+  </section>
+  <section data-variant="Quote in the hero" aria-label="Minimal header with the quote in the page" hidden>
+    <div class="va-stage">
+      <div class="va-product va-relocated">
+        <header class="va-head">
+          <a class="va-logo" href="#" aria-label="VA home">VA</a>
+          <nav aria-label="Preview navigation"><span>ABOUT</span><span>BUILDS</span><span>GOAT</span><span>CONTACT</span></nav>
+          <button class="va-resume" type="button">RESUME ↗</button>
+          <button class="va-theme" type="button" aria-label="Switch appearance"><i data-lucide="moon" aria-hidden="true"></i></button>
+        </header>
+        <div class="va-page"><span>CREATIVE DEVELOPER / VIET NAM</span><p>Viet Anh.</p><div class="va-hero-quote">&gt; BE LOYAL TO WHAT MATTERS. ▌</div><span class="va-hero-availability">Available for freelance work → <u>Hire me</u></span></div>
+      </div>
+    </div>
+  </section>
+</div>
+<style>
+  #va-header-options { width:100%; }
+  #va-header-options .va-stage { min-height:288px; display:flex; align-items:center; padding:20px 0; box-sizing:border-box; }
+  #va-header-options .va-product { --va-bg:light-dark(#fff2ed,#141618); --va-ink:light-dark(#160000,#f5e9e3); --va-line:light-dark(#d7c5be,#444345); width:100%; min-width:0; color:var(--va-ink); background:var(--va-bg); font-family:Arial,sans-serif; border-block:1px solid var(--va-line); }
+  #va-header-options .va-head { display:flex; min-height:76px; border-bottom:1px solid var(--va-line); align-items:stretch; }
+  #va-header-options .va-head > * { box-sizing:border-box; }
+  #va-header-options .va-logo { display:flex; align-items:center; justify-content:center; width:48px; flex:none; font-weight:700; font-size:22px; letter-spacing:-3px; color:inherit; text-decoration:none; border-right:1px solid var(--va-line); padding-right:3px; }
+  #va-header-options .va-console { flex:1 1 148px; min-width:0; max-width:200px; padding:13px 10px; display:flex; align-items:flex-end; font:11px/1.4 monospace; overflow:hidden; }
+  #va-header-options .va-console span { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; overflow-wrap:anywhere; }
+  #va-header-options nav { display:flex; align-items:center; justify-content:center; gap:13px; padding:0 12px; margin-left:auto; font:11px/1 monospace; white-space:nowrap; }
+  #va-header-options .va-head button { font:11px/1 monospace; color:inherit; background:transparent; border:0; border-left:1px solid var(--va-line); border-radius:0; padding:0 12px; flex:none; }
+  #va-header-options .va-head button:hover { background:var(--va-ink); color:var(--va-bg); }
+  #va-header-options .va-head button:focus-visible { outline:2px solid currentColor; outline-offset:-4px; }
+  #va-header-options .va-head .va-theme { padding:0 9px; }
+  #va-header-options .va-theme svg { width:16px; height:16px; }
+  #va-header-options .va-social { display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; border-left:1px solid var(--va-line); width:28px; flex:none; }
+  #va-header-options .va-social svg { width:16px; height:16px; }
+  #va-header-options .va-hire { display:flex; flex-direction:column; justify-content:space-around; border-left:1px solid var(--va-line); padding:0 10px; font:12px/1.3 Georgia,serif; white-space:nowrap; }
+  #va-header-options .va-page { padding:23px 22px; min-height:152px; box-sizing:border-box; }
+  #va-header-options .va-page > span:first-child { font:11px/1.4 monospace; letter-spacing:1px; }
+  #va-header-options .va-page p { font:400 44px/1 Georgia,serif; margin:12px 0 0; }
+  #va-header-options .va-utility { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:10px 16px; border-bottom:1px solid var(--va-line); font:12px/1.4 Georgia,serif; }
+  #va-header-options .va-strip-quote { font:11px/1.4 monospace; min-width:0; }
+  #va-header-options .va-hero-quote { font:11px/1.4 monospace; margin-top:16px; }
+  #va-header-options .va-hero-availability { display:block; margin-top:12px; font:12px/1.4 Georgia,serif; }
+  #va-header-options .va-relocated .va-page { min-height:190px; }
+  @container (max-width:660px) {
+    #va-header-options .va-bounded .va-console, #va-header-options .va-bounded nav { display:none; }
+    #va-header-options .va-bounded .va-resume { margin-left:auto; }
+  }
+  @media (max-width:660px) {
+    #va-header-options .va-bounded .va-console, #va-header-options .va-bounded nav { display:none; }
+    #va-header-options .va-bounded .va-resume { margin-left:auto; }
+  }
+  @media (max-width:480px) {
+    #va-header-options nav { display:none; }
+    #va-header-options .va-resume { margin-left:auto; }
+    #va-header-options .va-head { min-height:64px; }
+    #va-header-options .va-hire { display:none; }
+    #va-header-options .va-utility { flex-wrap:wrap; gap:6px; }
+    #va-header-options .va-stage { min-height:320px; }
+  }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('va-header-options');
+  const state = { consoleWidth: 160 };
+  const consoleElement = root.querySelector('.va-console');
+  const render = () => { consoleElement.style.flexBasis = state.consoleWidth + 'px'; consoleElement.style.maxWidth = state.consoleWidth + 'px'; };
+  render();
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({container:consoleElement,onChange:render});
+    tweak.addSlider(state,'consoleWidth',{label:'Quote space',min:100,max:200,step:10,unit:'px'});
+  }
+  root.querySelectorAll('.va-logo').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+})();
+</script>

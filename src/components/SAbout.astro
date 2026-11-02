@@ -34,6 +34,7 @@ import SkillsGrid from './SkillsGrid.astro'
   import Emitter from '../utils/Emitter'
   import Ticker from '../utils/Ticker'
   import { vaMarkPaths, starMarkPath } from '../utils/brand-marks'
+  import { setupSkillReveals } from '../utils/skill-reveals'
 
   type ParticleMark = {
     paths: Path2D[]
@@ -126,24 +127,9 @@ import SkillsGrid from './SkillsGrid.astro'
       Emitter.on('resize', this.onResize, this)
       Emitter.on('scroll', this.onScroll, this)
 
-      // Reveal on scroll
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-revealed')
-              observer.unobserve(entry.target)
-            }
-          })
-        },
-        {
-          threshold: 0.5,
-        },
-      )
+      setupSkillReveals(this.skills)
 
       this.skills.forEach((skill) => {
-        observer.observe(skill)
-
         const skillInteraction = this.onSkillInteraction.bind(this, skill)
         skill.addEventListener('mouseenter', skillInteraction, {
           passive: true,

@@ -1,11 +1,11 @@
 <!doctype html>
 <!-- Emulsion: an independent interaction study by Ch1mpleo.
-     No dependencies. Unsplash demo photos require an internet connection. -->
+     No dependencies. Steam photographs require an internet connection. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Emulsion — a wall of unhurried moments</title>
+    <title>Emulsion — video game photography by Ch1mpleo</title>
     <style>
       * {
         box-sizing: border-box;
@@ -23,8 +23,7 @@
         color: var(--ink);
         font-family: Georgia, 'Times New Roman', serif;
       }
-      button,
-      input {
+      button {
         font: inherit;
       }
       button {
@@ -32,7 +31,7 @@
         -webkit-tap-highlight-color: transparent;
       }
       button:focus-visible,
-      input:focus-visible {
+      .scene:focus-visible {
         outline: 2px solid var(--red);
         outline-offset: 5px;
       }
@@ -83,7 +82,7 @@
       }
       .headline {
         position: absolute;
-        left: -36%;
+        left: 0;
         top: 46%;
         margin: 0;
         color: var(--red);
@@ -94,48 +93,63 @@
         letter-spacing: -0.075em;
         white-space: nowrap;
         pointer-events: none;
+        transform-origin: 0 0;
+      }
+      .headline--worlds {
+        top: 28%;
+        font-size: clamp(140px, 36vw, 650px);
       }
       .intro {
         position: absolute;
-        top: 25%;
-        left: 8%;
-        width: 30%;
+        top: 23%;
+        left: 4.5%;
+        width: 32%;
         z-index: 2;
       }
       .eyebrow {
-        font: 8px/1.6 monospace;
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
+        margin: 0 0 14px;
         color: var(--muted);
-        margin: 0 0 12px;
+        font: 10px / 1.5 Arial, sans-serif;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
       }
       .intro h1 {
-        font-weight: 400;
-        font-size: clamp(17px, 2.6vw, 42px);
-        line-height: 1.08;
         margin: 0;
-        letter-spacing: -0.025em;
+        font: 400 clamp(23px, 2.7vw, 44px) / 1.08 Georgia, serif;
+        letter-spacing: -0.035em;
       }
       .intro hr {
+        width: 63%;
+        margin: 22px 0 0;
         border: 0;
         border-top: 1px solid var(--muted);
-        width: 75%;
-        margin: 15px 0;
+      }
+      .gallery-copy {
+        position: absolute;
+        left: 5.5%;
+        bottom: 5.5%;
+        width: 33%;
+        z-index: 2;
+      }
+      .gallery-copy .eyebrow { color: var(--red); margin-bottom: 12px; }
+      .gallery-copy h2 {
+        margin: 0;
+        font: 500 clamp(14px, 1.7vw, 28px) / 1.15 Arial, sans-serif;
+        letter-spacing: -0.045em;
+        text-transform: uppercase;
       }
       .print {
         position: absolute;
         top: var(--y);
         left: var(--x);
         width: var(--w);
-        aspect-ratio: 0.74;
-        padding: clamp(5px, 0.7vw, 12px);
-        padding-bottom: clamp(14px, 2vw, 28px);
+        padding: clamp(2px, 0.25vw, 4px);
         border: 0;
         background: #faf5e8;
         box-shadow: 3px 8px 14px #2f291b2d;
         transform: rotate(var(--angle));
         transform-origin: var(--pin) 4%;
-        touch-action: pan-y;
+        touch-action: none;
         cursor: grab;
         user-select: none;
         z-index: 3;
@@ -143,10 +157,10 @@
       .print:before {
         content: '';
         position: absolute;
-        top: 3px;
+        top: 0;
         left: var(--pin);
-        width: 4px;
-        height: 4px;
+        width: 3px;
+        height: 3px;
         margin-left: -2px;
         border-radius: 50%;
         background: radial-gradient(
@@ -158,22 +172,62 @@
         z-index: 1;
         box-shadow: 1px 2px 3px #0004;
       }
+      .print__image {
+        position: relative;
+        display: block;
+        width: 100%;
+        aspect-ratio: var(--image-ratio, 16 / 9);
+        overflow: hidden;
+      }
       .print img {
         width: 100%;
         height: 100%;
         display: block;
-        object-fit: cover;
+        object-fit: contain;
         background: #b6a58f;
         pointer-events: none;
-        filter: sepia(0.12) saturate(0.8);
       }
-      .print small {
+      .print--portrait img {
         position: absolute;
-        bottom: 3%;
-        left: 8%;
-        color: #5f594d;
-        font: clamp(5px, 0.7vw, 10px) / 1 monospace;
-        letter-spacing: 0.1em;
+        left: 50%;
+        top: 50%;
+        width: 177.777778%;
+        height: 56.25%;
+        transform: translate(-50%, -50%) rotate(-90deg);
+      }
+      .print__caption {
+        position: absolute;
+        inset: auto 0 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 22px 8px 8px;
+        color: #fff;
+        background: linear-gradient(transparent, #0009);
+        font: 400 clamp(9px, 0.8vw, 12px) / 1.35 Arial, sans-serif;
+        text-align: left;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity 180ms ease, transform 180ms ease;
+        pointer-events: none;
+      }
+      .print__logo {
+        flex: 0 0 auto;
+        width: 19px;
+        height: 24px;
+        background: #fff;
+        mask: var(--logo) center / contain no-repeat;
+        -webkit-mask: var(--logo) center / contain no-repeat;
+      }
+      .print__game { min-width: 0; }
+      .print:hover .print__caption,
+      .print:focus-visible .print__caption {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (max-width: 600px), (max-height: 600px) {
+        .print__caption { padding: 12px 4px 4px; gap: 4px; font-size: 8px; }
+        .print__logo { width: 12px; height: 17px; }
       }
       .print:hover,
       .print:focus-visible {
@@ -184,35 +238,24 @@
         cursor: grabbing;
         z-index: 7;
       }
-      .statement {
-        position: absolute;
-        top: 30%;
-        left: 120%;
-        width: 33%;
-        z-index: 2;
-      }
-      .statement p {
-        font-size: clamp(20px, 3vw, 50px);
-        line-height: 1.13;
-        letter-spacing: -0.035em;
-      }
       .contact {
         position: absolute;
         top: 18%;
-        left: 246%;
+        left: var(--contact-x, 260%);
         width: 65%;
         height: 65%;
         background: var(--red);
         color: #f9edda;
-        padding: 6%;
+        padding: clamp(12px, 3vmin, 48px);
         z-index: 4;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        gap: 6px;
       }
       .contact h2 {
         font:
-          400 clamp(32px, 7vw, 100px) / 0.95 Georgia,
+          400 clamp(28px, min(7vw, 12svh), 100px) / 0.95 Georgia,
           serif;
         letter-spacing: -0.05em;
         margin: 0;
@@ -220,6 +263,7 @@
       .contact p {
         font: 10px/1.6 monospace;
         max-width: 35ch;
+        margin: 0;
       }
       .contact button {
         align-self: flex-start;
@@ -229,74 +273,6 @@
         padding: 8px 0;
         color: inherit;
         font: 10px monospace;
-      }
-      .controls {
-        position: absolute;
-        bottom: 20px;
-        left: 26px;
-        right: 26px;
-        z-index: 9;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .controls button {
-        background: none;
-        border: 1px solid var(--muted);
-        color: inherit;
-        width: 30px;
-        height: 30px;
-        flex-shrink: 0;
-        border-radius: 50%;
-        font: 14px monospace;
-      }
-      .controls input {
-        appearance: none;
-        flex: 1;
-        width: 100%;
-        height: 24px;
-        background: transparent;
-        cursor: ew-resize;
-        accent-color: var(--red);
-        min-width: 0;
-      }
-      .controls input::-webkit-slider-runnable-track {
-        height: 1px;
-        background: var(--muted);
-      }
-      .controls input::-webkit-slider-thumb {
-        appearance: none;
-        height: 9px;
-        width: 9px;
-        margin-top: -4px;
-        border-radius: 50%;
-        background: var(--red);
-      }
-      .controls input::-moz-range-track {
-        height: 1px;
-        background: var(--muted);
-      }
-      .controls input::-moz-range-thumb {
-        height: 9px;
-        width: 9px;
-        border: 0;
-        background: var(--red);
-      }
-      .controls label {
-        font: 8px/1.4 monospace;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        max-width: 15ch;
-        flex-shrink: 0;
-      }
-      .credits {
-        position: absolute;
-        bottom: 60px;
-        right: 26px;
-        z-index: 9;
-        font: 8px monospace;
-        color: var(--muted);
-        text-underline-offset: 3px;
       }
       @media (max-aspect-ratio: 4/5) {
         .topbar {
@@ -309,217 +285,193 @@
           font-size: 8px;
         }
         .intro {
-          top: 17%;
-          width: 62%;
-          left: 8%;
+          top: 15%;
+          left: 6%;
+          width: 87%;
         }
         .intro h1 {
-          font-size: 7vw;
+          font-size: clamp(23px, 7.5vw, 34px);
         }
         .headline {
           top: 60%;
           font-size: 64vw;
         }
-        .print {
-          --y: 42% !important;
-          width: 31%;
-        }
-        .print:nth-of-type(2n) {
-          --y: 31% !important;
-        }
-        .statement {
-          width: 68%;
-          top: 23%;
-        }
-        .statement p {
-          font-size: 8vw;
-        }
+        .headline--worlds { top: 39%; font-size: 36vw; }
+        .gallery-copy { left: 6%; bottom: 5%; width: 85%; }
+        .gallery-copy .eyebrow { font-size: 8px; margin-bottom: 8px; }
+        .gallery-copy h2 { font-size: clamp(14px, 4vw, 20px); }
         .contact {
           width: 80%;
-          left: 246%;
+          left: var(--contact-x, 260%);
           top: 20%;
           height: 60%;
-          padding: 8%;
         }
         .contact h2 {
-          font-size: 13vw;
-        }
-        .controls {
-          left: 18px;
-          right: 18px;
-          gap: 10px;
-        }
-        .credits {
-          right: 18px;
+          font-size: min(13vw, 12svh);
         }
       }
       @media (prefers-reduced-motion: reduce) {
         * {
           scroll-behavior: auto !important;
+          transition: none !important;
         }
       }
     </style>
   </head>
   <body>
-    <main class="scene" aria-label="Emulsion interactive photography wall">
+    <main class="scene" tabindex="0" aria-label="Video game photography by Ch1mpleo. Scroll, swipe, or use arrow keys to explore.">
       <header class="topbar">
-        <button data-go="0" aria-current="true">Emulsion / 001</button>
+        <button data-go="0" aria-current="true">Ch1mpleo / Emulsion</button>
         <nav aria-label="Wall chapters">
-          <button data-go="0.36">About</button>
-          <button data-go="0.65">Work</button>
-          <button data-go="1">Contact</button>
+          <button data-go="0.5" data-worlds-link>Worlds</button>
+          <button data-go="1">Last frame</button>
         </nav>
       </header>
-      <div class="headline" aria-hidden="true">photographer</div>
+      <div class="headline headline--photographer" aria-hidden="true">photographer</div>
+      <div class="headline headline--worlds" aria-hidden="true">worlds</div>
       <div class="intro">
-        <p class="eyebrow">Notes from the in-between</p>
-        <h1>
-          A collector of
-          <br />
-          unhurried light.
-        </h1>
+        <p class="eyebrow">Hey — I'm Ch1mpleo</p>
+        <h1>A gamer with an eye<br />for unhurried worlds.</h1>
         <hr />
       </div>
-      <div class="statement">
-        <p class="eyebrow">A way of seeing / 002</p>
-        <p>
-          Some moments ask
-          <br />
-          for nothing.
-          <br />
-          Only that you stay.
-        </p>
+      <div class="gallery-copy">
+        <p class="eyebrow">02 — Worlds</p>
+        <h2>I pause the quest<br />to keep the view.</h2>
       </div>
       <div class="contact">
-        <p>THE LAST FRAME / 003</p>
+        <p>THE LAST FRAME</p>
         <h2>
-          Make something
+          One more
           <br />
-          worth keeping.
+          world to keep.
         </h2>
-        <p>A wall of small moments. A place to begin again.</p>
+        <p>Video game photography by Ch1mpleo.</p>
         <button data-go="0">Back to the first frame ↗</button>
-      </div>
-      <a
-        class="credits"
-        href="https://unsplash.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Photography: Unsplash ↗
-      </a>
-      <div class="controls">
-        <button class="previous" aria-label="Pan wall left">←</button>
-        <label for="wall-position">Explore the wall</label>
-        <input
-          id="wall-position"
-          aria-label="Position along photography wall"
-          type="range"
-          min="0"
-          max="1000"
-          value="0"
-        />
-        <button class="next" aria-label="Pan wall right">→</button>
       </div>
     </main>
     <script>
       ;(() => {
-        const scene = document.querySelector('.scene'),
-          slider = document.querySelector('input')
+        const scene = document.querySelector('.scene')
         const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+        // Add each original Steam URL and a description here; no image service is required.
         const photoData = [
-          [
-            'photo-1470252649378-9c29740c9fa8',
-            'A quiet landscape at sunrise',
-            37,
-            43,
-            17,
-            -8,
-          ],
-          [
-            'photo-1472396961693-142e6e269027',
-            'Deer in woodland light',
-            59,
-            15,
-            16,
-            5,
-          ],
-          [
-            'photo-1464822759023-fed622ff2c3b',
-            'A mountain peak in the clouds',
-            82,
-            27,
-            17,
-            9,
-          ],
-          [
-            'photo-1441974231531-c6227db76b6e',
-            'Light through a deep green forest',
-            111,
-            56,
-            15,
-            -6,
-          ],
-          [
-            'photo-1519681393784-d120267933ba',
-            'Stars above a snow-covered mountain',
-            152,
-            16,
-            19,
-            6,
-          ],
-          [
-            'photo-1500534623283-312aade485b7',
-            'An open landscape at dusk',
-            179,
-            45,
-            17,
-            -9,
-          ],
-          [
-            'photo-1470252649378-9c29740c9fa8',
-            'The warm glow before morning',
-            207,
-            20,
-            18,
-            5,
-          ],
-          [
-            'photo-1441974231531-c6227db76b6e',
-            'Afternoon in the trees',
-            232,
-            52,
-            16,
-            -4,
-          ],
+          {
+            src: 'https://images.steamusercontent.com/ugc/15940571849885032379/04F2AF8316B6B6BD616A2A1586CF7DC4226FFA5B/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An armored warrior overlooking a sunlit desert and river',
+            portrait: false, angle: -6,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13523765458018265274/6F6A40CDA55817EF7E0EF43DB191FDDDEBDDCD76/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded assassin above sunlit rooftops',
+            portrait: false, angle: 4,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12808750164134147731/75620ADED96260F278D678FB8A2AF7BDC3196B79/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A torch illuminating the inside of an ancient tomb',
+            portrait: false, angle: -3,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13213530011163441005/F65FE8933995D3DD1CF2230E346F6FDDF9E663B9/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A lone rider silhouetted against the pyramids at dusk',
+            portrait: false, angle: -5,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14327425889210272698/DA39C7725D0AE81191F4A9B05864EF6406DDB2BB/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A warrior greeting the moonlight beside a quiet lake',
+            portrait: false, angle: 3,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12780697389099649544/5D90C92BFE3E9BFB9A7888C580E0764292B79D45/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A crew on a sailing ship in warm afternoon light',
+            portrait: false, angle: -4,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/17685405136869445326/002A267F0CB94D23D222B2582EF518D8A62B50B6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded assassin crouched beside a stone tower and palm trees',
+            portrait: true, angle: -4,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11704419977118154295/33DF82BDBB8E1AD479B16EF56869BA1055424E9C/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A white-hooded pirate framed by tropical cliffs',
+            portrait: true, angle: 5,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14629272092508208080/F05612C2D313E37F0DBD329A8A5A577C196C3938/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cloaked warrior under blue moonlight and trees',
+            portrait: true, angle: -3,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/10300254567982358463/8E2F6862C0AD6BC0140E6C9E5212E93C3088DCB3/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A carved wooden longship surrounded by fire and smoke',
+            portrait: false, angle: -4,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11987783913335236110/EFD77272D221272B9E687CE561BB9D25960CE205/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A close view of a hooded pirate crouching in the shade',
+            portrait: true, angle: -5,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13018202383332687089/75A775D14E3CEA946BFF0E26BECB2DD89B348B9E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate overlooking clear tropical water and forested cliffs',
+            portrait: false, angle: 4,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/17926610918032462856/F67806D12C4F8D68208C6153A0A3A6C707680412/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A tall sailing ship cutting through bright blue water',
+            portrait: false, angle: -3,
+          },
         ]
-        const prints = photoData.map(([id, alt, x, y, width, angle], i) => {
+        // Four opening frames; nine smaller prints build the second wall.
+        const openingFrames = [
+          { x: 0.34, y: 0.46, width: 0.25 },
+          { x: 0.64, y: 0.16, width: 0.24 },
+          { x: 0.94, y: 0.43, width: 0.23 },
+          { x: 1.24, y: 0.19, width: 0.26 },
+        ]
+        const galleryRows = [
+          { frames: [4, 6, 7, 9, 11], widths: [0.18, 0.115, 0.115, 0.18, 0.18], gap: 0.035, center: 0.22 },
+          { frames: [5, 8, 10, 12], widths: [0.20, 0.12, 0.12, 0.22], gap: 0.055, center: 0.60 },
+        ]
+        const brandLogos = {"origins": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABgCAYAAABVJY8fAAAACXBIWXMAAAPoAAAD6AG1e1JrAAACdklEQVR4nO2U247EMAhD+f+f9r7sSrOjpgmX4NBiiZdpg80JHQEgXVgqegAUKnoAFCp6ABQqegBcFw7I0LDwMFifYmdpWHgIrCuxMzUsNCy8Btad2NkaForCWhE7Y8NCw8JjYWnUsBR6NayRZs8a1ocaFtZgaZ6/BtZI2ncaFhoWLBCOAdaw8CxY8mZYI0WfaVhvgjXS7rMN61cNCy+HNVJ2j4aFF8ASEvSjYY3E7tWwUBjWSKf1bFh4ACw5uC8N1kin925YOBjWSNU8GhYaVk1YI5X2aljgwhpp18WkeZYNjgfAwmGwQn1L3jBI3uVuF0R/dlCLaMAYsCJVCtaKNIA826fJEwJL08yr3ZcU4f3v3VmIrJArygI3fL7D/FvZmxGp6X/WFiPsU9oMGZs104r3CdkosMTwCbEudQor639LFn0tZ7Zkzg6gHd4DtwQsUfRZ3TjGp5oOS8jbGtoz2kSc27HDN6xn1lZJMMDP93deTAqsCHijTFqPY2GNFA3q7vfXwvrULOMOYLewoiR3pk5QVzlTPkVt6BV9n/VAGp2fPbfmv+1lHWDHJ6eBoPFb1TSf99av5IU066H1mmk5Z8RgV/L0itq+lbyyG5ZMAszCeINbwbpAeWAJ4mT1TQXlhSUOaBF+llyuWSNgyY5gJ+ZZMaWHRJ7/7fuaAOIIzQBlOevaLA8wSYLm9Vg+Z2ksAUNFQ/L0WH7fE1IIg0YBN/VINcMZZc7O2A4hQzLnPSIEDocUCUu+AkVAi+oRepE7b/FPlc6nwpKb0FcDWKT1OB6WOIFYtXWWDFiSAC1lhkxYEgSQlpcNSyoVPQAKFT0AChU9AArVDy5huzbWPQdhAAAAAElFTkSuQmCC", "blackflag": "data:image/png;base64,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"}
+        const prints = photoData.map(({src, alt, portrait, angle}, i) => {
           const el = document.createElement('button')
-          el.className = 'print'
+          el.className = portrait ? 'print print--portrait' : 'print'
+          el.dataset.game = i < 4 ? 'AC: Origin' : 'AC: Black Flag Resync'
           el.setAttribute(
             'aria-label',
-            `${alt}. Drag to swing, or press Enter to nudge.`,
+            `${alt}. ${el.dataset.game}. Drag to swing, or press Enter to nudge.`,
           )
-          el.style.cssText = `--x:${x}%;--y:${y}%;--w:${width}%;--angle:${angle}deg;--pin:${i % 2 ? 42 : 61}%`
+          el.style.cssText = `--image-ratio:${portrait ? "9 / 16" : "16 / 9"};--angle:${angle}deg;--pin:${i % 2 ? 42 : 61}%`
           const img = document.createElement('img')
-          img.src = `https://images.unsplash.com/${id}?auto=format&fit=crop&w=700&q=80`
+          img.src = src
+          img.width = 1920
+          img.height = 1080
           img.alt = alt
           img.draggable = false
-          img.loading = i < 3 ? 'eager' : 'lazy'
-          img.srcset = [320, 700]
-            .map(
-              (w) =>
-                `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80 ${w}w`,
-            )
-            .join(', ')
-          img.sizes = '(max-aspect-ratio:4/5) 31vw, 20vw'
-          const label = document.createElement('small')
-          label.textContent = `FRAME ${String(i + 1).padStart(2, '0')} / 35MM`
-          el.append(img, label)
+          img.loading = i < 4 ? 'eager' : 'lazy'
+          img.decoding = 'async'
+          const caption = document.createElement('span')
+          caption.className = 'print__caption'
+          const logo = document.createElement('span')
+          logo.className = 'print__logo'
+          logo.setAttribute('aria-hidden', 'true')
+          logo.style.setProperty('--logo', `url("${i < 4 ? brandLogos.origins : brandLogos.blackflag}")`)
+          const game = document.createElement('span')
+          game.className = 'print__game'
+          game.textContent = el.dataset.game
+          caption.append(logo, game)
+          const image = document.createElement('span')
+          image.className = 'print__image'
+          image.append(img, caption)
+          el.append(image)
           scene.append(el)
           return {
             el,
-            x,
+            ratio: portrait ? 9 / 16 : 16 / 9,
+            index: i,
+            x: 0,
+            y: 0,
+            width: 0,
             rest: angle,
             angle,
             velocity: 0,
@@ -528,16 +480,26 @@
             lastTime: 0,
           }
         })
-        const headline = document.querySelector('.headline'),
+        const headline = document.querySelector('.headline--photographer'),
+          worlds = document.querySelector('.headline--worlds'),
+          galleryCopy = document.querySelector('.gallery-copy'),
           intro = document.querySelector('.intro'),
-          statement = document.querySelector('.statement'),
           contact = document.querySelector('.contact')
         let progress = 0,
           target = 0,
           raf = 0,
           lastTime = 0,
           visible = true,
-          width = scene.clientWidth
+          width = scene.clientWidth,
+          travel = width * 2.6,
+          openingSpan = width * 0.3656,
+          holdEnd = width * 0.7312,
+          worldsStart = width * 3,
+          releaseStart = width * 6.4,
+          worldsScale = 1,
+          worldsCenter = 0
+        const trailingRate = 2 / 2.285
+        const trailBlend = 0.16
         const clamp = (n, min, max) => Math.max(min, Math.min(max, n))
         function canRun() {
           return visible && !document.hidden
@@ -550,28 +512,42 @@
         }
         function setProgress(value) {
           target = clamp(value, 0, 1)
-          slider.value = String(Math.round(target * 1000))
-          if (reduced.matches) progress = target
+          if (reduced.matches) {
+            progress = target
+            paint()
+          }
           wake()
         }
+        const smooth = t => t * t * t * (t * (t * 6 - 15) + 10)
+        const mix = (from, to, t) => from + (to - from) * t
         function paint() {
-          const pan = progress * width * 2.285
-          intro.style.transform = `translate3d(${-pan}px,0,0)`
-          statement.style.transform = `translate3d(${-pan}px,0,0)`
-          contact.style.transform = `translate3d(${-pan}px,0,0)`
-          // The headline moves against the opening pan, holds, then trails the prints.
-          const opening = Math.min(progress / 0.16, 1),
-            travel = Math.max(progress - 0.32, 0)
-          headline.style.transform = `translate3d(${opening * width * 0.28 - travel * width * 2}px,${-opening * width * 0.035}px,0) scale(${1 - opening * 0.16})`
-          prints.forEach((p) => {
-            p.el.style.transform = `translate3d(${-pan}px,0,0) rotate(${p.angle}deg)`
-            const screenX = (p.x / 100) * width - pan,
-              onScreen = screenX > -width * 0.4 && screenX < width * 1.1
+          const distance = progress * travel
+          const opening = smooth(clamp(distance / openingSpan, 0, 1))
+          const afterHold = Math.max(0, distance - holdEnd)
+          const blend = width * trailBlend
+          const trail = afterHold < blend ? afterHold * afterHold / (2 * blend) : afterHold - blend / 2
+          const typeX = -width * 0.36 + opening * width * 0.28 - trail * trailingRate
+          headline.style.transform = `translate3d(${typeX}px,${-opening * width * 0.035}px,0) scale(${1 - opening * 0.16})`
+          intro.style.transform = `translate3d(${-distance}px,0,0)`
+          const release = Math.max(0, distance - releaseStart)
+          const wordArrival = smooth(clamp((distance - worldsStart) / (width * 0.9), 0, 1))
+          worlds.style.transform = `translate3d(${mix(width * 1.12, worldsCenter, wordArrival) - release}px,0,0) scale(${worldsScale})`
+          const copyArrival = smooth(clamp((distance - worldsStart - width * 0.4) / (width * 0.5), 0, 1))
+          galleryCopy.style.transform = `translate3d(${(1 - copyArrival) * width * 1.12 - release}px,0,0)`
+          galleryCopy.inert = distance < worldsStart || release > width
+          contact.style.transform = `translate3d(${-release}px,0,0)`
+          scene.dataset.phase = distance < worldsStart ? 'photographer'
+            : distance < worldsStart + width * 2.75 ? 'assembling'
+            : distance < releaseStart ? 'worlds' : 'closing'
+          prints.forEach(p => {
+            const arrival = smooth(clamp((distance - worldsStart - width * (0.25 + (p.index - 4) * 0.20)) / (width * 0.9), 0, 1))
+            const screenX = p.index < 4 ? p.x - distance : mix(width * 1.12, p.x, arrival) - release
+            p.el.style.transform = `translate3d(${screenX - p.x}px,0,0) rotate(${p.angle}deg)`
+            const onScreen = screenX + p.width > -width * 0.1 && screenX < width * 1.05
             p.el.inert = !onScreen
             p.el.setAttribute('aria-hidden', String(!onScreen))
           })
-          const contactVisible = progress > 0.7
-          contact.inert = !contactVisible
+          contact.inert = contact.offsetLeft - release >= width * 0.95
           document
             .querySelectorAll('.topbar [data-go]')
             .forEach((el) =>
@@ -585,13 +561,13 @@
           raf = 0
           if (!canRun()) return
           const dt = lastTime
-            ? Math.min((time - lastTime) / 1000, 0.032)
+            ? Math.min((time - lastTime) / 1000, 0.05)
             : 1 / 60
           lastTime = time
           progress = reduced.matches
             ? target
-            : progress + (target - progress) * (1 - Math.exp(-12 * dt))
-          let moving = Math.abs(target - progress) > 0.00015
+            : progress + (target - progress) * (1 - Math.exp(-10 * dt))
+          let moving = Math.abs(target - progress) * travel > 0.1
           if (!moving) progress = target
           prints.forEach((p) => {
             if (p.dragging) return
@@ -663,15 +639,6 @@
             }
           })
         })
-        slider.addEventListener('input', () =>
-          setProgress(Number(slider.value) / 1000),
-        )
-        document
-          .querySelector('.previous')
-          .addEventListener('click', () => setProgress(target - 0.16))
-        document
-          .querySelector('.next')
-          .addEventListener('click', () => setProgress(target + 0.16))
         document
           .querySelectorAll('[data-go]')
           .forEach((el) =>
@@ -693,14 +660,87 @@
                 : e.deltaMode === 2
                   ? scene.clientHeight
                   : 1)
-            setProgress(target + pixels / (width * 2.285))
+            setProgress(target + clamp(pixels, -240, 240) / travel)
           },
           { passive: false },
         )
-        new ResizeObserver(() => {
+        function layout() {
           width = scene.clientWidth
+          const height = scene.clientHeight
+          const narrow = width / height <= 0.8
+          const padding = Math.min(4, Math.max(2, width * 0.0025))
+          function place(p, x, centerY, desiredWidth, maxHeight) {
+            p.width = Math.min(desiredWidth, (maxHeight - 2 * padding) * p.ratio + 2 * padding)
+            const frameHeight = (p.width - 2 * padding) / p.ratio + 2 * padding
+            p.x = x
+            p.y = Math.max(54, Math.min(centerY - frameHeight / 2, height * 0.78 - frameHeight))
+            p.el.style.setProperty('--x', `${p.x}px`)
+            p.el.style.setProperty('--y', `${p.y}px`)
+            p.el.style.setProperty('--w', `${p.width}px`)
+          }
+          openingFrames.forEach((frame, index) => {
+            const x = narrow ? width * (0.26 + index * 0.80) : width * frame.x
+            const y = narrow ? height * (index % 2 ? 0.63 : 0.48) : height * frame.y
+            place(prints[index], x, y, width * (narrow ? 0.62 : frame.width), height * 0.35)
+          })
+          if (narrow) {
+            for (let index = 4; index < prints.length; index++) {
+              const slot = index - 4, column = slot % 3, row = Math.floor(slot / 3)
+              const p = prints[index], desired = width * (p.ratio < 1 ? 0.22 : 0.28)
+              place(p, width * ((column + 0.5) / 3) - desired / 2,
+                height * (0.26 + row * 0.21), desired, height * 0.185)
+            }
+          } else {
+            galleryRows.forEach((row, rowIndex) => {
+              const total = row.widths.reduce((sum, w) => sum + w, 0) + row.gap * (row.frames.length - 1)
+              let cursor = width * (1 - total) / 2
+              row.frames.forEach((index, slot) => {
+                const jitter = [0.015, -0.015, 0.02, -0.025, 0][slot]
+                place(prints[index], cursor, height * (row.center + jitter), width * row.widths[slot], height * (width / height > 2 ? 0.26 : 0.32))
+                cursor += width * (row.widths[slot] + row.gap)
+              })
+            })
+          }
+          openingSpan = width * 0.3656
+          holdEnd = width * 0.7312
+          const firstFramesEdge = Math.max(...prints.slice(0, 4).map(p => p.x + p.width))
+          const typeClearPan = holdEnd + width * trailBlend / 2
+            + (headline.scrollWidth * 0.84 + width * 0.16) / trailingRate
+          worldsStart = Math.max(firstFramesEdge + width * 0.3, typeClearPan)
+          worldsScale = Math.min(1, width * 0.88 / worlds.scrollWidth)
+          worldsCenter = (width - worlds.scrollWidth * worldsScale) / 2
+          releaseStart = worldsStart + width * 3.4
+          travel = releaseStart + width * 1.6
+          scene.style.setProperty('--contact-x', `${width * (narrow ? 1.68 : 1.83)}px`)
+          document.querySelector('[data-worlds-link]').dataset.go = String((worldsStart + width * 2.8) / travel)
           wake()
-        }).observe(scene)
+        }
+        // Background swipes pan the wall; touching a print keeps its pendulum interaction.
+        let swipe = null
+        scene.addEventListener('pointerdown', e => {
+          if (e.button !== 0 || e.target.closest('button')) return
+          swipe = { id: e.pointerId, x: e.clientX, y: e.clientY, target }
+          scene.setPointerCapture(e.pointerId)
+        })
+        scene.addEventListener('pointermove', e => {
+          if (swipe?.id !== e.pointerId) return
+          const dx = swipe.x - e.clientX, dy = swipe.y - e.clientY
+          setProgress(swipe.target + (Math.abs(dx) > Math.abs(dy) ? dx : dy) / travel)
+        })
+        const endSwipe = () => { swipe = null }
+        scene.addEventListener('pointerup', endSwipe)
+        scene.addEventListener('pointercancel', endSwipe)
+        scene.addEventListener('lostpointercapture', endSwipe)
+        scene.style.touchAction = 'none'
+        scene.addEventListener('keydown', e => {
+          if (e.altKey || e.ctrlKey || e.metaKey) return
+          const steps = { ArrowRight: 0.12, ArrowDown: 0.12, ArrowLeft: -0.12, ArrowUp: -0.12 }
+          if (e.key in steps || e.key === 'Home' || e.key === 'End') {
+            e.preventDefault()
+            setProgress(e.key === 'Home' ? 0 : e.key === 'End' ? 1 : target + steps[e.key] * width * 3 / travel)
+          }
+        })
+        new ResizeObserver(layout).observe(scene)
         new IntersectionObserver((entries) => {
           visible = entries[0].isIntersecting
           if (visible) wake()
@@ -720,6 +760,7 @@
           if (e.key === 'Escape' && parent !== window)
             parent.postMessage({ type: 'component-escape' }, location.origin)
         })
+        layout()
         paint()
       })()
     </script>

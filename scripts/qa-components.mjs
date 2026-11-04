@@ -142,7 +142,7 @@ try {
     await exported.goto(new URL(`components-split/${id}.html`,url).href,{waitUntil:'load'})
     assert.ok(await exported.locator(id==='cutout'?'.board':'.scene').evaluate(el=>getComputedStyle(el).position==='relative'),'downloaded CSS loads from its sibling file')
     if(id==='cutout') await exported.locator('[data-mood="soft"]').click()
-    else await exported.getByRole('button',{name:'Contact',exact:true}).click()
+    else await exported.getByRole('button',{name:'Last frame',exact:true}).click()
     if(id==='cutout') await exported.waitForFunction(()=>document.querySelector('.board').dataset.phase==='open')
     else await exported.locator('.contact').getByRole('button').waitFor({state:'visible'})
     await exported.close()
@@ -162,13 +162,56 @@ try {
         assert.equal(await frame.locator(`[data-mood="${mood}"]`).evaluate(el => document.activeElement === el), true)
       }
     } else {
-      await frame.getByRole('button', { name: 'Contact', exact: true }).click()
+      await frame.getByRole('button', { name: 'Last frame', exact: true }).click()
       await frame.locator('.contact').getByRole('button').waitFor({state:'visible'})
       await frame.locator('.contact').getByRole('button').click()
-      await frame.locator('input').focus()
+      await frame.locator('.scene').focus()
       await page.keyboard.press('End')
-      assert.equal(await frame.locator('input').inputValue(), '1000')
+      assert.equal(await frame.locator('.contact').evaluate(el => !el.inert), true)
+      assert.ok(await frame.locator('.contact').evaluate(el => {
+        const lettering = el.ownerDocument.querySelector('.headline--photographer').getBoundingClientRect()
+        const closing = el.getBoundingClientRect()
+        return closing.left > lettering.right + el.ownerDocument.defaultView.innerWidth * 0.15
+      }), 'last frame stays beyond the oversized lettering')
       await page.keyboard.press('Home')
+      assert.equal(await frame.locator('.controls, .credits').count(), 0)
+      assert.equal(await frame.locator('.headline').count(), 2)
+      assert.equal(await frame.locator('.headline--worlds').textContent(), 'worlds')
+      assert.equal(await frame.locator('.print small').count(), 0)
+      assert.equal(await frame.locator('.print[data-game="AC: Origin"]').count(), 4)
+      assert.equal(await frame.locator('.print[data-game="AC: Black Flag Resync"]').count(), 9)
+      assert.equal(await frame.locator('.headline--photographer').textContent(), 'photographer')
+      assert.equal(await frame.locator('.print').count(), 13)
+      assert.equal(await frame.locator('.print--portrait').count(), 4)
+      assert.ok(await frame.locator('.print__image').evaluateAll(images => images.every(image => {
+        const portrait = image.closest('.print').classList.contains('print--portrait')
+        return Math.abs(image.clientWidth / image.clientHeight - (portrait ? 9 / 16 : 16 / 9)) < 0.03
+      })), 'portrait and landscape frames preserve their original compositions')
+      const motion = await frame.locator('.scene').evaluate(scene => {
+        const button = scene.querySelector('.topbar > [data-go="0"]'), samples = []
+        for (let i = 0; i <= 100; i++) {
+          button.dataset.go = String(i / 100); button.click()
+          samples.push({
+            phase: scene.dataset.phase,
+            photo: new DOMMatrix(getComputedStyle(scene.querySelector('.print')).transform).e,
+            photographer: scene.querySelector('.headline--photographer').getBoundingClientRect().left,
+            lastPhoto: new DOMMatrix(getComputedStyle(scene.querySelectorAll('.print')[12]).transform).e,
+            worlds: scene.querySelector('.headline--worlds').getBoundingClientRect().left,
+          })
+        }
+        button.dataset.go = '0'; button.click()
+        return samples
+      })
+      const opening = motion.filter(sample => sample.phase === 'photographer')
+      assert.ok(opening.some(sample => sample.photographer > opening[0].photographer + 50), 'photographer retains the opening counter-pan')
+      assert.ok(opening.slice(1).every((sample, i) => sample.photo < opening[i].photo), 'opening photos travel continuously')
+      const assembling = motion.filter(sample => sample.phase === 'assembling')
+      assert.ok(assembling.at(-1).lastPhoto < assembling[0].lastPhoto - 50, 'gallery photos arrive from right to left')
+      const settled = motion.filter(sample => sample.phase === 'worlds')
+      assert.ok(settled.length > 2 && settled.every(sample => Math.abs(sample.lastPhoto - settled[0].lastPhoto) < 0.01 && Math.abs(sample.worlds - settled[0].worlds) < 0.01), 'photos stick around worlds for the settled wall')
+      const closing = motion.filter(sample => sample.phase === 'closing')
+      assert.ok(closing.at(-1).lastPhoto < settled[0].lastPhoto - 500, 'the complete formation releases together')
+      assert.ok(await frame.locator('.print img').evaluateAll(images => images.every(img => img.src.startsWith('https://images.steamusercontent.com/'))))
       await frame.locator('.print img').first().evaluate(img => img.decode())
     }
     await page.screenshot({path:resolve(out,`${id}-expanded.png`)})
@@ -265,7 +308,10 @@ try {
   await page.mouse.down(); await page.mouse.move(b.x+b.width/2,b.y+b.height/2+50,{steps:10}); await page.mouse.up()
   assert.equal(await print.evaluate(el => el.classList.contains('dragging')),false,'pointer release clears drag state')
   await page.mouse.wheel(0,300)
-  await page.waitForFunction(() => Number(document.querySelector('#component-playground iframe').contentDocument.querySelector('input').value)>0)
+  await page.waitForFunction(() => {
+    const intro = document.querySelector('#component-playground iframe').contentDocument.querySelector('.intro')
+    return new DOMMatrix(getComputedStyle(intro).transform).e < -10
+  })
   await dialog.getByRole('button',{name:'Close component playground'}).click()
   await page.evaluate(() => document.documentElement.classList.add('theme-dark'))
   await page.emulateMedia({colorScheme:'dark'})

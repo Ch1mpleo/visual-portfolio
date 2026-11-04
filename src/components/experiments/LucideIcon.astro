@@ -1,0 +1,16 @@
+---
+// Lucide 0.468.0, vendored SVGs; license retained with the assets.
+import fileCode from '../../assets/icons/lucide/file-code.svg?raw'
+import copy from '../../assets/icons/lucide/copy.svg?raw'
+import check from '../../assets/icons/lucide/check.svg?raw'
+import download from '../../assets/icons/lucide/download.svg?raw'
+import x from '../../assets/icons/lucide/x.svg?raw'
+const icons = { 'file-code': fileCode, copy, check, download, x }
+interface Props { name: keyof typeof icons; class?: string }
+const { name, class: className } = Astro.props
+---
+<span class:list={['lucide-icon', className]} data-lucide={name} aria-hidden="true" set:html={icons[name]} />
+<style>
+  .lucide-icon { display: inline-block; width: 1em; height: 1em; flex-shrink: 0; vertical-align: middle; }
+  .lucide-icon :global(svg) { display: block; width: 100%; height: 100%; }
+</style>

@@ -4,14 +4,20 @@ import { readFile, mkdir } from 'node:fs/promises'
 import { resolve, extname, sep } from 'node:path'
 import { createRequire } from 'node:module'
 import assert from 'node:assert/strict'
+import { splitComponentSource } from '../src/utils/component-source.mjs'
 const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT_PACKAGE || 'playwright')
 const out = resolve('.astro/components-qa')
 await mkdir(out, { recursive: true })
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4' }
+const downloadedFiles = new Map()
 const server = createServer(async (request, response) => {
   try {
     const path = decodeURIComponent(new URL(request.url, 'http://local').pathname).replace(/^\/visual-portfolio/, '')
+    if (downloadedFiles.has(path)) {
+      response.setHeader('Content-Type', mime[extname(path)])
+      response.end(downloadedFiles.get(path)); return
+    }
     const file = resolve('dist', '.' + (path.endsWith('/') ? `${path}index.html` : path))
     if (!file.startsWith(resolve('dist') + sep)) throw new Error('outside dist')
     response.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream')
@@ -68,6 +74,29 @@ try {
       const frame = page.frameLocator('#component-playground iframe')
       await frame.locator(id === 'cutout' ? '.board' : '.scene').waitFor()
       await frame.locator(id === 'cutout' ? '.mood' : '.topbar button').first().focus()
+      if (id === 'cutout') {
+        await dialog.getByRole('tab', {name:'Code', exact:true}).click()
+        await dialog.locator('[data-code-copy="html"]').waitFor({state:'visible'})
+        await page.waitForFunction(()=>document.querySelectorAll('[data-code-pane] pre').length===3)
+        for(const language of ['html','css','js']) {
+          await dialog.locator(`[data-source-file="${language}"]`).click()
+          assert.equal(await dialog.locator('[data-code-pane]:visible').count(),1,'only the selected file is shown')
+          const pane=await dialog.locator(`[data-code-pane="${language}"]`).boundingBox()
+          const sidebar=await dialog.locator('.code-sidebar').boundingBox()
+          assert.ok(sidebar.x>=0&&pane.x>=sidebar.x+sidebar.width-1&&pane.x+pane.width<=width&&pane.height>0,`file sidebar stays left of code at ${width}`)
+          const bar=dialog.locator(`[data-code-pane="${language}"] .code-editor__bar`)
+          assert.ok(await bar.evaluate(el=>el.scrollWidth<=el.clientWidth),'pane header actions stay visible')
+        }
+        await dialog.locator('[data-source-file="html"]').click()
+        await page.keyboard.press('ArrowDown')
+        assert.equal(await dialog.locator('[data-source-file="css"]').getAttribute('aria-selected'),'true','arrow keys switch source files')
+        await page.keyboard.press('End')
+        assert.equal(await dialog.locator('[data-source-file="js"]').getAttribute('aria-selected'),'true')
+        await page.keyboard.press('Home')
+        await page.screenshot({path:resolve(out,`code-panes-${width}.png`)})
+        await dialog.getByRole('tab', {name:'Preview', exact:true}).click()
+        await frame.locator('.mood').first().focus()
+      }
       await page.keyboard.press('Escape')
       await page.waitForFunction(() => !document.querySelector('#component-playground').open)
       assert.equal(await trigger.evaluate(el => document.activeElement === el), true, 'iframe Escape restores trigger focus')
@@ -80,23 +109,43 @@ try {
     await page.locator(`[data-component-open="${id}"]`).click()
     await dialog.getByRole('tab',{name:'Code',exact:true}).click()
     const source = await readFile(`public/components/${id}.html`, 'utf8')
-    await page.waitForFunction(text => document.querySelector('#playground-code code')?.textContent.replace(/\r\n/g,'\n').trimEnd() === text.replace(/\r\n/g,'\n').trimEnd(), source).catch(async error => {
-      console.log({code:(await dialog.locator('[data-code-content]').textContent()).slice(0,200),requests:highlightRequests})
-      await page.screenshot({path:resolve(out,'code-failure.png')})
-      throw error
-    })
+    const files = splitComponentSource(source,id)
+    await page.waitForFunction(()=>document.querySelectorAll('[data-code-pane] pre').length===3)
     const colors = await dialog.locator('.code-editor code span[style]').evaluateAll(spans => [...new Set(spans.map(span => getComputedStyle(span).color))])
     assert.ok(colors.length >= 5,'syntax highlighting includes distinct token colors')
-    assert.ok(await dialog.locator('.code-editor .line').count()>100,'code includes numbered lines')
+    assert.ok(await dialog.locator('.code-editor .line').count()>100,'code includes highlighted lines')
     await page.screenshot({path:resolve(out,`${id}-code.png`)})
-    await dialog.getByRole('button', { name: 'Copy code' }).click()
-    await page.waitForFunction(() => document.querySelector('[data-playground-status]').textContent.startsWith('Copied'))
-    assert.ok((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n') === source.replace(/\r\n/g, '\n'), 'clipboard matches the actual running demo (Windows newline normalization)')
+    for(const language of ['html','css','js']) {
+      await dialog.locator(`[data-source-file="${language}"]`).click()
+      const pane=dialog.locator(`[data-code-pane="${language}"]`)
+      assert.equal((await pane.locator('code').textContent()).replace(/\r\n/g,'\n').trimEnd(),files[language].replace(/\r\n/g,'\n').trimEnd(),'each highlighted pane shows its file')
+      const copy=pane.locator('[data-code-copy]')
+      await copy.click()
+      await page.waitForFunction(ext=>document.querySelector(`[data-code-copy="${ext}"]`).dataset.copied==='true',language)
+      assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n'),files[language].replace(/\r\n/g,'\n'),'copy contains only the selected file')
+      const result=page.waitForEvent('download')
+      await pane.locator('[data-code-download]').click()
+      const file=await result
+      assert.equal(file.suggestedFilename(),`${id}.${language}`)
+      const bytes=await readFile(await file.path())
+      assert.equal(bytes.toString(),files[language],'download preserves exact file contents')
+      downloadedFiles.set(`/components-split/${id}.${language}`,bytes)
+    }
     const downloadPromise = page.waitForEvent('download')
-    await dialog.getByRole('link', { name: 'Download .html' }).click()
+    await dialog.getByRole('link', { name: 'Download complete demo' }).click()
     const download = await downloadPromise
     assert.equal(download.suggestedFilename(), `${id}.html`)
     assert.equal(await download.failure(), null)
+    assert.equal(await readFile(await download.path(),'utf8'),source,'complete demo remains self-contained')
+    const exported=await context.newPage()
+    exported.on('pageerror',error=>errors.push(error.message))
+    await exported.goto(new URL(`components-split/${id}.html`,url).href,{waitUntil:'load'})
+    assert.ok(await exported.locator(id==='cutout'?'.board':'.scene').evaluate(el=>getComputedStyle(el).position==='relative'),'downloaded CSS loads from its sibling file')
+    if(id==='cutout') await exported.locator('[data-mood="soft"]').click()
+    else await exported.getByRole('button',{name:'Contact',exact:true}).click()
+    if(id==='cutout') await exported.waitForFunction(()=>document.querySelector('.board').dataset.phase==='open')
+    else await exported.locator('.contact').getByRole('button').waitFor({state:'visible'})
+    await exported.close()
     await dialog.getByRole('tab', { name: 'Preview', exact: true }).click()
     const frame = page.frameLocator('#component-playground iframe')
     if (id === 'cutout') {
@@ -244,7 +293,7 @@ try {
   await zoomPage.keyboard.press('Escape')
   await zoomContext.close()
   assert.deepEqual(errors,[],'no runtime errors')
-  console.log('Component QA passed: deferred demos/source, static cards, 7 widths, syntax colors/line numbers, exact copy/download, all moods, photo-letter intro and quicker reverse, interruption cleanup, reduced motion, pendulum/drag/wheel, fixed palettes, iframe Escape, focus/scroll restoration and 200% equivalent viewport. Screenshots: .astro/components-qa/')
+  console.log('Component QA passed: deferred demos/source, static cards, 7 widths, IDE file navigation, syntax colors, per-file copy/download and runnable split exports, all moods, photo-letter intro and quicker reverse, interruption cleanup, reduced motion, pendulum/drag/wheel, fixed palettes, iframe Escape, focus/scroll restoration and 200% equivalent viewport. Screenshots: .astro/components-qa/')
 } finally {
   await browser.close()
   server.closeAllConnections()

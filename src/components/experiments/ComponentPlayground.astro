@@ -1,77 +1,131 @@
 ---
+import LucideIcon from './LucideIcon.astro'
 const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
+const languages = [
+  { id: 'html', name: 'HTML' },
+  { id: 'css', name: 'CSS' },
+  { id: 'js', name: 'JavaScript' },
+]
 ---
 <dialog id="component-playground" class="playground" aria-labelledby="playground-title" data-base={base}>
-  <div class="playground__head"><div><span class="playground__eyebrow">Component study</span><h2 id="playground-title">Cutout</h2></div><button type="button" data-playground-close aria-label="Close component playground">Close <span aria-hidden="true">×</span></button></div>
-  <div class="playground__toolbar"><div role="tablist" aria-label="Component view"><button id="playground-preview-tab" type="button" role="tab" aria-selected="true" aria-controls="playground-preview" tabindex="0" data-playground-tab="preview">Preview</button><button id="playground-code-tab" type="button" role="tab" aria-selected="false" aria-controls="playground-code" tabindex="-1" data-playground-tab="code">Code</button></div><div class="playground__actions"><a data-playground-download download>Download .html ↓</a><button type="button" data-playground-copy>Copy code</button></div></div>
+  <div class="playground__head"><div><span class="playground__eyebrow">Component study</span><h2 id="playground-title">Cutout</h2></div><button type="button" data-playground-close aria-label="Close component playground">Close <LucideIcon name="x" class="playground__close-icon" /></button></div>
+  <div class="playground__toolbar"><div role="tablist" aria-label="Component view"><button id="playground-preview-tab" type="button" role="tab" aria-selected="true" aria-controls="playground-preview" tabindex="0" data-playground-tab="preview">Preview</button><button id="playground-code-tab" type="button" role="tab" aria-selected="false" aria-controls="playground-code" tabindex="-1" data-playground-tab="code">Code</button></div></div>
   <div id="playground-preview" role="tabpanel" aria-labelledby="playground-preview-tab" class="playground__preview"><iframe title="Expanded component preview" sandbox="allow-scripts allow-same-origin" /></div>
   <div id="playground-code" role="tabpanel" aria-labelledby="playground-code-tab" class="playground__code" hidden>
-    <div class="code-editor">
-      <div class="code-editor__bar"><span class="code-editor__dots" aria-hidden="true"><i></i><i></i><i></i></span><span data-code-filename>cutout.html</span><span class="code-editor__language">HTML</span></div>
-      <div class="code-editor__viewport" data-lenis-prevent tabindex="0" aria-label="Component source code"><div data-code-content></div></div>
-      <div class="code-editor__status"><span>UTF-8</span><span>Ready to copy · No dependencies</span></div>
+    <div class="code-workbench" data-lenis-prevent>
+      <aside class="code-sidebar">
+        <div class="code-sidebar__heading" data-code-component>Cutout</div>
+        <div role="tablist" aria-label="Source files" aria-orientation="vertical">
+          {languages.map(language => <button type="button" role="tab" id={`source-file-${language.id}`} aria-controls={`code-pane-${language.id}`} aria-selected={language.id === 'html' ? 'true' : 'false'} tabindex={language.id === 'html' ? 0 : -1} data-source-file={language.id} title={`cutout.${language.id}`} aria-label={`cutout.${language.id}`}>
+            <LucideIcon name="file-code" class="code-sidebar__icon" /><span data-code-filename={language.id}>cutout.{language.id}</span><span class="code-sidebar__short" aria-hidden="true">{language.id.toUpperCase()}</span>
+          </button>)}
+        </div>
+      </aside>
+      {languages.map(language => <section class="code-editor" id={`code-pane-${language.id}`} role="tabpanel" aria-labelledby={`source-file-${language.id}`} hidden={language.id !== 'html'} data-code-pane={language.id}>
+        <div class="code-editor__bar">
+          <div class="code-editor__file"><span data-code-filename={language.id}>cutout.{language.id}</span></div>
+          <div class="code-editor__actions">
+            <button type="button" class="code-action" data-code-copy={language.id} disabled aria-label={`Copy ${language.name}`} title={`Copy ${language.name}`}>
+              <span class="copy-icon"><LucideIcon name="copy" class="copy-icon__image" /><LucideIcon name="check" class="copy-icon__check" /></span>
+            </button>
+            <button type="button" class="code-action" data-code-download={language.id} disabled aria-label={`Download ${language.name}`} title={`Download ${language.name}`}>
+              <LucideIcon name="download" class="download-icon" />
+            </button>
+          </div>
+        </div>
+        <div class="code-editor__viewport" data-lenis-prevent tabindex="0" aria-label={`${language.name} code, scroll to read`}><div data-code-content={language.id}></div></div>
+      </section>)}
     </div>
+    <div class="code-workbench__foot"><span>No dependencies</span><a data-playground-download download>Download complete demo <LucideIcon name="download" /></a></div>
   </div>
   <div class="playground__foot"><span role="status" aria-live="polite" data-playground-status></span></div>
 </dialog>
 
 <script>
   type ComponentId = 'cutout' | 'emulsion'
-  const sourceCache = new Map<ComponentId, Promise<string>>()
+  type Language = 'html' | 'css' | 'js'
+  type SourceFiles = Record<Language, string>
   const dialog = document.querySelector<HTMLDialogElement>('#component-playground')!
   const frame = dialog.querySelector<HTMLIFrameElement>('iframe')!
-  const codeContent = dialog.querySelector<HTMLElement>('[data-code-content]')!
+  const panes = [...dialog.querySelectorAll<HTMLElement>('[data-code-pane]')]
+  const fileTabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-source-file]')]
   const highlightedCache = new Map<ComponentId, Promise<string>>()
   const status = dialog.querySelector<HTMLElement>('[data-playground-status]')!
   const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-playground-tab]')]
   let current: ComponentId = 'cutout'
+  let files: SourceFiles | null = null
   let trigger: HTMLElement | null = null
   let resumeScroll = false
+  let session = 0
   let copyVersion = 0
-  function getSource(id: ComponentId) {
-    if (!sourceCache.has(id)) {
-      const request = fetch(`${dialog.dataset.base}components/${id}.html`).then(response => {
-        if (!response.ok) throw new Error('Source unavailable')
-        return response.text()
-      }).catch(error => { sourceCache.delete(id); throw error })
-      sourceCache.set(id, request)
-    }
-    return sourceCache.get(id)!
+  function selectFile(language: Language) {
+    fileTabs.forEach(tab => {
+      const selected = tab.dataset.sourceFile === language
+      tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1
+    })
+    panes.forEach(pane => { pane.hidden = pane.dataset.codePane !== language })
+  }
+  function resetCode() {
+    files = null
+    selectFile('html')
+    panes.forEach(pane => {
+      pane.querySelector('[data-code-content]')!.textContent = ''
+      pane.querySelectorAll<HTMLButtonElement>('button').forEach(button => {
+        button.disabled = true
+        delete button.dataset.copied
+      })
+      pane.querySelector<HTMLElement>('.code-editor__viewport')!.scrollTo(0, 0)
+    })
   }
   async function loadCode() {
-    const id = current
-    codeContent.textContent = 'Loading source…'
+    if (files) return
+    const id = current, version = session
+    panes.forEach(pane => { pane.querySelector('[data-code-content]')!.textContent = 'Loading source…' })
     try {
       if (!highlightedCache.has(id)) highlightedCache.set(id, fetch(`${dialog.dataset.base}component-source/${id}/`).then(response => { if (!response.ok) throw new Error('Source unavailable'); return response.text() }).catch(error => { highlightedCache.delete(id); throw error }))
       const markup = await highlightedCache.get(id)!
-      if (current !== id) return
-      const pre = new DOMParser().parseFromString(markup, 'text/html').querySelector('pre')
-      if (!pre) throw new Error('Source unavailable')
-      codeContent.replaceChildren(pre)
-    } catch { if (current === id) codeContent.textContent = 'Could not load source. Try the Code tab again, or use Download .html.' }
+      if (version !== session || !dialog.open) return
+      const document = new DOMParser().parseFromString(markup, 'text/html')
+      const source = JSON.parse(document.querySelector('[data-component-files]')!.textContent!) as SourceFiles
+      const content = panes.map(pane => {
+        const language = pane.dataset.codePane as Language
+        const pre = document.querySelector(`[data-source-part="${language}"] pre`)
+        if (!pre || typeof source[language] !== 'string') throw new Error('Source unavailable')
+        return pre
+      })
+      files = source
+      panes.forEach((pane, i) => {
+        pane.querySelector('[data-code-content]')!.replaceChildren(content[i])
+        pane.querySelectorAll<HTMLButtonElement>('button').forEach(button => { button.disabled = false })
+      })
+    } catch {
+      if (version === session) panes.forEach(pane => { pane.querySelector('[data-code-content]')!.textContent = 'Could not load source. Reopen the Code tab to retry.' })
+    }
   }
-  function selectView(view: string, fetchCode = true) {
+  function selectView(view: string) {
     tabs.forEach(tab => { const selected = tab.dataset.playgroundTab === view; tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1 })
     dialog.querySelector<HTMLElement>('#playground-preview')!.hidden = view !== 'preview'
     dialog.querySelector<HTMLElement>('#playground-code')!.hidden = view !== 'code'
-    if (view === 'code' && fetchCode) void loadCode()
+    if (view === 'code') void loadCode()
   }
   document.querySelectorAll<HTMLButtonElement>('[data-component-open]').forEach(button => button.addEventListener('click', () => {
     const id = button.dataset.componentOpen as ComponentId
     if (id !== 'cutout' && id !== 'emulsion') return
-    current = id; trigger = button; status.textContent = ''; copyVersion++
+    current = id; trigger = button; status.textContent = ''; session++; copyVersion++
+    resetCode()
     const name = id[0].toUpperCase() + id.slice(1)
     dialog.querySelector('#playground-title')!.textContent = name
+    dialog.querySelector('[data-code-component]')!.textContent = name
     const url = `${dialog.dataset.base}components/${id}.html`
     frame.title = `${name} expanded interactive preview`; frame.src = url
-    codeContent.textContent = ''
-    dialog.querySelector('[data-code-filename]')!.textContent = `${id}.html`
+    dialog.querySelectorAll<HTMLElement>('[data-code-filename]').forEach(label => { label.textContent = `${id}.${label.dataset.codeFilename}` })
+    fileTabs.forEach(tab => { tab.title = `${id}.${tab.dataset.sourceFile}`; tab.setAttribute('aria-label', tab.title) })
     const download = dialog.querySelector<HTMLAnchorElement>('[data-playground-download]')!
     download.href = url; download.download = `${id}.html`
-    selectView(button.dataset.componentView || 'preview')
     const lenis = (window as any).lenis
     resumeScroll = Boolean(lenis && !lenis.isStopped)
     lenis?.stop(); dialog.showModal()
+    selectView(button.dataset.componentView || 'preview')
     tabs.find(tab => tab.getAttribute('aria-selected') === 'true')?.focus({ preventScroll: true })
   }))
   tabs.forEach(tab => {
@@ -83,19 +137,50 @@ const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
       selectView(next.dataset.playgroundTab!); next.focus()
     })
   })
+  fileTabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => selectFile(tab.dataset.sourceFile as Language))
+    tab.addEventListener('keydown', e => {
+      if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) return
+      e.preventDefault()
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? 2 : (i + (e.key === 'ArrowDown' ? 1 : 2)) % 3
+      selectFile(fileTabs[next].dataset.sourceFile as Language); fileTabs[next].focus()
+    })
+  })
   dialog.querySelector('[data-playground-close]')!.addEventListener('click', () => dialog.close())
   // Escape originating inside a preview's browsing context does not bubble to the dialog.
   window.addEventListener('message', e => { if (e.origin === location.origin && e.source === frame.contentWindow && e.data?.type === 'component-escape' && dialog.open) dialog.close() })
   dialog.addEventListener('click', e => { if (e.target !== dialog) return; const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close() })
-  dialog.addEventListener('close', () => { copyVersion++; frame.src = 'about:blank'; if (resumeScroll) (window as any).lenis?.start(); trigger?.focus({ preventScroll: true }) })
-  dialog.querySelector('[data-playground-copy]')!.addEventListener('click', async () => {
-    const version = ++copyVersion
-    let source: string
-    try { source = await getSource(current) }
-    catch { if (version === copyVersion) status.textContent = 'Source could not load. Try Download .html.'; return }
-    if (version !== copyVersion) return
-    try { await navigator.clipboard.writeText(source); if (version === copyVersion) status.textContent = 'Copied — make it yours.' }
-    catch { if (version !== copyVersion) return; selectView('code', false); const pre = document.createElement('pre'), code = document.createElement('code'); code.textContent = source; pre.append(code); codeContent.replaceChildren(pre); const range = document.createRange(); range.selectNodeContents(code); const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range); status.textContent = 'Press Ctrl+C / ⌘C to copy the selected code.' }
+  dialog.addEventListener('close', () => { session++; copyVersion++; resetCode(); frame.src = 'about:blank'; if (resumeScroll) (window as any).lenis?.start(); trigger?.focus({ preventScroll: true }) })
+  panes.forEach(pane => {
+    const language = pane.dataset.codePane as Language
+    const copy = pane.querySelector<HTMLButtonElement>('[data-code-copy]')!
+    copy.addEventListener('click', async () => {
+      if (!files) return
+      const source = files[language], version = ++copyVersion
+      try {
+        await navigator.clipboard.writeText(source)
+        if (version !== copyVersion) return
+        pane.parentElement!.querySelectorAll<HTMLElement>('[data-copied]').forEach(button => { delete button.dataset.copied })
+        copy.dataset.copied = 'true'
+        status.textContent = `Copied ${current}.${language}.`
+      } catch {
+        if (version !== copyVersion) return
+        const code = pane.querySelector('code')!
+        const range = document.createRange(); range.selectNodeContents(code)
+        const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range)
+        status.textContent = 'Press Ctrl+C / ⌘C to copy the selected code.'
+      }
+    })
+    pane.querySelector('[data-code-download]')!.addEventListener('click', () => {
+      if (!files) return
+      const type = { html: 'text/html', css: 'text/css', js: 'text/javascript' }[language]
+      const url = URL.createObjectURL(new Blob([files[language]], { type: `${type};charset=utf-8` }))
+      const link = document.createElement('a')
+      link.href = url; link.download = `${current}.${language}`
+      document.body.append(link); link.click(); link.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      status.textContent = `Downloaded ${current}.${language}.`
+    })
   })
 </script>
 
@@ -111,40 +196,87 @@ const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
     button, a { color: inherit; font: 400 11px / 1.5 font-family(fraktion); }
     button { background: none; border: 0; min-height: 40px; padding: 0.5rem 0.75rem; cursor: pointer; }
     button:hover, a:hover { text-decoration: underline; text-underline-offset: 4px; }
-    [data-playground-close] span { margin-left: 1rem; font-size: 24px; vertical-align: middle; }
+    [data-playground-close] :global(.playground__close-icon) { margin-left: 1rem; width: 20px; height: 20px; }
     &__toolbar { padding-block: 0.5rem; border-bottom: 1px solid color(line); }
-    [role='tab'][aria-selected='true'] { background: color(secondary); color: color(primary); }
-    &__actions { display: flex; align-items: center; gap: 1rem; }
-    &__actions a { display: inline-flex; align-items: center; min-height: 40px; text-decoration: none; }
+    &__toolbar [role='tab'][aria-selected='true'] { background: color(secondary); color: color(primary); }
     &__preview, &__code { flex: 1; min-height: 0; }
     &__preview iframe { display: block; width: 100%; height: 100%; border: 0; }
-    &__code { padding: 1.25rem; background: #161b22; overflow: hidden; }
+    &__code { display: flex; flex-direction: column; padding: 0; background: #0a0a0a; overflow: hidden; }
     &__foot { min-height: 32px; padding-block: .5rem; border-top: 1px solid color(line); font: 400 10px / 1.5 font-family(fraktion); }
     &__foot a { font-size: inherit; }
     [hidden] { display: none !important; }
   }
+  .code-workbench {
+    display: grid; grid-template-columns: 230px minmax(0, 1fr); flex: 1; min-height: 0; overflow: hidden;
+    &__foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-shrink: 0; padding: 0 .75rem; border-top: 1px solid #242424; color: #929292; font: 10px / 1.5 'Cascadia Code', Consolas, monospace; }
+    &__foot a { display: inline-flex; align-items: center; gap: .5rem; min-height: 32px; color: #a8a8a8; text-decoration: none; }
+    &__foot a:hover { color: #fff; }
+  }
+  .code-sidebar {
+    grid-column: 1; grid-row: 1; overflow: auto; background: #0a0a0a; border-right: 1px solid #292929; color: #a4a4a4; scrollbar-color: #3a3a3a #0a0a0a;
+    &__heading { display: flex; align-items: center; height: 40px; padding: 0 .75rem; font: 11px / 1.4 Arial, sans-serif; text-transform: uppercase; border-bottom: 1px solid #242424; }
+    [role='tablist'] { padding: 6px; }
+    :global(.code-sidebar__icon) { width: 17px; height: 19px; color: #3e9bff; }
+    &__short { display: none; }
+  }
+  .playground .code-sidebar button {
+    display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 34px; margin-bottom: 2px; padding: .4rem .6rem; border-radius: 6px; text-align: left; color: #bdbdbd; font: 12px / 1.5 Arial, sans-serif;
+    [data-code-filename] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    &:hover { background: #1a1a1a; color: #e6e6e6; text-decoration: none; }
+    &[aria-selected='true'] { background: #272727; color: #f0f0f0; }
+    &:focus-visible { outline: 1px solid #808080; outline-offset: -1px; }
+  }
   .code-editor {
-    height: 100%; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #30363d; border-radius: 10px; background: #0d1117; color: #c9d1d9; color-scheme: dark; box-shadow: 0 8px 32px #0002;
-    &__bar, &__status { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; padding: .85rem 1rem; background: #161b22; font: 12px / 1.4 'Cascadia Code', Consolas, monospace; }
-    &__bar { border-bottom: 1px solid #30363d; }
-    &__dots { display: flex; gap: 6px; i { width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; } i:nth-child(2) { background: #febc2e; } i:nth-child(3) { background: #28c840; } }
-    &__language { margin-left: auto; color: #8b949e; font-size: 10px; }
-    &__viewport { flex: 1; min-height: 0; overflow: auto; scrollbar-color: #484f58 #0d1117; }
-    &__viewport:focus-visible { outline: 2px solid #58a6ff; outline-offset: -3px; }
-    &__status { justify-content: space-between; padding-block: .45rem; font-size: 10px; color: #8b949e; border-top: 1px solid #30363d; }
-    [data-code-content] { min-height: 100%; }
-    :global(pre) { margin: 0; width: max-content; min-width: 100%; padding: 1.5rem 1.5rem 1.5rem 0; font: 13px / 1.8 'Cascadia Code', Consolas, monospace; tab-size: 2; counter-reset: code-line; }
+    grid-column: 2; grid-row: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: #0a0a0a; color: #d1d1d1; color-scheme: dark;
+    &__bar { display: flex; align-items: center; gap: .5rem; flex-shrink: 0; height: 40px; padding: 0 .4rem 0 .9rem; background: #0a0a0a; border-bottom: 1px solid #242424; font: 11px / 1.4 'Cascadia Code', Consolas, monospace; }
+    &__file { display: flex; min-width: 0; overflow: hidden; color: #a0a0a0; white-space: nowrap; }
+    [data-code-filename] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    &__actions { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
+    &__viewport { flex: 1; min-height: 0; overflow: auto; scrollbar-color: #3a3a3a #0a0a0a; }
+    &__viewport:focus-visible { outline: 1px solid #808080; outline-offset: -2px; }
+    [data-code-content] { min-height: 100%; font: 13px / 1.7 'Cascadia Code', Consolas, monospace; }
+    :global(pre) { margin: 0; width: max-content; min-width: 100%; padding: 1rem 2rem 2rem; background: transparent !important; font: 13px / 1.7 'Cascadia Code', Consolas, monospace; tab-size: 2; }
     :global(.line) { display: inline-block; min-width: 100%; }
-    :global(.line::before) { counter-increment: code-line; content: counter(code-line); display: inline-block; width: 4rem; margin-right: 1.5rem; padding-right: 1rem; border-right: 1px solid #21262d; text-align: right; color: #6e7681; user-select: none; }
-    :global(.line:hover) { background: #ffffff05; }
+  }
+  .playground .code-action {
+    display: grid; place-items: center; min-height: 32px; width: 32px; padding: 7px; border: 1px solid transparent; border-radius: 5px; color: #a6a6a6; transition: color .18s ease, background .18s ease, border-color .18s ease;
+    .copy-icon, :global(.download-icon) { position: relative; display: block; width: 17px; height: 17px; }
+    &:hover:not(:disabled), &:focus-visible { background: #ffffff0b; color: #f0f6fc; border-color: #434b59; text-decoration: none; }
+    &:focus-visible { outline: 2px solid #83b8fa; outline-offset: 2px; }
+    &:disabled { opacity: .3; cursor: wait; }
+    &[data-copied] { color: #80d8a1; background: #80d8a10d; }
+    :global(.copy-icon__image), :global(.copy-icon__check) { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform .2s cubic-bezier(.2,.8,.2,1), opacity .2s ease; }
+    :global(.copy-icon__check) { opacity: 0; transform: scale(.65); }
+    &:hover :global(.copy-icon__image) { transform: translateY(-1px); }
+    &[data-copied] :global(.copy-icon__image) { opacity: 0; transform: scale(.8); }
+    &[data-copied] :global(.copy-icon__check) { opacity: 1; transform: scale(1); }
+    :global(.download-icon svg line), :global(.download-icon svg polyline) { transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+    &:hover :global(.download-icon svg line), &:hover :global(.download-icon svg polyline) { transform: translateY(2px); }
+    &:active { background: #ffffff15; }
   }
   @media (max-width: 600px) {
     .playground { width: calc(100vw - 1rem); height: calc(100dvh - 1rem);
       &__head, &__toolbar, &__foot { padding-inline: 0.75rem; }
+      &__head { gap: .6rem; }
+      [data-playground-close] { padding-inline: .25rem; }
+      [data-playground-close] :global(.playground__close-icon) { margin-left: .35rem; width: 18px; height: 18px; }
       &__toolbar { flex-wrap: wrap; gap: 0; }
-      &__actions { gap: 0.5rem; }
       &__foot { flex-wrap: wrap; gap: 0.25rem; }
-      &__code { padding: 1rem; }
+      &__code { padding: 0; }
     }
+    .code-workbench__foot { font-size: 9px; }
+    .code-workbench__foot a { font-size: 10px; }
+    .code-workbench { grid-template-columns: 48px minmax(0, 1fr); }
+    .code-sidebar__heading { justify-content: center; padding: 0; font-size: 8px; letter-spacing: 0; }
+    .code-sidebar [role='tablist'] { padding: 6px 4px; }
+    .playground .code-sidebar button { flex-direction: column; justify-content: center; min-height: 48px; gap: 2px; padding-inline: 0; }
+    .code-sidebar__short { display: block; font: 7px / 1.3 'Cascadia Code', Consolas, monospace; color: #aaa; }
+    .code-sidebar [data-code-filename] { display: none; }
+    .code-editor__bar { padding-inline: .5rem; gap: .4rem; }
+    .code-editor :global(pre) { padding: 1rem; }
+    .playground .code-action { width: 34px; padding: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .playground .code-action, .playground .code-action :global(.lucide-icon), .playground .code-action :global(svg *) { transition: none; }
   }
 </style>

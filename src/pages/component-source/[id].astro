@@ -2,9 +2,12 @@
 import { Code } from 'astro:components'
 import cutout from '../../../public/components/cutout.html?raw'
 import emulsion from '../../../public/components/emulsion.html?raw'
+import { splitComponentSource } from '../../utils/component-source.mjs'
 export function getStaticPaths() {
-  return [{ params: { id: 'cutout' }, props: { source: cutout } }, { params: { id: 'emulsion' }, props: { source: emulsion } }]
+  return [{ params: { id: 'cutout' }, props: { source: cutout, id: 'cutout' } }, { params: { id: 'emulsion' }, props: { source: emulsion, id: 'emulsion' } }]
 }
-const { source } = Astro.props
+const { source, id } = Astro.props
+const files = splitComponentSource(source, id)
 ---
-<Code code={source} lang="html" theme="github-dark" />
+{Object.entries(files).map(([language, code]) => <section data-source-part={language}><Code code={code} lang={language === 'js' ? 'javascript' : language} theme="github-dark" /></section>)}
+<script is:inline type="application/json" data-component-files set:html={JSON.stringify(files).replace(/</g, '\\u003c')} />

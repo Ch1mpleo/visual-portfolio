@@ -117,7 +117,7 @@
         top: 9%;
         margin: 0;
         color: var(--paper);
-        font: 11px/1.4 monospace;
+        font: 12px/1.4 monospace;
         letter-spacing: 0.14em;
       }
       .question strong {
@@ -128,7 +128,7 @@
         background: #231f19;
         color: #f3eddf;
         font:
-          900 clamp(20px, 4.2vw, 64px) / 1.1 Arial,
+          900 clamp(22px, 4.6vw, 70px) / 1.1 Arial,
           sans-serif;
         letter-spacing: -0.03em;
         transform: rotate(-2deg);
@@ -141,7 +141,7 @@
         background: #edbc23;
         color: #231f19;
         font:
-          italic 900 clamp(20px, 3.6vw, 54px) / 1.1 Arial,
+          italic 900 clamp(22px, 4vw, 60px) / 1.1 Arial,
           sans-serif;
         transform: rotate(5deg);
       }
@@ -150,12 +150,12 @@
         top: 39%;
         left: 8%;
         color: #e0e5ce;
-        font: clamp(8px, 1.3vw, 14px) / 1.5 monospace;
+        font: clamp(9px, 1.4vw, 15px) / 1.5 monospace;
         letter-spacing: 0.13em;
       }
       .prompt-arrow {
         display: block;
-        width: clamp(150px, min(26vw, 38vh), 300px);
+        width: clamp(165px, min(29vw, 42vh), 330px);
         height: auto;
         margin: 8px 0 0 -5px;
         overflow: visible;
@@ -193,7 +193,7 @@
         border-radius: 2px;
         box-shadow: 1px 4px 7px #0003;
         font:
-          900 clamp(20px, 6.2vw, 82px) / 1.1 Arial,
+          900 clamp(22px, 6.8vw, 90px) / 1.1 Arial,
           Helvetica,
           sans-serif;
         letter-spacing: -0.035em;
@@ -202,7 +202,7 @@
         display: block;
         margin-top: 9px;
         color: #d3ddc7;
-        font: clamp(6px, 0.95vw, 11px) / 1.3 monospace;
+        font: clamp(7px, 1.05vw, 12px) / 1.3 monospace;
         text-transform: uppercase;
         letter-spacing: 0.12em;
       }
@@ -290,7 +290,7 @@
         --type: #202b4b;
       }
       .mood[data-mood='dreamy'] .paper {
-        font-size: clamp(17px, 4.5vw, 63px);
+        font-size: clamp(19px, 5vw, 69px);
       }
       .mood[data-mood='cinematic'] {
         left: 30%;
@@ -300,7 +300,7 @@
         --type: #30271d;
       }
       .mood[data-mood='cinematic'] .paper {
-        font-size: clamp(20px, 4.8vw, 65px);
+        font-size: clamp(22px, 5.3vw, 71px);
       }
       .desk-sticker {
         position: absolute;
@@ -316,25 +316,25 @@
         height: auto;
       }
       .camera {
-        width: clamp(70px, 12vw, 160px);
-        left: 38%;
+        width: clamp(82px, 14vw, 185px);
+        left: 44%;
         top: 2%;
         transform: rotate(-11deg);
       }
       .film {
-        width: clamp(50px, 7vw, 100px);
+        width: clamp(58px, 8.2vw, 116px);
         left: 3%;
         bottom: 3%;
         transform: rotate(-24deg);
       }
       .lens {
-        width: clamp(55px, 8vw, 105px);
+        width: clamp(64px, 9.3vw, 122px);
         right: 2%;
         bottom: 3%;
         transform: rotate(15deg);
       }
       .prints {
-        width: clamp(40px, 4.5vw, 64px);
+        width: clamp(47px, 5.2vw, 74px);
         left: 3%;
         top: 45%;
         transform: rotate(-10deg);
@@ -354,8 +354,8 @@
       }
       .coffee {
         position: absolute;
-        width: 85px;
-        height: 85px;
+        width: 98px;
+        height: 98px;
         border: 5px solid #8a71432b;
         border-radius: 50%;
         bottom: 15%;
@@ -622,8 +622,8 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 34px;
-        height: 42px;
+        width: 38px;
+        height: 47px;
         pointer-events: none;
         z-index: 30;
         filter: drop-shadow(2px 3px 2px #0007);
@@ -643,26 +643,26 @@
           left: 8%;
         }
         .question strong {
-          font-size: 7vw;
+          font-size: 7.7vw;
         }
         .question em {
-          font-size: 7vw;
+          font-size: 7.7vw;
         }
         .camera {
           top: 4%;
           left: 70%;
-          width: clamp(45px, 12vw, 90px);
+          width: clamp(53px, 14vw, 105px);
         }
         .prompt {
           top: 31%;
           left: 10%;
-          font-size: 9px;
+          font-size: 10px;
         }
         .mood .paper {
-          font-size: 12vw;
+          font-size: 13.2vw;
         }
         .mood small {
-          font-size: 7px;
+          font-size: 8px;
         }
         .mood[data-mood='bold'] {
           left: 52%;
@@ -681,14 +681,14 @@
           top: 69%;
         }
         .mood[data-mood='dreamy'] .paper {
-          font-size: 8vw;
+          font-size: 8.8vw;
         }
         .mood[data-mood='cinematic'] {
           left: 14%;
           top: 84%;
         }
         .mood[data-mood='cinematic'] .paper {
-          font-size: 9vw;
+          font-size: 9.9vw;
         }
         .sheet {
           inset: 4%;
@@ -1230,6 +1230,7 @@
         }
         async function openSheet(button) {
           if (board.dataset.phase !== 'idle') return
+          finishEntrance()
           arrangement.stop()
           const token = ++run
           chosen = button
@@ -1912,6 +1913,60 @@
           }
         }
         const arrangement = createArrangement()
+        const entrance = new Set()
+        function finishEntrance() {
+          entrance.forEach((animation) => animation.cancel())
+          entrance.clear()
+        }
+        function enterBoard() {
+          if (reduced.matches) return
+          // Individual transforms leave the cards' rotation and drag geometry intact.
+          const pieces = [
+            ...board.querySelectorAll('.ruler'),
+            $('.question'),
+            $('.camera'),
+            $('[data-mood="bold"]'),
+            $('.prompt'),
+            $('.prints'),
+            $('[data-mood="dreamy"]'),
+            $('[data-mood="soft"]'),
+            $('[data-mood="raw"]'),
+            $('[data-mood="cinematic"]'),
+            $('.film'),
+            $('.lens'),
+            $('.coffee'),
+          ]
+            .filter((el) => el.getClientRects().length)
+            .sort((a, b) => a.offsetTop - b.offsetTop)
+          pieces.forEach((el, i) => {
+            const opacity = getComputedStyle(el).opacity
+            const animation = el.animate(
+              [
+                { opacity: 0, translate: '0 -24px', scale: '.8' },
+                {
+                  opacity,
+                  translate: '0 3px',
+                  scale: '1.035',
+                  offset: .7,
+                  easing: 'cubic-bezier(.4,0,.3,1)',
+                },
+                { opacity, translate: 'none', scale: '1' },
+              ],
+              { duration: 620, delay: i * 50, easing: ease, fill: 'both' },
+            )
+            entrance.add(animation)
+            animation.finished
+              .then(() => animation.cancel())
+              .catch(() => {})
+              .finally(() => entrance.delete(animation))
+          })
+        }
+        // An early interaction reveals the settled board before hit testing or cutting.
+        board.addEventListener('pointerdown', finishEntrance, { capture: true })
+        board.addEventListener('focusin', finishEntrance)
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) finishEntrance()
+        })
         document.querySelectorAll('.mood').forEach((button) => {
           button.addEventListener('click', () => openSheet(button))
           button.addEventListener('pointerenter', ensureRoll, { once: true })
@@ -1926,7 +1981,10 @@
             closeSheet()
         })
         reduced.addEventListener('change', () => {
-          if (reduced.matches) animations.forEach((a) => a.finish())
+          if (reduced.matches) {
+            finishEntrance()
+            animations.forEach((a) => a.finish())
+          }
         })
         addEventListener('keydown', (e) => {
           if (e.key !== 'Escape') return
@@ -1946,6 +2004,7 @@
           if (next !== size && !['idle', 'open'].includes(board.dataset.phase))
             reset(false)
           if (next !== size) {
+            finishEntrance()
             if (chosen) chosen.style.transform = ''
             arrangement.measure()
           }
@@ -1982,6 +2041,7 @@
           cancelAnimationFrame(cursorFrame)
           cursorFrame = 0
         })
+        enterBoard()
       })()
     </script>
   </body>

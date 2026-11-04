@@ -37,6 +37,26 @@ After replacing `public/documents/resume.pdf`, regenerate its preview images wit
 
 To check the production viewer, build the site and run `node scripts/qa-resume.mjs` with Playwright available. The check covers responsive layouts, themes, zoom, dismissal, focus, scrolling, downloads, and production asset paths.
 
+## Component studies
+
+The Components gallery sits above GOAT. Each card contains a static WebP preview, title, and short description. Interactive demos load only after a card opens. Their downloadable files and copyable source use the same files in `public/components/`.
+
+Open either `.html` file directly in a browser. No package install or build step is needed. Demo photographs load from Unsplash; replace their URLs and captions in each file's photo data to use your own images. Both demos keep one fixed palette and support reduced motion.
+
+Cutout cuts letters from a card, develops a separate photograph inside each letter, then carries those photographs into a contact sheet and its hero print. Closing reverses the handoffs at a faster pace. Transitions use finite Web Animations and clean up their temporary elements, including after interruption or resize. Emulsion uses one animation clock for the pan and damped pendulums; it sleeps when idle, off-screen, or in a hidden tab.
+
+The mood cards can be dragged around the mat. Their rotated rectangles collide with one another and stay inside the board; dragging does not activate a card. Shift+arrow keys nudge a focused card, and Escape cancels an active drag. The arrangement clock sleeps when nothing is moving. Dashed hover outlines run continuously, with a static outline for reduced motion.
+
+Cutout's subdued desk stickers are real photographs with hand-traced cuts, cream paper edges, and baked grain. Their optimized WebP images are embedded in the HTML, preserving single-file copying. [Image sources and processing](public/components/stickers/SOURCES.md) are recorded beside the assets. Regenerate them with `node scripts/prepare-cutout-stickers.mjs`.
+
+The contact sheet uses framed landscape thumbnails, numbered captions, and hand-drawn keeper rings. The intro letters recoil slightly on arrival, with the amount based on the distance travelled; reduced motion skips the movement.
+
+The Code tab uses Astro's build-time syntax highlighting, fetched on demand from `src/pages/component-source/[id].astro`. No browser highlighter or editor dependency is shipped. To regenerate gallery previews after a visual change, run `node scripts/prepare-component-previews.mjs` against the local development server, then rebuild. The generated preview manifest adds content versions to gallery image URLs so browsers pick up updated board artwork.
+
+After building, run `node scripts/qa-components.mjs` with Playwright available (`PLAYWRIGHT_PACKAGE` may point to an existing installation). It checks deferred loading, responsive cards, syntax highlighting, exact source copying and download, both demos, Cutout's forward/reverse handoffs and cancellation, reduced motion, pointer and keyboard input, fixed demo palettes, focus/scroll restoration, and a 200% equivalent viewport. Screenshots are written to `.astro/components-qa/`.
+
+Run `node scripts/qa-cutout-board.mjs` against the local development server for the photo stickers, marching hover outline, rotated-card separation, swept movement, edge constraints, click/drag distinction, touch, keyboard, resize, sequence position retention, and idle clock. `COMPONENT_BOARD_URL` can point it at another preview.
+
 ## GOAT video assets
 
 The original edits live in `src/assets/goats/` and play at their original quality in the popup. The smaller, streaming-friendly copies in `public/goats/full/` play silently on the gallery cards. Opening a card starts the original video from the beginning with sound and controls; closing it resumes the card where it paused. Card videos load as they enter the scene, and posters cover the short wait before playback begins.

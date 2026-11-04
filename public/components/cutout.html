@@ -153,7 +153,23 @@
         font: clamp(8px, 1.3vw, 14px) / 1.5 monospace;
         letter-spacing: 0.13em;
       }
-      .prompt span { display: block; font: 32px/1.3 Georgia, serif; transform: rotate(8deg); }
+      .prompt-arrow {
+        display: block;
+        width: clamp(150px, min(26vw, 38vh), 300px);
+        height: auto;
+        margin: 8px 0 0 -5px;
+        overflow: visible;
+        color: #f0ebd9;
+        pointer-events: none;
+      }
+      .prompt-arrow path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .prompt-arrow .marker-pass { stroke-width: 2; opacity: .3; }
       .mood {
         position: absolute;
         border: 0;
@@ -619,7 +635,6 @@
         }
       }
       @media (max-aspect-ratio: 4/5) {
-        .prompt span { display: none; }
         .prints {
           display: none;
         }
@@ -717,7 +732,11 @@
         </p>
         <p class="prompt">
           PICK ONE — THE CUT DOES THE REST
-          <span aria-hidden="true">⤷</span>
+          <svg class="prompt-arrow" viewBox="0 0 320 110" aria-hidden="true">
+            <path d="M17 16C43 43 78 61 117 67C171 76 229 70 288 52" />
+            <path d="M239 29C255 35 276 44 295 49C280 61 265 76 253 92" />
+            <path class="marker-pass" d="M19 22C49 48 82 64 122 70C180 79 237 69 288 55M243 33L291 51L256 89" />
+          </svg>
         </p>
         <div class="desk-sticker camera" aria-hidden="true">
           <img

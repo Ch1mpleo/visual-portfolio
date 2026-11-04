@@ -433,13 +433,67 @@
         font-size: 9px;
         color: #746b59;
       }
-      .strip { display: grid; flex-shrink: 0; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 8px; border-top: 1px solid #aaa394; padding: 14px 4px 4px; overflow-x: auto; }
-      .strip button { border: 0; background: none; padding: 3px; min-width: 0; }
-      .strip button[aria-pressed='true'] { outline: 2px solid #b53d26; outline-offset: 1px; }
-      .strip img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #c2b39b; }
-      .strip small { font: 9px monospace; }
-      .sheet footer { flex-shrink: 0; margin-top: 12px; font: 9px/1.4 monospace; display: flex; justify-content: space-between; gap: 12px; }
-      .sheet a { color: inherit; }
+      .strip {
+        display: grid;
+        flex-shrink: 0;
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        gap: 9px;
+        padding: 8px 2px 2px;
+        overflow: visible;
+      }
+      .strip button {
+        position: relative;
+        border: 0;
+        background: none;
+        padding: 0;
+        min-width: 0;
+        text-align: left;
+      }
+      .strip button:focus-visible {
+        outline: 2px solid #925b3e;
+        outline-offset: 5px;
+      }
+      .strip-photo {
+        position: relative;
+        display: block;
+      }
+      .strip img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1.5;
+        border: 2px solid #28251e;
+        object-fit: cover;
+        background: #c2b39b;
+        box-shadow: 1px 2px 5px #0006;
+      }
+      .strip small {
+        display: block;
+        margin-top: 5px;
+        color: #898477;
+        font: 11px/1 monospace;
+      }
+      .strip button[aria-pressed='true'] small {
+        color: #332d23;
+      }
+      .keeper-mark {
+        position: absolute;
+        inset: -5px -6px;
+        width: calc(100% + 12px);
+        height: calc(100% + 10px);
+        overflow: visible;
+        pointer-events: none;
+        transform: rotate(-7deg);
+      }
+      .keeper-mark path {
+        fill: none;
+        stroke: #985f42;
+        stroke-width: 1.4;
+        opacity: 0.9;
+        vector-effect: non-scaling-stroke;
+      }
+      .strip button:nth-child(5) .keeper-mark {
+        transform: rotate(8deg);
+      }
       .source-letter {
         display: inline-block;
       }
@@ -790,7 +844,6 @@
             role="group"
             aria-label="Contact sheet photographs"
           ></div>
-          <footer><span>Hover, tap, or use ← → to explore.</span><a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Photos: Unsplash ↗</a></footer>
         </section>
         <span
           class="status"
@@ -958,7 +1011,23 @@
           img.loading = 'lazy'
           const label = document.createElement('small')
           label.textContent = String(i + 1).padStart(2, '0')
-          button.append(img, label)
+          const frame = document.createElement('span')
+          frame.className = 'strip-photo'
+          frame.append(img)
+          if (i === 2 || i === 4) {
+            const mark = document.createElementNS(
+              'http://www.w3.org/2000/svg',
+              'svg',
+            )
+            mark.classList.add('keeper-mark')
+            mark.setAttribute('viewBox', '0 0 100 80')
+            mark.setAttribute('preserveAspectRatio', 'none')
+            mark.setAttribute('aria-hidden', 'true')
+            mark.innerHTML =
+              '<path d="M50 4C79 0 100 17 98 40C99 64 75 77 48 76C18 77 0 60 2 37C3 15 22 2 50 4"/>'
+            frame.append(mark)
+          }
+          button.append(frame, label)
           $('.strip').append(button)
           button.addEventListener('pointermove', (e) => {
             if (
@@ -1092,6 +1161,8 @@
                   getComputedStyle(chosen).getPropertyValue('--angle'),
                 ),
               ),
+              centerX: x,
+              centerY: board.clientHeight * 0.48 - h / 2,
               center: transform(x, board.clientHeight * 0.48 - h / 2),
             }
             x += w
@@ -1173,11 +1244,58 @@
               1,
               delay,
             )
-            return animate(p.el, [
-              { transform: p.home, opacity: 0 },
-              { transform: p.home, opacity: 1, offset: .001 },
-              { transform: p.center, opacity: 1 },
-            ], 850, delay, 'cubic-bezier(.18,1.12,.32,1)')
+            // Faster crossings arrive with a slightly stronger recoil, then settle.
+            const dx = p.centerX - p.source.x,
+              dy = p.centerY - p.source.y
+            const distance = Math.max(1, Math.hypot(dx, dy))
+            const recoil = Math.min(
+              16,
+              Math.max(3, p.h * 0.055),
+              Math.max(3, distance * 0.045),
+            )
+            const rx = (dx / distance) * recoil,
+              ry = (dy / distance) * recoil
+            const tilt = Math.sign(dx || dy) * 0.7
+            return animate(
+              p.el,
+              [
+                { transform: p.home, opacity: 0, offset: 0 },
+                {
+                  transform: p.home,
+                  opacity: 1,
+                  offset: 0.001,
+                  easing: 'cubic-bezier(.16,.85,.3,1)',
+                },
+                {
+                  transform: transform(
+                    p.centerX + rx,
+                    p.centerY + ry,
+                    1.018,
+                    1.018,
+                    tilt,
+                  ),
+                  opacity: 1,
+                  offset: 0.72,
+                  easing: 'cubic-bezier(.35,0,.25,1)',
+                },
+                {
+                  transform: transform(
+                    p.centerX - rx * 0.28,
+                    p.centerY - ry * 0.28,
+                    0.995,
+                    0.995,
+                    -tilt * 0.3,
+                  ),
+                  opacity: 1,
+                  offset: 0.88,
+                  easing: 'cubic-bezier(.22,1,.36,1)',
+                },
+                { transform: p.center, opacity: 1, offset: 1 },
+              ],
+              900,
+              delay,
+              'linear',
+            )
           })
           await cut
           if (token !== run) return
@@ -1215,7 +1333,7 @@
           sheet.inert = true
           sheet.scrollTop = 0
           sheet.style.opacity = '0'
-          const parts = [sheet.querySelector('header'), $('.project'), sheet.querySelector('footer')]
+          const parts = [sheet.querySelector('header'), $('.project')]
           parts.forEach((el) => (el.style.opacity = '0'))
           $('.hero-image').style.opacity = '0'
           cells.forEach((el) => (el.style.opacity = '0'))
@@ -1308,7 +1426,7 @@
           const token = ++run
           phase('closing')
           sheet.inert = true
-          const parts = [sheet.querySelector('header'), $('.project'), sheet.querySelector('footer')]
+          const parts = [sheet.querySelector('header'), $('.project')]
           await Promise.all([
             heroFlight(true, 230),
             ...parts.map((el) =>
@@ -1409,7 +1527,6 @@
           ;[
             sheet.querySelector('header'),
             $('.project'),
-            sheet.querySelector('footer'),
             $('.hero-image'),
             ...cells,
           ].forEach((el) => {

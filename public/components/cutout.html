@@ -160,7 +160,11 @@
         padding: 0;
         background: none;
         color: var(--ink);
-        transform: rotate(var(--angle));
+        transform: translate3d(var(--drag-x, 0px), var(--drag-y, 0px), 0)
+          rotate(var(--angle));
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
         transition: transform 0.25s;
         z-index: 2;
       }
@@ -186,11 +190,48 @@
         text-transform: uppercase;
         letter-spacing: 0.12em;
       }
-      .mood:hover { transform: translateY(-7px) rotate(var(--angle)); }
+      .mood:hover {
+        transform: translate3d(
+            var(--drag-x, 0px),
+            calc(var(--drag-y, 0px) - 7px),
+            0
+          )
+          rotate(var(--angle));
+      }
       .mood:hover .paper {
-        outline: 1px dashed #eee8d4;
-        outline-offset: 7px;
         box-shadow: 3px 14px 15px #0005;
+      }
+      .selection-outline {
+        position: absolute;
+        inset: -10px;
+        width: calc(100% + 20px);
+        height: calc(var(--paper-height, 100%) + 20px);
+        overflow: visible;
+        pointer-events: none;
+        opacity: 0;
+      }
+      .selection-outline rect {
+        fill: none;
+        stroke: #eee8d4;
+        stroke-width: 2;
+        stroke-dasharray: 7 6;
+        vector-effect: non-scaling-stroke;
+      }
+      .mood:hover .selection-outline,
+      .mood:focus-visible .selection-outline {
+        opacity: 1;
+      }
+      .mood:hover .selection-outline rect,
+      .mood:focus-visible .selection-outline rect {
+        animation: march-ants 0.65s linear infinite;
+      }
+      .board:not([data-phase='idle']) .selection-outline {
+        display: none;
+      }
+      @keyframes march-ants {
+        to {
+          stroke-dashoffset: -26;
+        }
       }
       .mood:hover .paper:after {
         content: '';
@@ -485,7 +526,21 @@
       .board:not([data-phase='idle']) .mood {
         pointer-events: none;
       }
-      .board:not([data-phase='idle']) .mood:hover { transform: rotate(var(--angle)); }
+      .board:not([data-phase='idle']) .mood:hover,
+      .board.is-arranging .mood:hover {
+        transform: translate3d(var(--drag-x, 0px), var(--drag-y, 0px), 0)
+          rotate(var(--angle));
+      }
+      .board.is-arranging .mood {
+        transition: opacity 0.3s ease;
+      }
+      .mood.is-dragging {
+        z-index: 4;
+      }
+      .mood.is-dragging .paper {
+        box-shadow: 4px 16px 18px #0006;
+      }
+
       .board-cursor {
         position: fixed;
         top: 0;
@@ -641,22 +696,37 @@
         </div>
         <div class="coffee" aria-hidden="true"></div>
         <button class="mood" data-mood="bold">
+          <svg class="selection-outline" aria-hidden="true">
+            <rect x="0" y="0" width="100%" height="100%" />
+          </svg>
           <span class="paper">BOLD</span>
           <small>Colour that argues</small>
         </button>
         <button class="mood" data-mood="soft">
+          <svg class="selection-outline" aria-hidden="true">
+            <rect x="0" y="0" width="100%" height="100%" />
+          </svg>
           <span class="paper">SOFT</span>
           <small>One window. No flash.</small>
         </button>
         <button class="mood" data-mood="raw">
+          <svg class="selection-outline" aria-hidden="true">
+            <rect x="0" y="0" width="100%" height="100%" />
+          </svg>
           <span class="paper">RAW</span>
           <small>Push it two stops</small>
         </button>
         <button class="mood" data-mood="dreamy">
+          <svg class="selection-outline" aria-hidden="true">
+            <rect x="0" y="0" width="100%" height="100%" />
+          </svg>
           <span class="paper">DREAMY</span>
           <small>Shoot it through glass</small>
         </button>
         <button class="mood" data-mood="cinematic">
+          <svg class="selection-outline" aria-hidden="true">
+            <rect x="0" y="0" width="100%" height="100%" />
+          </svg>
           <span class="paper">CINEMATIC</span>
           <small>One lamp, one window</small>
         </button>
@@ -1063,6 +1133,7 @@
         }
         async function openSheet(button) {
           if (board.dataset.phase !== 'idle') return
+          arrangement.stop()
           const token = ++run
           chosen = button
           chosen.style.transform = getComputedStyle(chosen).transform
@@ -1357,6 +1428,347 @@
           phase('idle')
           if (focus) chosen?.focus({ preventScroll: true })
         }
+        function createArrangement() {
+          const elements = [...document.querySelectorAll('.mood')]
+          const gap = 10,
+            inset = 18
+          let slots = [],
+            drag = null,
+            moving = null,
+            raf = 0,
+            lastTime = 0
+          const suppressed = new WeakMap()
+          const clamp = (value, min, max) => Math.max(min, Math.min(max, value))
+          const apply = (slot) => {
+            slot.el.style.setProperty('--drag-x', `${slot.x - slot.baseX}px`)
+            slot.el.style.setProperty('--drag-y', `${slot.y - slot.baseY}px`)
+          }
+          function contain(slot) {
+            const ex =
+              Math.abs(slot.cos) * slot.hw + Math.abs(slot.sin) * slot.hh
+            const ey =
+              Math.abs(slot.sin) * slot.hw + Math.abs(slot.cos) * slot.hh
+            slot.x = clamp(slot.x, inset + ex, board.clientWidth - inset - ex)
+            slot.y = clamp(slot.y, inset + ey, board.clientHeight - inset - ey)
+          }
+          // Separating-axis collision for the actual rotated card rectangles.
+          function collision(a, b) {
+            let depth = Infinity,
+              result = null
+            for (const [x, y] of [
+              [a.cos, a.sin],
+              [-a.sin, a.cos],
+              [b.cos, b.sin],
+              [-b.sin, b.cos],
+            ]) {
+              const ra =
+                a.hw * Math.abs(a.cos * x + a.sin * y) +
+                a.hh * Math.abs(-a.sin * x + a.cos * y)
+              const rb =
+                b.hw * Math.abs(b.cos * x + b.sin * y) +
+                b.hh * Math.abs(-b.sin * x + b.cos * y)
+              const distance = (a.x - b.x) * x + (a.y - b.y) * y
+              const overlap = ra + rb + gap - Math.abs(distance)
+              if (overlap <= 0.01) return null
+              if (overlap < depth) {
+                depth = overlap
+                const sign = distance < 0 ? -1 : 1
+                result = {
+                  x: x * (overlap + 0.04) * sign,
+                  y: y * (overlap + 0.04) * sign,
+                }
+              }
+            }
+            return result
+          }
+          const blocked = (slot) =>
+            slots.some((other) => other !== slot && collision(slot, other))
+          function move(slot, dx, dy) {
+            // Small swept steps prevent fast pointer movement tunnelling through a neighbour.
+            const steps = Math.max(
+              1,
+              Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 6),
+            )
+            for (let i = 0; i < steps; i++) {
+              const oldX = slot.x,
+                oldY = slot.y
+              slot.x += dx / steps
+              slot.y += dy / steps
+              contain(slot)
+              for (let pass = 0; pass < 8; pass++) {
+                let hit = false
+                for (const other of slots) {
+                  if (other === slot) continue
+                  const push = collision(slot, other)
+                  if (push) {
+                    slot.x += push.x
+                    slot.y += push.y
+                    contain(slot)
+                    hit = true
+                  }
+                }
+                if (!hit) break
+              }
+              if (blocked(slot)) {
+                slot.x = oldX
+                slot.y = oldY
+              }
+            }
+            apply(slot)
+          }
+          function stop() {
+            cancelAnimationFrame(raf)
+            raf = 0
+            moving = null
+            if (drag?.slot.el.hasPointerCapture(drag.id))
+              drag.slot.el.releasePointerCapture(drag.id)
+            drag = null
+            elements.forEach((el) => el.classList.remove('is-dragging'))
+            board.classList.remove('is-arranging')
+          }
+          function tick(time) {
+            raf = 0
+            if (!moving || board.dataset.phase !== 'idle') {
+              stop()
+              return
+            }
+            const dt = lastTime
+              ? Math.min((time - lastTime) / 1000, 0.032)
+              : 1 / 60
+            lastTime = time
+            const { slot, x, y } = moving,
+              beforeX = slot.x,
+              beforeY = slot.y
+            const factor = reduced.matches ? 1 : 1 - Math.exp(-28 * dt)
+            move(slot, (x - slot.x) * factor, (y - slot.y) * factor)
+            const remaining = Math.hypot(x - slot.x, y - slot.y),
+              travelled = Math.hypot(slot.x - beforeX, slot.y - beforeY)
+            if (remaining > 0.15 && travelled > 0.015)
+              raf = requestAnimationFrame(tick)
+            else if (!drag) {
+              moving = null
+              board.classList.remove('is-arranging')
+            }
+          }
+          function wake() {
+            if (!raf) {
+              lastTime = 0
+              raf = requestAnimationFrame(tick)
+            }
+          }
+          function measure() {
+            stop()
+            board.classList.add('is-arranging')
+            elements.forEach((el) => {
+              el.style.removeProperty('--drag-x')
+              el.style.removeProperty('--drag-y')
+            })
+            slots = elements.map((el) => {
+              const angle =
+                (parseFloat(getComputedStyle(el).getPropertyValue('--angle')) *
+                  Math.PI) /
+                180
+              const hw = el.offsetWidth / 2,
+                hh = el.offsetHeight / 2
+              el.style.setProperty(
+                '--paper-height',
+                `${el.querySelector('.paper').offsetHeight}px`,
+              )
+              const baseX = el.offsetLeft + hw,
+                baseY = el.offsetTop + hh
+              return {
+                el,
+                hw,
+                hh,
+                cos: Math.cos(angle),
+                sin: Math.sin(angle),
+                baseX,
+                baseY,
+                x: baseX,
+                y: baseY,
+              }
+            })
+            const placed = []
+            for (const slot of slots) {
+              contain(slot)
+              if (placed.some((other) => collision(slot, other))) {
+                const originalX = slot.x,
+                  originalY = slot.y
+                let best = null,
+                  distance = Infinity
+                for (let y = inset; y < board.clientHeight - inset; y += 12)
+                  for (let x = inset; x < board.clientWidth - inset; x += 12) {
+                    slot.x = x
+                    slot.y = y
+                    contain(slot)
+                    const d =
+                      (slot.x - originalX) ** 2 + (slot.y - originalY) ** 2
+                    if (
+                      d < distance &&
+                      !placed.some((other) => collision(slot, other))
+                    ) {
+                      best = { x: slot.x, y: slot.y }
+                      distance = d
+                    }
+                  }
+                if (best) {
+                  slot.x = best.x
+                  slot.y = best.y
+                } else {
+                  slot.x = originalX
+                  slot.y = originalY
+                }
+              }
+              placed.push(slot)
+              apply(slot)
+            }
+            void board.offsetWidth
+            board.classList.remove('is-arranging')
+          }
+          function finish(event, cancelled = false) {
+            if (!drag || event.pointerId !== drag.id) return
+            const current = drag
+            drag = null
+            if (current.didDrag) {
+              suppressed.set(current.slot.el, performance.now() + 350)
+              if (cancelled) {
+                current.slot.x = current.startX
+                current.slot.y = current.startY
+                apply(current.slot)
+                void current.slot.el.offsetWidth
+                moving = null
+              }
+              $('.status').textContent =
+                `${current.slot.el.dataset.mood} card placed.`
+            }
+            current.slot.el.classList.remove('is-dragging')
+            if (current.slot.el.hasPointerCapture(event.pointerId))
+              current.slot.el.releasePointerCapture(event.pointerId)
+            if (!moving || cancelled || !raf) {
+              moving = null
+              cancelAnimationFrame(raf)
+              raf = 0
+              board.classList.remove('is-arranging')
+            }
+            // Captured touch pointers do not synthesize click consistently across browsers.
+            if (
+              !current.didDrag &&
+              !cancelled &&
+              event.pointerType === 'touch'
+            ) {
+              suppressed.set(current.slot.el, performance.now() + 350)
+              current.slot.el.click()
+            }
+          }
+          for (const el of elements) {
+            el.setAttribute(
+              'aria-description',
+              'Drag to rearrange. Click to explore. Shift and arrow keys move this card.',
+            )
+            el.addEventListener('pointerdown', (event) => {
+              if (
+                event.button !== 0 ||
+                !event.isPrimary ||
+                board.dataset.phase !== 'idle'
+              )
+                return
+              stop()
+              const slot = slots.find((item) => item.el === el)
+              drag = {
+                id: event.pointerId,
+                slot,
+                pointerX: event.clientX,
+                pointerY: event.clientY,
+                startX: slot.x,
+                startY: slot.y,
+                didDrag: false,
+              }
+              el.setPointerCapture(event.pointerId)
+            })
+            el.addEventListener(
+              'pointermove',
+              (event) => {
+                if (!drag || drag.id !== event.pointerId) return
+                const dx = event.clientX - drag.pointerX,
+                  dy = event.clientY - drag.pointerY
+                if (!drag.didDrag && Math.hypot(dx, dy) < 6) return
+                drag.didDrag = true
+                board.classList.add('is-arranging')
+                el.classList.add('is-dragging')
+                const goal = {
+                  ...drag.slot,
+                  x: drag.startX + dx,
+                  y: drag.startY + dy,
+                }
+                contain(goal)
+                moving = { slot: drag.slot, x: goal.x, y: goal.y }
+                wake()
+              },
+              { passive: true },
+            )
+            el.addEventListener('pointerup', (event) => finish(event))
+            el.addEventListener('pointercancel', (event) => finish(event, true))
+            el.addEventListener('lostpointercapture', (event) =>
+              finish(event, true),
+            )
+            el.addEventListener('keydown', (event) => {
+              if (
+                !event.shiftKey ||
+                !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
+                  event.key,
+                ) ||
+                board.dataset.phase !== 'idle'
+              )
+                return
+              event.preventDefault()
+              stop()
+              const slot = slots.find((item) => item.el === el)
+              board.classList.add('is-arranging')
+              move(
+                slot,
+                event.key === 'ArrowLeft'
+                  ? -12
+                  : event.key === 'ArrowRight'
+                    ? 12
+                    : 0,
+                event.key === 'ArrowUp'
+                  ? -12
+                  : event.key === 'ArrowDown'
+                    ? 12
+                    : 0,
+              )
+              void el.offsetWidth
+              board.classList.remove('is-arranging')
+            })
+            el.addEventListener(
+              'click',
+              (event) => {
+                if (
+                  event.detail > 0 &&
+                  performance.now() < (suppressed.get(el) || 0)
+                ) {
+                  event.preventDefault()
+                  event.stopImmediatePropagation()
+                }
+              },
+              true,
+            )
+          }
+          document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stop()
+          })
+          measure()
+          return {
+            stop,
+            measure,
+            cancel: () => {
+              if (!drag) return false
+              finish({ pointerId: drag.id }, true)
+              return true
+            },
+          }
+        }
+        const arrangement = createArrangement()
         document.querySelectorAll('.mood').forEach((button) => {
           button.addEventListener('click', () => openSheet(button))
           button.addEventListener('pointerenter', ensureRoll, { once: true })
@@ -1375,6 +1787,10 @@
         })
         addEventListener('keydown', (e) => {
           if (e.key !== 'Escape') return
+          if (arrangement.cancel()) {
+            e.preventDefault()
+            return
+          }
           if (board.dataset.phase === 'open') closeSheet()
           else if (board.dataset.phase !== 'idle') reset()
           else if (parent !== window)
@@ -1386,6 +1802,10 @@
           const next = `${board.clientWidth}:${board.clientHeight}`
           if (next !== size && !['idle', 'open'].includes(board.dataset.phase))
             reset(false)
+          if (next !== size) {
+            if (chosen) chosen.style.transform = ''
+            arrangement.measure()
+          }
           size = next
         }).observe(board)
         // The pointer is drawn only on fine-pointer devices, with no permanent render loop.

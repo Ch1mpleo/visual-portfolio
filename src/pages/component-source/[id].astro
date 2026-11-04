@@ -1,0 +1,10 @@
+---
+import { Code } from 'astro:components'
+import cutout from '../../../public/components/cutout.html?raw'
+import emulsion from '../../../public/components/emulsion.html?raw'
+export function getStaticPaths() {
+  return [{ params: { id: 'cutout' }, props: { source: cutout } }, { params: { id: 'emulsion' }, props: { source: emulsion } }]
+}
+const { source } = Astro.props
+---
+<Code code={source} lang="html" theme="github-dark" />

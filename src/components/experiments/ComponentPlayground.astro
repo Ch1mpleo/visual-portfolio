@@ -1,0 +1,150 @@
+---
+const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
+---
+<dialog id="component-playground" class="playground" aria-labelledby="playground-title" data-base={base}>
+  <div class="playground__head"><div><span class="playground__eyebrow">Component study</span><h2 id="playground-title">Cutout</h2></div><button type="button" data-playground-close aria-label="Close component playground">Close <span aria-hidden="true">×</span></button></div>
+  <div class="playground__toolbar"><div role="tablist" aria-label="Component view"><button id="playground-preview-tab" type="button" role="tab" aria-selected="true" aria-controls="playground-preview" tabindex="0" data-playground-tab="preview">Preview</button><button id="playground-code-tab" type="button" role="tab" aria-selected="false" aria-controls="playground-code" tabindex="-1" data-playground-tab="code">Code</button></div><div class="playground__actions"><a data-playground-download download>Download .html ↓</a><button type="button" data-playground-copy>Copy code</button></div></div>
+  <div id="playground-preview" role="tabpanel" aria-labelledby="playground-preview-tab" class="playground__preview"><iframe title="Expanded component preview" sandbox="allow-scripts allow-same-origin" /></div>
+  <div id="playground-code" role="tabpanel" aria-labelledby="playground-code-tab" class="playground__code" hidden>
+    <div class="code-editor">
+      <div class="code-editor__bar"><span class="code-editor__dots" aria-hidden="true"><i></i><i></i><i></i></span><span data-code-filename>cutout.html</span><span class="code-editor__language">HTML</span></div>
+      <div class="code-editor__viewport" data-lenis-prevent tabindex="0" aria-label="Component source code"><div data-code-content></div></div>
+      <div class="code-editor__status"><span>UTF-8</span><span>Ready to copy · No dependencies</span></div>
+    </div>
+  </div>
+  <div class="playground__foot"><span role="status" aria-live="polite" data-playground-status></span></div>
+</dialog>
+
+<script>
+  type ComponentId = 'cutout' | 'emulsion'
+  const sourceCache = new Map<ComponentId, Promise<string>>()
+  const dialog = document.querySelector<HTMLDialogElement>('#component-playground')!
+  const frame = dialog.querySelector<HTMLIFrameElement>('iframe')!
+  const codeContent = dialog.querySelector<HTMLElement>('[data-code-content]')!
+  const highlightedCache = new Map<ComponentId, Promise<string>>()
+  const status = dialog.querySelector<HTMLElement>('[data-playground-status]')!
+  const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-playground-tab]')]
+  let current: ComponentId = 'cutout'
+  let trigger: HTMLElement | null = null
+  let resumeScroll = false
+  let copyVersion = 0
+  function getSource(id: ComponentId) {
+    if (!sourceCache.has(id)) {
+      const request = fetch(`${dialog.dataset.base}components/${id}.html`).then(response => {
+        if (!response.ok) throw new Error('Source unavailable')
+        return response.text()
+      }).catch(error => { sourceCache.delete(id); throw error })
+      sourceCache.set(id, request)
+    }
+    return sourceCache.get(id)!
+  }
+  async function loadCode() {
+    const id = current
+    codeContent.textContent = 'Loading source…'
+    try {
+      if (!highlightedCache.has(id)) highlightedCache.set(id, fetch(`${dialog.dataset.base}component-source/${id}/`).then(response => { if (!response.ok) throw new Error('Source unavailable'); return response.text() }).catch(error => { highlightedCache.delete(id); throw error }))
+      const markup = await highlightedCache.get(id)!
+      if (current !== id) return
+      const pre = new DOMParser().parseFromString(markup, 'text/html').querySelector('pre')
+      if (!pre) throw new Error('Source unavailable')
+      codeContent.replaceChildren(pre)
+    } catch { if (current === id) codeContent.textContent = 'Could not load source. Try the Code tab again, or use Download .html.' }
+  }
+  function selectView(view: string, fetchCode = true) {
+    tabs.forEach(tab => { const selected = tab.dataset.playgroundTab === view; tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1 })
+    dialog.querySelector<HTMLElement>('#playground-preview')!.hidden = view !== 'preview'
+    dialog.querySelector<HTMLElement>('#playground-code')!.hidden = view !== 'code'
+    if (view === 'code' && fetchCode) void loadCode()
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-component-open]').forEach(button => button.addEventListener('click', () => {
+    const id = button.dataset.componentOpen as ComponentId
+    if (id !== 'cutout' && id !== 'emulsion') return
+    current = id; trigger = button; status.textContent = ''; copyVersion++
+    const name = id[0].toUpperCase() + id.slice(1)
+    dialog.querySelector('#playground-title')!.textContent = name
+    const url = `${dialog.dataset.base}components/${id}.html`
+    frame.title = `${name} expanded interactive preview`; frame.src = url
+    codeContent.textContent = ''
+    dialog.querySelector('[data-code-filename]')!.textContent = `${id}.html`
+    const download = dialog.querySelector<HTMLAnchorElement>('[data-playground-download]')!
+    download.href = url; download.download = `${id}.html`
+    selectView(button.dataset.componentView || 'preview')
+    const lenis = (window as any).lenis
+    resumeScroll = Boolean(lenis && !lenis.isStopped)
+    lenis?.stop(); dialog.showModal()
+    tabs.find(tab => tab.getAttribute('aria-selected') === 'true')?.focus({ preventScroll: true })
+  }))
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => selectView(tab.dataset.playgroundTab!))
+    tab.addEventListener('keydown', e => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+      e.preventDefault()
+      const next = e.key === 'Home' ? tabs[0] : e.key === 'End' ? tabs[1] : tabs[1 - tabs.indexOf(tab)]
+      selectView(next.dataset.playgroundTab!); next.focus()
+    })
+  })
+  dialog.querySelector('[data-playground-close]')!.addEventListener('click', () => dialog.close())
+  // Escape originating inside a preview's browsing context does not bubble to the dialog.
+  window.addEventListener('message', e => { if (e.origin === location.origin && e.source === frame.contentWindow && e.data?.type === 'component-escape' && dialog.open) dialog.close() })
+  dialog.addEventListener('click', e => { if (e.target !== dialog) return; const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close() })
+  dialog.addEventListener('close', () => { copyVersion++; frame.src = 'about:blank'; if (resumeScroll) (window as any).lenis?.start(); trigger?.focus({ preventScroll: true }) })
+  dialog.querySelector('[data-playground-copy]')!.addEventListener('click', async () => {
+    const version = ++copyVersion
+    let source: string
+    try { source = await getSource(current) }
+    catch { if (version === copyVersion) status.textContent = 'Source could not load. Try Download .html.'; return }
+    if (version !== copyVersion) return
+    try { await navigator.clipboard.writeText(source); if (version === copyVersion) status.textContent = 'Copied — make it yours.' }
+    catch { if (version !== copyVersion) return; selectView('code', false); const pre = document.createElement('pre'), code = document.createElement('code'); code.textContent = source; pre.append(code); codeContent.replaceChildren(pre); const range = document.createRange(); range.selectNodeContents(code); const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range); status.textContent = 'Press Ctrl+C / ⌘C to copy the selected code.' }
+  })
+</script>
+
+<style lang="scss">
+  .playground {
+    color: color(secondary); background: color(primary); border: 1px solid color(line); padding: 0; width: min(1280px, calc(100vw - 3rem)); max-width: none; height: min(900px, calc(100dvh - 3rem)); max-height: none;
+    &[open] { display: flex; flex-direction: column; }
+    &::backdrop { background: color(overlay); backdrop-filter: blur(6px); }
+    &__head, &__toolbar, &__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; flex-shrink: 0; }
+    &__head { border-bottom: 1px solid color(line); }
+    &__eyebrow { font: 400 9px / 1.5 font-family(fraktion); text-transform: uppercase; letter-spacing: 0.08em; }
+    h2 { font: 400 2rem / 1.1 font-family(editorial); margin: 0.3rem 0 0; }
+    button, a { color: inherit; font: 400 11px / 1.5 font-family(fraktion); }
+    button { background: none; border: 0; min-height: 40px; padding: 0.5rem 0.75rem; cursor: pointer; }
+    button:hover, a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    [data-playground-close] span { margin-left: 1rem; font-size: 24px; vertical-align: middle; }
+    &__toolbar { padding-block: 0.5rem; border-bottom: 1px solid color(line); }
+    [role='tab'][aria-selected='true'] { background: color(secondary); color: color(primary); }
+    &__actions { display: flex; align-items: center; gap: 1rem; }
+    &__actions a { display: inline-flex; align-items: center; min-height: 40px; text-decoration: none; }
+    &__preview, &__code { flex: 1; min-height: 0; }
+    &__preview iframe { display: block; width: 100%; height: 100%; border: 0; }
+    &__code { padding: 1.25rem; background: #161b22; overflow: hidden; }
+    &__foot { min-height: 32px; padding-block: .5rem; border-top: 1px solid color(line); font: 400 10px / 1.5 font-family(fraktion); }
+    &__foot a { font-size: inherit; }
+    [hidden] { display: none !important; }
+  }
+  .code-editor {
+    height: 100%; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #30363d; border-radius: 10px; background: #0d1117; color: #c9d1d9; color-scheme: dark; box-shadow: 0 8px 32px #0002;
+    &__bar, &__status { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; padding: .85rem 1rem; background: #161b22; font: 12px / 1.4 'Cascadia Code', Consolas, monospace; }
+    &__bar { border-bottom: 1px solid #30363d; }
+    &__dots { display: flex; gap: 6px; i { width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; } i:nth-child(2) { background: #febc2e; } i:nth-child(3) { background: #28c840; } }
+    &__language { margin-left: auto; color: #8b949e; font-size: 10px; }
+    &__viewport { flex: 1; min-height: 0; overflow: auto; scrollbar-color: #484f58 #0d1117; }
+    &__viewport:focus-visible { outline: 2px solid #58a6ff; outline-offset: -3px; }
+    &__status { justify-content: space-between; padding-block: .45rem; font-size: 10px; color: #8b949e; border-top: 1px solid #30363d; }
+    [data-code-content] { min-height: 100%; }
+    :global(pre) { margin: 0; width: max-content; min-width: 100%; padding: 1.5rem 1.5rem 1.5rem 0; font: 13px / 1.8 'Cascadia Code', Consolas, monospace; tab-size: 2; counter-reset: code-line; }
+    :global(.line) { display: inline-block; min-width: 100%; }
+    :global(.line::before) { counter-increment: code-line; content: counter(code-line); display: inline-block; width: 4rem; margin-right: 1.5rem; padding-right: 1rem; border-right: 1px solid #21262d; text-align: right; color: #6e7681; user-select: none; }
+    :global(.line:hover) { background: #ffffff05; }
+  }
+  @media (max-width: 600px) {
+    .playground { width: calc(100vw - 1rem); height: calc(100dvh - 1rem);
+      &__head, &__toolbar, &__foot { padding-inline: 0.75rem; }
+      &__toolbar { flex-wrap: wrap; gap: 0; }
+      &__actions { gap: 0.5rem; }
+      &__foot { flex-wrap: wrap; gap: 0.25rem; }
+      &__code { padding: 1rem; }
+    }
+  }
+</style>

@@ -461,12 +461,30 @@
         position: relative;
         border: 0;
         background: none;
-        padding: 0;
+        padding: 0 0 9px;
         min-width: 0;
         text-align: left;
       }
+      .strip button:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: min(60px, 65%);
+        height: 3px;
+        background: #24201b;
+        opacity: 0;
+        transform: scaleX(0.4);
+        transform-origin: left;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
+      }
+      .strip button:is(:hover, :focus-visible):after {
+        opacity: 1;
+        transform: scaleX(1);
+      }
       .strip button:focus-visible {
-        outline: 2px solid #925b3e;
+        outline: 2px solid #28251e;
         outline-offset: 5px;
       }
       .strip-photo {
@@ -481,13 +499,14 @@
         object-fit: cover;
         background: #c2b39b;
         box-shadow: 1px 2px 5px #0006;
-        transition: box-shadow 0.2s ease;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
       }
       .strip button:is(:hover, :focus-visible) img {
+        border-color: #171510;
         box-shadow:
-          0 0 0 2px #a65f38,
-          0 0 0 3px #f2debf,
-          3px 6px 10px #24170b88;
+          0 0 0 1px #b76b36,
+          0 0 9px #241c1299,
+          3px 6px 12px #1d170db3;
       }
       .strip small {
         display: block;

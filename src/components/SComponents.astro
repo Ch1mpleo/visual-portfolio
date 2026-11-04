@@ -1,0 +1,47 @@
+---
+import previews from '../../public/components/previews/manifest.json'
+
+const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
+const experiments = [
+  { id: 'cutout', name: 'Cutout', description: 'Pick a mood. Watch the letters become a roll of photographs.' },
+  { id: 'emulsion', name: 'Emulsion', description: 'A wall of unhurried moments, with prints you can reach out and move.' },
+] as const
+---
+
+<section id="components" class="s-components" aria-labelledby="components-title">
+  <div class="s-components__inner">
+    <h2 id="components-title"><span class="s-components__title-main">Made to be</span><span class="s-components__title-accent">played with.</span></h2>
+    <div class="s-components__gallery">
+      {experiments.map(item => (
+        <button class="component-card" type="button" data-component-open={item.id} data-component-view="preview" aria-haspopup="dialog" aria-controls="component-playground" aria-label={`Explore ${item.name}`}>
+          <div class="component-card__image"><img src={`${base}components/previews/${item.id}.webp?v=${previews[item.id]}`} alt="" width="1200" height="800" loading="lazy" decoding="async" /></div>
+          <h3>{item.name}</h3>
+          <p>{item.description}</p>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .s-components {
+    padding: clamp(2.5rem, 5vw, 5rem) clamp(1rem, 3.5vw, 4rem);
+    color: color(secondary); scroll-margin-top: 1.5rem;
+    &__inner { max-width: 1560px; margin-inline: auto; }
+    h2 { margin: 0 0 clamp(1.5rem, 3vw, 3rem); font: 700 clamp(3.5rem, 6vw, 6.5rem) / 0.88 font-family(bigger); text-transform: uppercase; }
+    &__title-main { display: block; font-family: font-family(bigger); }
+    &__title-accent { display: block; font-family: font-family(editorial); font-size: 0.76em; font-style: italic; font-weight: 400; line-height: 1.12; text-transform: none; }
+    &__gallery { display: grid; align-items: start; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
+  }
+  .component-card {
+    display: block; min-width: 0; width: 100%; padding: 0; border: 0; color: inherit; background: none; text-align: left; cursor: pointer;
+    &__image { width: 100%; aspect-ratio: 1.5; overflow: hidden; background: #ece5d8; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.22, 1, .36, 1); }
+    &:hover img { transform: scale(1.035); }
+    h3 { margin: 1.25rem 0 .65rem; font: 400 clamp(2rem, 3vw, 3rem) / 1.1 font-family(editorial); }
+    p { max-width: 44ch; margin: 0; font: 400 16px / 1.5 font-family(editorial); }
+    &:focus-visible { outline: 2px solid color(secondary); outline-offset: 8px; }
+  }
+  @media (max-width: 767px) { .s-components__gallery { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; } }
+  @media (prefers-reduced-motion: reduce) { .component-card img { transition: none; } .component-card:hover img { transform: none; } }
+</style>

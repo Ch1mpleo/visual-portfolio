@@ -10,6 +10,10 @@ const menu = [
     text: 'Builds',
   },
   {
+    id: 'components',
+    text: 'Components',
+  },
+  {
     id: 'work',
     text: 'Goat',
   },
@@ -618,6 +622,20 @@ const menu = [
       }
     }
 
+    @include mq(tablet) {
+      .sb-menu {
+        display: block;
+        order: 2;
+        margin-right: auto;
+        padding: 0;
+        .sb__item { display: none; }
+        .sb__item:has(a[href='#components']) { display: block; }
+        a { padding: 1.5rem 0.8rem; font-size: 11px; }
+      }
+      .sb-console { display: none; }
+      .sb-availability { display: none; }
+    }
+
     .sb-resume {
       display: flex;
       align-items: center;
@@ -684,6 +702,8 @@ const menu = [
         background: none;
         border-left: 0;
       }
+
+      @media (max-width: 450px) { display: none; }
 
       .sb__item {
         margin: 0;

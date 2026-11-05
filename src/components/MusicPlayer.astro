@@ -1,0 +1,460 @@
+---
+import localTrackUrl from '../assets/music/no-church-in-the-wild.mp3?url'
+import albumArtUrl from '../assets/music/watch-the-throne.jpg?url'
+
+const fullTrackUrl = import.meta.env.PUBLIC_MUSIC_TRACK_URL?.trim()
+const publicBase = import.meta.env.BASE_URL.replace(/\/$/, '')
+const audioUrl = fullTrackUrl
+  ? /^https?:\/\//.test(fullTrackUrl) ? fullTrackUrl : `${publicBase}/${fullTrackUrl.replace(/^\/+/, '')}`
+  : localTrackUrl
+---
+
+<aside class="music-player" data-music-player aria-label="Music player">
+  <button
+    class="music-player__toggle" type="button" data-music-toggle
+    aria-label="Play No Church In The Wild" aria-pressed="false"
+    aria-expanded="false" aria-controls="music-player-panel"
+  >
+    <svg class="music-player__sound" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+      <g class="music-player__waves"><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></g>
+      <g class="music-player__mute"><path d="m16 9 6 6m0-6-6 6" /></g>
+    </svg>
+    <span class="music-player__indicator" aria-hidden="true"></span>
+  </button>
+
+  <div class="music-player__panel" id="music-player-panel" inert>
+    <div class="music-player__ambience" aria-hidden="true">
+      <div class="music-player__gradient"></div>
+      <canvas class="music-player__ascii" data-music-ascii></canvas>
+      <div class="music-player__grain"></div>
+    </div>
+    <div class="music-player__heading">
+      <span class="music-player__eyebrow"><span></span> SIDE A / ON REPEAT</span>
+      <span class="music-player__cue-hint" id="music-cue-hint">DRAG TO CUE</span>
+    </div>
+
+    <div class="music-player__record">
+      <div class="music-player__turntable">
+        <div class="music-player__platter" data-music-platter role="slider" tabindex="-1" aria-disabled="true" aria-label="Record position" aria-describedby="music-cue-hint" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="Audio not loaded">
+          <div class="music-player__cue" data-music-cue aria-hidden="true">
+            <div class="music-player__disc">
+              <img src={albumArtUrl} alt="" width="80" height="80" loading="lazy" draggable="false" />
+              <span class="music-player__record-mark"></span>
+            </div>
+          </div>
+          <span class="music-player__spindle" aria-hidden="true"></span>
+        </div>
+        <div class="music-player__tonearm" aria-hidden="true"><span></span></div>
+        <span class="music-player__deck-light" aria-hidden="true"></span>
+      </div>
+      <div class="music-player__track">
+        <p class="music-player__title">No Church In The Wild</p>
+        <p class="music-player__artist">JAŸ-Z &amp; Kanye West</p>
+        <p class="music-player__feature">feat. Frank Ocean &amp; The-Dream</p>
+        <div class="music-player__activity">
+          <span class="music-player__activity-dot" aria-hidden="true"></span>
+          <span data-music-status role="status">Sound off</span>
+        </div>
+      </div>
+      <div class="music-player__volume">
+        <label for="music-volume">VOL</label>
+        <input id="music-volume" data-music-volume type="range" min="0" max="100" step="1" value="65" aria-label="Music volume" aria-valuetext="65 percent" />
+        <output for="music-volume" data-music-volume-value aria-hidden="true">65</output>
+      </div>
+    </div>
+
+    <div class="music-player__timeline">
+      <span class="music-player__time" data-music-elapsed aria-hidden="true">0:00</span>
+      <input class="music-player__seek" data-music-seek type="range" min="0" max="0" step="0.1" value="0" disabled aria-label="Song progress" aria-valuetext="Audio not loaded" />
+      <span class="music-player__time music-player__time--duration" data-music-duration aria-hidden="true">--:--</span>
+    </div>
+  </div>
+
+  <audio data-music-audio data-audio-url={audioUrl} preload="none" crossorigin="anonymous"></audio>
+</aside>
+
+<script>
+  import { createMusicVisualizer } from '../utils/music-visualizer'
+  import { createTurntable } from '../utils/music-turntable'
+
+  const player = document.querySelector<HTMLElement>('[data-music-player]')!
+  const toggle = player.querySelector<HTMLButtonElement>('[data-music-toggle]')!
+  const panel = player.querySelector<HTMLElement>('.music-player__panel')!
+  const status = player.querySelector<HTMLElement>('[data-music-status]')!
+  const audio = player.querySelector<HTMLAudioElement>('[data-music-audio]')!
+  const volume = player.querySelector<HTMLInputElement>('[data-music-volume]')!
+  const volumeValue = player.querySelector<HTMLOutputElement>('[data-music-volume-value]')!
+  const seek = player.querySelector<HTMLInputElement>('[data-music-seek]')!
+  const elapsed = player.querySelector<HTMLElement>('[data-music-elapsed]')!
+  const duration = player.querySelector<HTMLElement>('[data-music-duration]')!
+  let audioContext: AudioContext | undefined
+  let gain: GainNode | undefined
+  let wantsPlayback = false
+  let playing = false
+  let playbackRequest = 0
+  let startupTimer: ReturnType<typeof setTimeout>
+  let closeTimer: ReturnType<typeof setTimeout>
+  const visualizer = createMusicVisualizer(
+    player.querySelector<HTMLCanvasElement>('[data-music-ascii]')!,
+    panel, player, () => Number(volume.value) / 100,
+  )
+
+  try {
+    const saved = localStorage.getItem('portfolio-music-volume')
+    if (saved !== null && Number.isFinite(Number(saved))) {
+      volume.value = String(Math.max(0, Math.min(100, Number(saved))))
+    }
+  } catch {}
+
+  function applyVolume() {
+    const level = Number(volume.value) / 100
+    // Gain works on mobile too, where media-element volume may be system-controlled.
+    if (gain && audioContext) {
+      gain.gain.setTargetAtTime(level ** 2, audioContext.currentTime, .025)
+    } else audio.volume = level
+    volumeValue.value = volume.value
+    volume.setAttribute('aria-valuetext', `${volume.value} percent`)
+    player.style.setProperty('--volume-level', `${volume.value}%`)
+    player.classList.toggle('is-muted', level === 0)
+    try { localStorage.setItem('portfolio-music-volume', volume.value) } catch {}
+    visualizer.refresh()
+  }
+  applyVolume()
+  volume.addEventListener('input', applyVolume)
+
+  function formatTime(seconds: number) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '--:--'
+    const wholeSeconds = Math.floor(seconds)
+    return `${Math.floor(wholeSeconds / 60)}:${String(wholeSeconds % 60).padStart(2, '0')}`
+  }
+
+  function updateTimeline() {
+    const hasDuration = Number.isFinite(audio.duration) && audio.duration > 0
+    const currentTime = hasDuration ? Math.max(0, Math.min(audio.currentTime, audio.duration)) : 0
+    seek.disabled = !hasDuration
+    seek.max = hasDuration ? String(audio.duration) : '0'
+    seek.value = String(currentTime)
+    seek.setAttribute('aria-valuetext', hasDuration ? `${formatTime(currentTime)} of ${formatTime(audio.duration)}` : 'Audio not loaded')
+    elapsed.textContent = formatTime(currentTime)
+    duration.textContent = hasDuration ? formatTime(audio.duration) : '--:--'
+    seek.style.setProperty('--seek-progress', `${hasDuration ? currentTime / audio.duration * 100 : 0}%`)
+    turntable.update(currentTime, hasDuration ? audio.duration : 0)
+  }
+  for (const event of ['loadedmetadata', 'durationchange', 'timeupdate', 'seeking', 'seeked', 'emptied']) {
+    audio.addEventListener(event, updateTimeline)
+  }
+  seek.addEventListener('input', () => {
+    if (seek.disabled) return
+    turntable.cueTo(Number(seek.value))
+  })
+  const turntable = createTurntable(player, (seconds) => {
+    audio.currentTime = seconds
+    updateTimeline()
+  })
+  seek.addEventListener('pointerdown', () => { if (!seek.disabled) turntable.beginCue() })
+  for (const event of ['pointerup', 'pointercancel', 'blur']) {
+    seek.addEventListener(event, () => turntable.endCue())
+  }
+
+  function connectAudio() {
+    if (audioContext || !window.AudioContext) return
+    audioContext = new AudioContext()
+    const source = audioContext.createMediaElementSource(audio)
+    const analyser = audioContext.createAnalyser()
+    analyser.fftSize = 512
+    analyser.smoothingTimeConstant = .78
+    gain = audioContext.createGain()
+    gain.gain.value = (Number(volume.value) / 100) ** 2
+    audio.volume = 1
+    source.connect(analyser)
+    analyser.connect(gain)
+    gain.connect(audioContext.destination)
+    visualizer.connect(analyser)
+  }
+
+  function expand(open: boolean) {
+    clearTimeout(closeTimer)
+    player.classList.toggle('is-expanded', open)
+    toggle.setAttribute('aria-expanded', String(open))
+    panel.inert = !open
+    visualizer.refresh()
+  }
+
+  function setPlayback(active: boolean, message: string) {
+    playing = active
+    player.classList.toggle('is-playing', active)
+    toggle.setAttribute('aria-pressed', String(active))
+    toggle.setAttribute('aria-label', active ? 'Pause No Church In The Wild' : 'Play No Church In The Wild')
+    status.textContent = message
+    visualizer.setPlaying(active)
+  }
+
+  async function requestPlayback() {
+    const request = ++playbackRequest
+    wantsPlayback = true
+    player.classList.remove('has-error')
+    status.textContent = 'Starting song…'
+    try {
+      connectAudio()
+      if (!audio.src) audio.src = audio.dataset.audioUrl!
+      else if (audio.error) audio.load()
+      const resumed = audioContext?.resume()
+      // Call play inside the original gesture, before awaiting anything.
+      const started = audio.play()
+      startupTimer = setTimeout(() => {
+        if (request === playbackRequest && wantsPlayback && !playing) {
+          stopPlayback()
+          setPlayback(false, 'Can’t load song. Tap to retry.')
+          player.classList.add('has-error')
+        }
+      }, 15000)
+      await Promise.all([resumed, started])
+      if (request !== playbackRequest || !wantsPlayback) audio.pause()
+    } catch (error) {
+      if (request !== playbackRequest) return
+      stopPlayback()
+      const blocked = error instanceof DOMException && error.name === 'NotAllowedError'
+      setPlayback(false, blocked ? 'Tap to try again.' : 'Can’t load song. Tap to retry.')
+      player.classList.add('has-error')
+    }
+  }
+
+  function stopPlayback() {
+    playbackRequest++
+    wantsPlayback = false
+    clearTimeout(startupTimer)
+    audio.pause()
+    setPlayback(false, 'Sound off')
+  }
+
+  audio.addEventListener('playing', () => {
+    if (!wantsPlayback) {
+      audio.pause()
+      return
+    }
+    clearTimeout(startupTimer)
+    setPlayback(true, 'Now playing')
+  })
+  audio.addEventListener('waiting', () => {
+    if (wantsPlayback) setPlayback(false, 'Buffering…')
+  })
+  audio.addEventListener('pause', () => {
+    wantsPlayback = false
+    if (!player.classList.contains('has-error')) setPlayback(false, 'Sound off')
+  })
+  audio.addEventListener('ended', stopPlayback)
+  audio.addEventListener('error', () => {
+    stopPlayback()
+    setPlayback(false, 'Can’t load song. Tap to retry.')
+    player.classList.add('has-error')
+  })
+
+  player.addEventListener('pointerenter', (event) => {
+    if (event.pointerType === 'mouse') expand(true)
+  })
+  player.addEventListener('pointerleave', (event) => {
+    if (event.pointerType === 'mouse') closeTimer = setTimeout(() => {
+      if (!panel.contains(document.activeElement) && !toggle.matches(':focus-visible')) expand(false)
+    }, 220)
+  })
+  player.addEventListener('focusin', (event) => {
+    if (event.target !== toggle || toggle.matches(':focus-visible')) expand(true)
+  })
+  player.addEventListener('focusout', () => {
+    closeTimer = setTimeout(() => {
+      if (!player.contains(document.activeElement) && !player.matches(':hover')) expand(false)
+    }, 0)
+  })
+  toggle.addEventListener('click', () => {
+    expand(true)
+    if (playing || wantsPlayback) {
+      stopPlayback()
+    } else {
+      void requestPlayback()
+    }
+  })
+  document.addEventListener('pointerdown', (event) => {
+    if (!player.contains(event.target as Node)) expand(false)
+  })
+  player.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      toggle.focus({ preventScroll: true })
+      expand(false)
+      event.stopPropagation()
+    }
+  })
+  document.addEventListener('open-video-popup', stopPlayback)
+  document.addEventListener('play', (event) => {
+    const media = event.target
+    if (media instanceof HTMLMediaElement && media !== audio && !media.muted) stopPlayback()
+  }, true)
+  window.addEventListener('pagehide', stopPlayback)
+</script>
+
+<style>
+  .music-player {
+    --music-green: #1ed760;
+    --music-energy: 0;
+    --music-bass: 0;
+    --music-drift: 0px;
+    --volume-level: 65%;
+    --tonearm-angle: 14deg;
+    position: fixed;
+    right: max(28px, env(safe-area-inset-right));
+    bottom: max(28px, env(safe-area-inset-bottom));
+    z-index: 30;
+    color: #f5f5f5;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: normal;
+  }
+  .music-player__toggle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    margin-left: auto;
+    border: 1px solid #ffffff24;
+    border-radius: 50%;
+    background: #17191a;
+    color: #a7adab;
+    box-shadow: 0 5px 20px #0003;
+    cursor: pointer;
+    transition: color 180ms, border-color 180ms, background 180ms, transform 180ms;
+  }
+  .music-player__toggle:hover { background: #222625; color: white; transform: translateY(-2px); }
+  .music-player__toggle:focus-visible { outline: 2px solid var(--music-green); outline-offset: 5px; }
+  .music-player__indicator { position: absolute; bottom: 6px; width: 3px; height: 3px; border-radius: 50%; background: #707773; }
+  .music-player__waves { display: none; }
+  .is-playing .music-player__waves { display: block; }
+  .is-playing .music-player__mute { display: none; }
+  .is-playing.is-muted .music-player__waves { display: none; }
+  .is-playing.is-muted .music-player__mute { display: block; }
+  .is-playing .music-player__toggle { color: var(--music-green); border-color: #1ed76066; }
+  .is-playing .music-player__indicator { background: var(--music-green); box-shadow: 0 0 7px #1ed76080; }
+  .music-player__panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 12px);
+    width: min(412px, calc(100vw - 40px));
+    padding: 18px;
+    border: 1px solid #ffffff1a;
+    border-radius: 18px;
+    background: #111714;
+    box-shadow: 0 14px 48px #0005, 0 2px 6px #0002;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(.97);
+    transform-origin: bottom right;
+    transition: opacity 200ms, transform 250ms, visibility 200ms;
+  }
+  .music-player__panel::after { content: ''; position: absolute; top: 100%; right: 0; width: 100%; height: 16px; }
+  .is-expanded .music-player__panel { visibility: visible; opacity: 1; transform: none; }
+  .music-player__ambience { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; isolation: isolate; }
+  .music-player__gradient { position: absolute; inset: -35%; background: radial-gradient(ellipse at 18% 85%, #9c763c40, transparent 50%), radial-gradient(ellipse at 78% 80%, #167b4f78, transparent 48%), radial-gradient(ellipse at 68% 5%, #60547538, transparent 48%); opacity: calc(.6 + var(--music-energy) * .8); transform: translate(var(--music-drift), 0) scale(calc(1 + var(--music-bass) * .18)); }
+  .music-player__ascii { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: .8; mask-image: linear-gradient(180deg, #0003 0%, #0008 38%, #000 100%); }
+  .music-player__grain { position: absolute; inset: 0; opacity: .095; mix-blend-mode: soft-light; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23grain)' d='M0 0h160v160H0z'/%3E%3C/svg%3E"); background-size: 160px 160px; }
+  .music-player__ambience::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #11171470, transparent 45%), radial-gradient(ellipse at 55% 45%, #10161265, transparent 70%); }
+  .music-player__heading { position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .music-player__eyebrow { display: flex; align-items: center; gap: 7px; font-size: 9px; font-weight: 600; letter-spacing: 1.8px; color: #a6afa8; }
+  .music-player__eyebrow > span { width: 4px; height: 4px; border-radius: 50%; background: var(--music-green); }
+  .music-player__cue-hint { color: #8e9b93; font: 7px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 1.2px; }
+  .music-player__record { position: relative; display: grid; grid-template-columns: 124px minmax(0, 1fr) 30px; gap: 14px; align-items: center; }
+  .music-player__turntable { position: relative; width: 124px; height: 124px; border: 1px solid #ffffff0c; border-radius: 12px; background: linear-gradient(145deg, #303a3266, #10161280); box-shadow: inset 0 1px 0 #ffffff08; }
+  .music-player__turntable::before, .music-player__turntable::after { content: ''; position: absolute; top: 5px; left: 5px; width: 3px; height: 3px; border-radius: 50%; background: #9eaaa44d; box-shadow: 0 0 0 1px #0008; }
+  .music-player__turntable::after { top: auto; left: auto; right: 5px; bottom: 5px; }
+  .music-player__platter { position: absolute; inset: 9px; border: 3px solid #84928c70; border-radius: 50%; box-shadow: 0 3px 8px #0008, 0 0 0 2px #070e0b, inset 0 0 0 1px #ffffff24; cursor: grab; touch-action: none; user-select: none; }
+  .music-player__platter:focus-visible { outline: 2px solid var(--music-green); outline-offset: 4px; }
+  .music-player__platter[aria-disabled='true'] { cursor: default; }
+  .is-scrubbing .music-player__platter { cursor: grabbing; }
+  .music-player__cue { width: 100%; height: 100%; transform: rotate(var(--cue-angle, 0deg)); transition: transform 620ms cubic-bezier(.18, .7, .2, 1); }
+  .is-scrubbing .music-player__cue { transition: none; }
+  .music-player__disc {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #ffffff1c;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #111513 0 1px, #353c36 1.5px, #141a16 2.5px);
+    animation: record-spin 3.6s linear infinite paused;
+  }
+  .music-player__disc img { position: absolute; top: 50%; left: 50%; width: 44%; height: 44%; transform: translate(-50%, -50%); border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px #f2ddb050; pointer-events: none; }
+  .music-player__disc::before { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; background: conic-gradient(transparent 0deg, #ffffff20 45deg, transparent 85deg 180deg, #ffffff16 230deg, transparent 270deg); }
+  .music-player__record-mark { position: absolute; top: 5px; left: 50%; width: 2px; height: 6px; border-radius: 2px; background: #d7e8dc; }
+  .music-player__spindle { position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; transform: translate(-50%, -50%); border-radius: 50%; background: #e0e5dc; box-shadow: 0 1px 3px #000b, 0 0 0 2px #28352bd9; pointer-events: none; }
+  .music-player__tonearm { position: absolute; top: 5px; right: 7px; z-index: 2; width: 9px; height: 76px; transform: rotate(-9deg); transform-origin: 50% 5px; transition: transform 450ms cubic-bezier(.2, .7, .2, 1), filter 200ms; pointer-events: none; filter: drop-shadow(2px 3px 2px #000a); }
+  .music-player__tonearm::before { content: ''; position: absolute; top: 0; width: 9px; height: 9px; border: 2px solid #aebbb3; border-radius: 50%; background: #33473b; box-shadow: 0 0 0 2px #111b15; }
+  .music-player__tonearm::after { content: ''; position: absolute; top: 8px; bottom: 4px; left: 3px; width: 3px; border-radius: 3px; background: linear-gradient(90deg, #748b7e, #e2e8dd, #7d9384); }
+  .music-player__tonearm > span { position: absolute; bottom: -1px; left: 0; z-index: 1; width: 8px; height: 14px; border: 1px solid #91a899; border-radius: 2px; background: #253a2c; transform: rotate(-12deg); }
+  .is-playing .music-player__tonearm { transform: rotate(var(--tonearm-angle)); }
+  .is-cueing .music-player__tonearm, .is-scrubbing .music-player__tonearm { transform: translateY(-3px) rotate(var(--tonearm-angle)); filter: drop-shadow(4px 6px 3px #000c); }
+  .music-player__deck-light { position: absolute; bottom: 5px; left: 5px; width: 4px; height: 4px; border-radius: 1px; background: #627165; box-shadow: 7px 0 #ffffff0a, 14px 0 #ffffff0a; }
+  .is-playing .music-player__deck-light { background: var(--music-green); box-shadow: 0 0 5px #1ed76066, 7px 0 #1ed76055, 14px 0 #1ed76022; }
+  .has-error .music-player__deck-light { background: #d78c77; }
+  .music-player__track { min-width: 0; }
+  .music-player__track p { padding: 0; margin: 0; font-family: inherit; line-height: 1.4; }
+  .music-player__title { font-size: 14px; font-weight: 600; letter-spacing: -.3px; }
+  .music-player__artist { margin-top: 4px !important; color: #b2bab5; font-size: 11px; }
+  .music-player__feature { margin-top: 2px !important; color: #859088; font-size: 9px; }
+  .music-player__activity { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: #a6afa8; font-size: 9px; }
+  .is-playing .music-player__activity { color: var(--music-green); }
+  .music-player__activity-dot { width: 4px; height: 4px; flex: 0 0 4px; border-radius: 50%; background: currentColor; }
+  .is-playing.is-expanded .music-player__disc { animation-play-state: running; }
+  .is-playing.is-expanded.is-scrubbing .music-player__disc { animation-play-state: paused; }
+  .music-player__volume { display: flex; flex-direction: column; align-items: center; align-self: stretch; gap: 4px; padding-left: 9px; border-left: 1px solid #ffffff12; }
+  .music-player__volume label { color: #a3b0a6; font-size: 7px; letter-spacing: 1.2px; }
+  .music-player__volume output { color: #c4d1c7; font: 8px ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .music-player__volume input { writing-mode: vertical-lr; direction: rtl; appearance: none; -webkit-appearance: none; width: 30px; height: 72px; margin: 0; padding: 0; background: transparent; cursor: pointer; touch-action: none; }
+  .music-player__volume input:focus-visible { outline: 1px solid var(--music-green); outline-offset: 2px; border-radius: 8px; }
+  .music-player__volume input::-webkit-slider-runnable-track { width: 3px; border-radius: 3px; background: linear-gradient(to top, #85d5a0 var(--volume-level), #ffffff26 var(--volume-level)); }
+  .music-player__volume input::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 9px; height: 9px; margin-left: -3px; border: 0; border-radius: 50%; background: #e2f3e7; box-shadow: 0 0 0 3px #14291cb3; }
+  .music-player__volume input::-moz-range-track { width: 3px; border: 0; border-radius: 3px; background: linear-gradient(to top, #85d5a0 var(--volume-level), #ffffff26 var(--volume-level)); }
+  .music-player__volume input::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: #e2f3e7; box-shadow: 0 0 0 3px #14291cb3; }
+  .music-player__timeline { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) 28px; gap: 10px; align-items: center; margin-top: 8px; }
+  .music-player__time { color: #b4c2b8; font: 9px ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .music-player__time--duration { text-align: right; }
+  .music-player__seek { --seek-progress: 0%; appearance: none; -webkit-appearance: none; width: 100%; height: 28px; margin: 0; padding: 0; background: transparent; cursor: pointer; touch-action: pan-y; }
+  .music-player__seek:disabled { cursor: default; opacity: .4; }
+  .music-player__seek:focus-visible { outline: 1px solid var(--music-green); outline-offset: 2px; border-radius: 5px; }
+  .music-player__seek::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(to right, #85d5a0 var(--seek-progress), #ffffff26 var(--seek-progress)); }
+  .music-player__seek::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 8px; height: 8px; margin-top: -2.5px; border: 0; border-radius: 50%; background: #e2f3e7; box-shadow: 0 0 0 3px #14291cb3; }
+  .music-player__seek::-moz-range-track { height: 3px; border: 0; border-radius: 3px; background: linear-gradient(to right, #85d5a0 var(--seek-progress), #ffffff26 var(--seek-progress)); }
+  .music-player__seek::-moz-range-thumb { width: 8px; height: 8px; border: 0; border-radius: 50%; background: #e2f3e7; box-shadow: 0 0 0 3px #14291cb3; }
+  .music-player audio { display: none; }
+  @keyframes record-spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) {
+    .music-player { right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); }
+    .music-player__toggle { width: 48px; height: 48px; }
+  }
+  @media (max-width: 440px) {
+    .music-player__panel { padding: 16px; }
+    .music-player__record { grid-template-columns: 96px minmax(0, 1fr) 26px; gap: 10px; }
+    .music-player__turntable { width: 96px; height: 96px; }
+    .music-player__platter { inset: 7px; border-width: 2px; }
+    .music-player__tonearm { height: 59px; right: 6px; }
+    .music-player__title { font-size: 13px; }
+    .music-player__feature { font-size: 8px; }
+    .music-player__volume { padding-left: 5px; }
+  }
+  @media (max-width: 350px) {
+    .music-player__record { grid-template-columns: 78px minmax(0, 1fr) 24px; gap: 8px; }
+    .music-player__turntable { width: 78px; height: 78px; }
+    .music-player__tonearm { height: 48px; }
+    .music-player__title { font-size: 12px; }
+    .music-player__eyebrow { font-size: 8px; letter-spacing: 1.2px; }
+    .music-player__cue-hint { font-size: 6px; letter-spacing: .7px; }
+  }
+  @media (max-height: 420px) {
+    .music-player__panel { padding: 12px; }
+    .music-player__heading { margin-bottom: 10px; }
+    .music-player__volume input { height: 56px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .music-player *, .music-player *::before, .music-player *::after { animation: none !important; transition: none !important; }
+  }
+</style>

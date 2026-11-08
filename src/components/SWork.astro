@@ -97,6 +97,21 @@ const works = videoNames.map((filename) => ({
       </div><!-- .s__mask -->
     </div><!-- .s__mask-outer -->
 
+    <div class="s__intro js-reel-intro">
+      <div class="s__intro__copy">
+        <p class="s__intro__label">GOAT</p>
+        <p class="s__intro__description">
+          A collection of edits from stories that shaped me. I come back to them
+          for a little inspiration to keep pushing forward. And sometimes, just
+          to remember why I started this journey in the first place.
+        </p>
+        <span class="s__intro__track" aria-hidden="true">
+          <span class="s__intro__progress js-reel-progress"></span>
+        </span>
+        <p class="s__intro__hint">Scroll to play <span aria-hidden="true">↓</span></p>
+      </div>
+    </div>
+
     <div class="s__ruler js-ruler"></div>
   </div><!-- .s__outer -->
 </section>
@@ -118,6 +133,7 @@ const works = videoNames.map((filename) => ({
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     title: HTMLElement
+    intro: HTMLElement
 
     mask: {
       width: number
@@ -166,6 +182,7 @@ const works = videoNames.map((filename) => ({
       this.canvas = this.container.querySelector('.js-canvas')
       this.ctx = this.canvas.getContext('2d')
       this.title = this.container.querySelector('.js-title')
+      this.intro = this.el.querySelector('.js-reel-intro')
 
       // Properties
       this.mask = {
@@ -502,15 +519,21 @@ const works = videoNames.map((filename) => ({
      * Set timeline
      */
     setTimeline() {
-      const { el, container, works, scene, mask } = this
+      const { el, container, works, scene, mask, intro } = this
 
       const worksEl = works.map((work) => work.el)
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const introEnd = 0.55
+      const worksStart = introEnd + 0.75
 
       let { tl } = this
 
       if (tl) {
+        tl.scrollTrigger?.kill()
         tl.kill()
       }
+
+      scene.inert = true
 
       tl = gsap.timeline({
         scrollTrigger: {
@@ -521,8 +544,28 @@ const works = videoNames.map((filename) => ({
         },
         onUpdate: () => {
           scene.style.setProperty('--state', String(this.state))
+          scene.inert = tl.time() < worksStart
         },
       })
+
+      // The opening beat belongs to the collection's introduction. Only then
+      // do the mask, GOAT letters, and video cards begin their existing sequence.
+      tl.set(intro, { autoAlpha: 1 }, 0)
+      tl.fromTo(
+        intro.querySelector('.js-reel-progress'),
+        { scaleX: reducedMotion ? 1 : 0 },
+        { scaleX: 1, duration: 0.35, ease: 'none' },
+        0,
+      )
+      tl.to(
+        intro,
+        {
+          autoAlpha: 0,
+          duration: reducedMotion ? 0 : 0.2,
+          ease: 'power2.in',
+        },
+        reducedMotion ? introEnd : 0.35,
+      )
 
       tl.fromTo(
         mask.el,
@@ -534,7 +577,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power4.in',
         },
-        0,
+        introEnd,
       )
 
       tl.fromTo(
@@ -547,7 +590,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power3.in',
         },
-        0,
+        introEnd,
       )
 
       tl.fromTo(
@@ -560,7 +603,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power3.in',
         },
-        0,
+        introEnd,
       )
 
       tl.fromTo(
@@ -573,7 +616,7 @@ const works = videoNames.map((filename) => ({
           duration: 1,
           ease: 'power4.inOut',
         },
-        0,
+        introEnd,
       )
 
       tl.fromTo(
@@ -586,7 +629,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power4.in',
         },
-        0,
+        introEnd,
       )
 
       tl.fromTo(
@@ -603,12 +646,12 @@ const works = videoNames.map((filename) => ({
           ease: 'slow(0.15, 0.6)',
           stagger: 0.25,
         },
-        0.75,
+        worksStart,
       )
 
       // Calculate where the works stagger actually ends
       const worksDuration = 0.5 // default GSAP tween duration
-      const worksEnd = 0.75 + (worksEl.length - 1) * 0.25 + worksDuration
+      const worksEnd = worksStart + (worksEl.length - 1) * 0.25 + worksDuration
       // Total timeline duration: works end + 1 unit buffer for outros to breathe
       const totalDur = worksEnd + 1
       // Outro tweens start 1 unit before the end so they overlap the buffer
@@ -621,10 +664,10 @@ const works = videoNames.map((filename) => ({
         },
         {
           animationProgress: 10000,
-          duration: totalDur,
+          duration: totalDur - introEnd,
           ease: 'power1.out',
         },
-        0.75,
+        worksStart,
       )
 
       // Outro: state collapses back — use 'to' not 'fromTo' to avoid conflicting from-value
@@ -692,6 +735,8 @@ const works = videoNames.map((filename) => ({
         },
         outroStart,
       )
+
+      this.tl = tl
     }
 
     /**
@@ -943,6 +988,66 @@ const works = videoNames.map((filename) => ({
 
       @include mq(phone) {
         transform: none;
+      }
+    }
+
+    .s__intro {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      padding: clamp(1.5rem, 5vw, 4rem);
+      background: color(primary);
+      color: color(secondary);
+      text-align: center;
+      pointer-events: none;
+
+      &__copy {
+        width: min(100%, 40rem);
+      }
+
+      &__label,
+      &__hint {
+        margin: 0;
+        font: 400 10px / 1.5 font-family(fraktion);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      &__description {
+        margin: clamp(2rem, 4vw, 3rem) 0;
+        font: 200 clamp(1.25rem, 2.2vw, 2rem) / 1.5 font-family(editorial);
+        text-wrap: pretty;
+
+        @media (max-height: 500px) {
+          margin: 1.25rem 0;
+          font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+          line-height: 1.4;
+        }
+      }
+
+      &__track {
+        display: block;
+        width: 6rem;
+        height: 1px;
+        margin: 0 auto 1rem;
+        background: color(line);
+      }
+
+      &__progress {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+
+      &__hint {
+        color: color(muted);
+
+        span { margin-left: 0.35rem; }
       }
     }
 

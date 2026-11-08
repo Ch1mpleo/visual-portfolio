@@ -50,12 +50,7 @@ const menu = [
       </a>
     </div><!-- .sb-logo -->
 
-    <div class="sb-console" role="presentation">
-      <div class="sb-console__inner js-console">
-      </div><!-- .sb-console__inner -->
-    </div><!-- .sb-console -->
-
-    <nav class="sb-menu">
+    <nav class="sb-menu" aria-label="Main navigation">
       <ul class="sb__list">
         {
           menu.map((item) => (
@@ -154,17 +149,7 @@ const menu = [
   class Section {
     el: HTMLElement
     themeButton: HTMLButtonElement
-    console: HTMLElement
     links: NodeListOf<HTMLElement>
-
-    messages: string[]
-    message: string
-    messageLineBreak: boolean
-    lastMessage: string
-    lastTypeTime: number
-    writeDelay: number
-    canWrite: boolean
-    isPaused: boolean
 
     /**
      * Constructor
@@ -174,64 +159,7 @@ const menu = [
       this.el = document.querySelector('.site-head')
       this.themeButton = document.querySelector('.js-theme')
       this.syncThemeButton()
-      this.console = document.querySelector('.js-console')
       this.links = this.el.querySelectorAll('.js-menu-link')
-
-      // Properties
-      this.messages = [
-        // Red Dead Redemption 2
-        'Outlaws... until the end.',
-        'I gave you all I had.',
-        'Be loyal to what matters.',
-        'The world is going to change, boy.',
-        'You are a good man, Arthur Morgan.',
-        'Every piece of me hurts.',
-        'Some trees flourish, others die.',
-        "When the time comes, you gotta run and don't look back.",
-        "A man's legacy is the man himself.",
-        "We're thieves in a world that don't want us no more.",
-        // Elden Ring
-        'Brave Tarnished, thy strength befits a crown.',
-        'Maidenless behaviour.',
-        'You died.',
-        'Rise, Tarnished.',
-        'Seek the Elden Ring... beyond the Fog.',
-        'Let the grace guide thee.',
-        'Put these foolish ambitions to rest.',
-        'A great rune has broken.',
-        // The Witcher 3
-        "Wind's howling.",
-        "Evil is evil. Lesser, greater, middling... it's all the same.",
-        'People linked by destiny will always find each other.',
-        'Monster or man... the difference is in the choices.',
-        "If I'm to choose between one evil and another, I'd rather not choose.",
-        // Dark Souls
-        'Praise the Sun.',
-        "Don't give up, skeleton.",
-        'This is Dark Souls.',
-        'Bearer of the curse... seek souls.',
-        'Thou who art undead, art chosen.',
-        // God of War
-        'Boy.',
-        'Close your heart to it.',
-        'You cannot change. You are Kratos.',
-        'We must be better than this.',
-        // Cyberpunk 2077
-        'Wake up, Samurai. We have a city to burn.',
-        'The city always takes.',
-        'Nothing about this city is clean.',
-        // Hollow Knight
-        'No cost too great.',
-        'Accept your nature. Express it beautifully.',
-        'Little ghost, you have journeyed far.',
-      ]
-      this.message = ''
-      this.messageLineBreak = false
-      this.lastMessage = ''
-      this.lastTypeTime = 0
-      this.writeDelay = 0
-      this.canWrite = false
-      this.isPaused = true
 
       // Init
       Ticker.nextTick(this.init, this)
@@ -259,23 +187,6 @@ const menu = [
       })
 
       document.addEventListener('intro', this.intro.bind(this), { once: true })
-
-      this.el.addEventListener('intersect', this.onIntersect.bind(this), {
-        passive: true,
-      })
-    }
-
-    /**
-     * Intersect handler
-     */
-    onIntersect(e) {
-      this.isPaused = !e.detail.isIntersecting
-
-      if (this.isPaused) {
-        Emitter.off('tick', this.updateConsole, this)
-      } else {
-        Emitter.on('tick', this.updateConsole, this)
-      }
     }
 
     /**
@@ -311,13 +222,6 @@ const menu = [
           ease: 'expo.out',
           stagger: 0.1,
         },
-        1.5,
-      )
-      tl.call(
-        () => {
-          this.canWrite = true
-        },
-        null,
         1.5,
       )
     }
@@ -370,72 +274,6 @@ const menu = [
           t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
       })
     }
-
-    /**
-     * Update console
-     */
-    updateConsole(time) {
-      if (!this.canWrite || time - this.lastTypeTime < this.writeDelay) {
-        return
-      }
-
-      if (this.message === '') {
-        this.message = this.getRandomMessage()
-        this.writeDelay = 2000
-      } else {
-        if (this.message === this.lastMessage || this.messageLineBreak) {
-          this.console.textContent += '\n'
-        }
-
-        const char = this.message.charAt(0)
-        this.message = this.message.substring(1)
-
-        if (char === ',') {
-          this.writeDelay = 100
-        } else if (char === ' ') {
-          this.writeDelay = 100
-        } else if (char === '') {
-          this.writeDelay = 200
-        } else if (char === '…') {
-          this.writeDelay = 400
-        } else if (char === '.') {
-          this.writeDelay = 400
-        } else {
-          this.writeDelay = 20
-        }
-
-        this.console.textContent += char
-
-        if (char === '…') {
-          this.messageLineBreak = true
-        } else {
-          this.messageLineBreak = false
-        }
-      }
-
-      this.console.textContent = this.console.textContent
-        .split('\n')
-        .slice(-5)
-        .join('\n')
-
-      this.lastTypeTime = time
-    }
-
-    /**
-     * Get random message
-     */
-    getRandomMessage() {
-      let message =
-        this.messages[Math.floor(Math.random() * this.messages.length)]
-
-      if (message === this.lastMessage) {
-        message = this.getRandomMessage()
-      }
-
-      this.lastMessage = message
-
-      return message
-    }
   }
 
   new Section()
@@ -455,19 +293,22 @@ const menu = [
       @include flex(row, stretch, space-between);
 
       width: 100%;
-      height: 6rem;
+      min-height: 6rem;
+
+      @include mq(tablet) {
+        flex-wrap: wrap;
+      }
 
       @include mq(phone) {
-        height: 4rem;
+        min-height: 4rem;
       }
     }
 
     .sb-logo {
       color: color(secondary);
-      a { color: inherit; }
-      padding: 1.5rem;
       width: 6rem;
       height: 6rem;
+      flex-shrink: 0;
 
       border-right: 1px solid color(line);
 
@@ -476,9 +317,19 @@ const menu = [
       }
 
       @include mq(phone) {
-        padding: 1rem;
         width: 4rem;
         height: 4rem;
+      }
+
+      a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: inherit;
+
+        &:focus-visible { outline-offset: -5px; }
       }
 
       svg {
@@ -492,62 +343,12 @@ const menu = [
       }
     }
 
-    .sb-console {
-      @include flex(column, flex-start, flex-end);
-
-      flex: 0 1 12.5rem;
-      min-width: 0;
-      max-width: 12.5rem;
-      margin: 0 auto 0 0;
-      padding: 1.5rem;
-
-      font: 400 8px / 1.4 font-family(fraktion);
-      text-transform: uppercase;
-      white-space: pre-line;
-
-      @include mq(tablet) {
-        order: 2;
-      }
-
-      @include mq(tablet-sm) {
-        display: none;
-      }
-
-      @keyframes site-head-caret {
-        0%,
-        100% {
-          opacity: 1;
-        }
-
-        50% {
-          opacity: 0;
-        }
-      }
-
-      &__inner {
-        @include flex(column, flex-start, flex-end);
-
-        width: 100%;
-        height: 5.6em;
-
-        overflow: hidden;
-        overflow-wrap: anywhere;
-      }
-    }
-
     .sb-menu {
-      border-left: 1px solid color(line);
-
-      @include mq(desktop-xs) {
-        padding: 0 1rem;
-      }
-
-      @include mq(tablet) {
-        display: none;
-      }
+      flex: 1;
+      min-width: 0;
 
       .sb__list {
-        @include flex(row, center, flex-start);
+        @include flex(row, center, center);
 
         margin: 0;
         padding: 0;
@@ -581,22 +382,19 @@ const menu = [
       }
 
       a {
-        display: block;
-        padding: 2rem 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 48px;
+        height: 100%;
+        padding: 1rem clamp(0.75rem, 1.5vw, 2rem);
 
         color: color(secondary);
         font: 400 14px / 1 font-family(fraktion);
         letter-spacing: 0.05em;
         text-decoration: none;
         text-transform: uppercase;
-
-        @include mq(desktop-sm) {
-          padding: 2rem;
-        }
-
-        @include mq(desktop-xs) {
-          padding: 2rem 1rem;
-        }
 
         @keyframes blink-in {
           0%,
@@ -620,21 +418,32 @@ const menu = [
             animation: blink-in 0.3s ease(in-out-expo) forwards;
           }
         }
+
+        &:focus-visible { outline-offset: -5px; }
       }
     }
 
     @include mq(tablet) {
       .sb-menu {
-        display: block;
-        order: 2;
-        margin-right: auto;
-        padding: 0;
-        .sb__item { display: none; }
-        .sb__item:has(a[href='#components']) { display: block; }
-        a { padding: 1.5rem 0.8rem; font-size: 11px; }
+        order: 6;
+        flex: 0 0 100%;
+        border-top: 1px solid color(line);
+
+        .sb__list {
+          flex-wrap: wrap;
+        }
+
+        .sb__item {
+          flex: 1 0 auto;
+        }
+
+        a {
+          padding: 1rem 0.4rem;
+          font-size: clamp(11px, 2.5vw, 13px);
+        }
+
+        .sb__text:before { display: none; }
       }
-      .sb-console { display: none; }
-      .sb-availability { display: none; }
     }
 
     .sb-resume {
@@ -667,8 +476,8 @@ const menu = [
       }
 
       &:focus-visible { outline-offset: -5px; }
-      @include mq(tablet) { order: 3; }
-      @include mq(phone) { margin-right: auto; padding: 0 1rem; }
+      @include mq(tablet) { order: 3; margin-left: auto; }
+      @include mq(phone) { padding: 0 0.75rem; }
       @include mq(phone-sm) { gap: 0.4rem; padding-inline: 0.65rem; }
       @media (prefers-reduced-motion: reduce) {
         &, svg { transition: none; }
@@ -703,8 +512,6 @@ const menu = [
         background: none;
         border-left: 0;
       }
-
-      @media (max-width: 450px) { display: none; }
 
       .sb__item {
         margin: 0;
@@ -813,7 +620,7 @@ const menu = [
       transition: background 0.2s, color 0.2s;
 
       @include mq(tablet) { order: 5; }
-      @include mq(phone) { height: 100%; }
+      @include mq(phone) { height: 4rem; }
 
       .sb__icon {
         width: 20px;
@@ -846,8 +653,8 @@ const menu = [
 
       font: 200 clamp(0.875rem, 1.25vw, 1.25rem) / 48px font-family(editorial);
 
-      @include mq(tablet) {
-        order: 3;
+      @include mq(desktop-sm) {
+        display: none;
       }
 
       @include mq(tablet-sm) {

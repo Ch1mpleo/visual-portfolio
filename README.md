@@ -23,11 +23,17 @@ I'm a **Gamer and Developer** who codes by day and games by night. This site is 
 
 ## Run locally
 
+Use Node.js **22.23.4 or newer** and npm **9.6.5 or newer**. `.nvmrc` records the Node version used by GitHub Pages CI; with nvm installed, run `nvm install 22.23.4` and `nvm use 22.23.4` first.
+
 ```bash
 git clone https://github.com/Ch1mpleo/visual-portfolio.git
-npm install
+npm ci
 npm run dev
 ```
+
+The development server listens on localhost by default. To preview on another device on a trusted network, run `npm run dev -- --host`.
+
+Before deploying, run `npm test`, `npm run build`, and `npm audit`. Use `npm run preview` to check the production build at `/visual-portfolio/`.
 
 ## Resume
 

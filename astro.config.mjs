@@ -12,9 +12,11 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/visual-portfolio' : '/',
 
   scopedStyleStrategy: 'class',
+  // Preserve HTML whitespace behavior from Astro 5 (Astro 7 defaults to JSX rules).
+  compressHTML: true,
 
   server: {
-    host: true,
+    host: '127.0.0.1',
   },
 
   vite: {

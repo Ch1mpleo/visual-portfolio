@@ -5,6 +5,7 @@ const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
 const experiments = [
   { id: 'cutout', name: 'Cutout', description: 'Pick a mood. Watch the letters become a roll of photographs.' },
   { id: 'emulsion', name: 'Emulsion', description: 'Ch1mpleo — my eye for video game worlds.' },
+  { id: 'reverie', name: 'Reverie', description: 'A moment becomes a memory. Wander through the worlds I keep.' },
 ] as const
 ---
 
@@ -31,7 +32,7 @@ const experiments = [
     h2 { margin: 0 0 clamp(1.5rem, 3vw, 3rem); font: 700 clamp(3.5rem, 6vw, 6.5rem) / 0.88 font-family(bigger); text-transform: uppercase; }
     &__title-main { display: block; font-family: font-family(bigger); }
     &__title-accent { display: block; font-family: font-family(editorial); font-size: 0.76em; font-style: italic; font-weight: 400; line-height: 1.12; text-transform: none; }
-    &__gallery { display: grid; align-items: start; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
+    &__gallery { display: grid; align-items: start; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
   }
   .component-card {
     display: block; min-width: 0; width: 100%; padding: 0; border: 0; color: inherit; background: none; text-align: left; cursor: pointer;
@@ -42,6 +43,7 @@ const experiments = [
     p { max-width: 44ch; margin: 0; font: 400 16px / 1.5 font-family(editorial); }
     &:focus-visible { outline: 2px solid color(secondary); outline-offset: 8px; }
   }
+  @media (max-width: 1280px) { .s-components__gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 767px) { .s-components__gallery { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; } }
   @media (prefers-reduced-motion: reduce) { .component-card img { transition: none; } .component-card:hover img { transform: none; } }
 </style>

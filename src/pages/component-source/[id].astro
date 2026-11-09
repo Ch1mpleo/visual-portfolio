@@ -2,9 +2,10 @@
 import { Code } from 'astro:components'
 import cutout from '../../../public/components/cutout.html?raw'
 import emulsion from '../../../public/components/emulsion.html?raw'
+import reverie from '../../../public/components/reverie.html?raw'
 import { splitComponentSource } from '../../utils/component-source.mjs'
 export function getStaticPaths() {
-  return [{ params: { id: 'cutout' }, props: { source: cutout, id: 'cutout' } }, { params: { id: 'emulsion' }, props: { source: emulsion, id: 'emulsion' } }]
+  return Object.entries({ cutout, emulsion, reverie }).map(([id, source]) => ({ params: { id }, props: { source, id } }))
 }
 const { source, id } = Astro.props
 const files = splitComponentSource(source, id)

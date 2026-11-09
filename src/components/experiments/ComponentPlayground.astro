@@ -42,7 +42,7 @@ const languages = [
 </dialog>
 
 <script>
-  type ComponentId = 'cutout' | 'emulsion'
+  type ComponentId = 'cutout' | 'emulsion' | 'reverie'
   type Language = 'html' | 'css' | 'js'
   type SourceFiles = Record<Language, string>
   const dialog = document.querySelector<HTMLDialogElement>('#component-playground')!
@@ -110,7 +110,7 @@ const languages = [
   }
   document.querySelectorAll<HTMLButtonElement>('[data-component-open]').forEach(button => button.addEventListener('click', () => {
     const id = button.dataset.componentOpen as ComponentId
-    if (id !== 'cutout' && id !== 'emulsion') return
+    if (id !== 'cutout' && id !== 'emulsion' && id !== 'reverie') return
     current = id; trigger = button; status.textContent = ''; session++; copyVersion++
     resetCode()
     const name = id[0].toUpperCase() + id.slice(1)

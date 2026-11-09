@@ -177,15 +177,22 @@ try {
       assert.equal(await frame.locator('.controls, .credits').count(), 0)
       assert.equal(await frame.locator('.headline').count(), 2)
       assert.equal(await frame.locator('.headline--worlds').textContent(), 'worlds')
+      assert.ok(await frame.locator('.moments-copy h2').textContent())
+      assert.equal(await frame.locator('.dimension-plane').count(), 1)
       assert.equal(await frame.locator('.print small').count(), 0)
-      assert.equal(await frame.locator('.print[data-game="AC: Origin"]').count(), 4)
-      assert.equal(await frame.locator('.print[data-game="AC: Black Flag Resync"]').count(), 9)
+      const collection=await readFile('public/components/reverie.html','utf8')
+      const libraryPhotos=new Set([...collection.matchAll(/src: '(https:\/\/images\.steamusercontent\.com[^']+)'/g)].map(match=>new URL(match[1]).pathname))
+      const expectedPhotos=new Set([...source.matchAll(/src: '(https:\/\/images\.steamusercontent\.com[^']+)'/g)].map(match=>new URL(match[1]).pathname))
+      assert.deepEqual(new Set(await frame.locator('.print img').evaluateAll(images=>images.map(img=>new URL(img.src).pathname))),expectedPhotos,'Emulsion renders its curated photography collection')
+      assert.ok(expectedPhotos.size<libraryPhotos.size&&[...expectedPhotos].every(path=>libraryPhotos.has(path)),'the denser Reverie archive remains separate from Emulsion’s selection')
       assert.equal(await frame.locator('.headline--photographer').textContent(), 'photographer')
-      assert.equal(await frame.locator('.print').count(), 13)
+      assert.equal(await frame.locator('.print').count(), expectedPhotos.size)
       assert.equal(await frame.locator('.print--portrait').count(), 4)
+      await frame.locator('.print img').evaluateAll(images=>Promise.all(images.map(img=>img.decode())))
       assert.ok(await frame.locator('.print__image').evaluateAll(images => images.every(image => {
         const portrait = image.closest('.print').classList.contains('print--portrait')
-        return Math.abs(image.clientWidth / image.clientHeight - (portrait ? 9 / 16 : 16 / 9)) < 0.03
+        const img=image.querySelector('img'),ratio=portrait?img.naturalHeight/img.naturalWidth:img.naturalWidth/img.naturalHeight
+        return Math.abs(image.clientWidth / image.clientHeight - ratio) < 0.03
       })), 'portrait and landscape frames preserve their original compositions')
       const motion = await frame.locator('.scene').evaluate(scene => {
         const button = scene.querySelector('.topbar > [data-go="0"]'), samples = []
@@ -214,6 +221,7 @@ try {
       assert.ok(settled.length > 2 && settled.every(sample => Math.abs(sample.lastPhoto - settled[0].lastPhoto) < 0.01 && Math.abs(sample.worlds - settled[0].worlds) < 0.01), 'photos stick around worlds for the settled wall')
       const closing = motion.filter(sample => sample.phase === 'closing')
       assert.ok(closing.at(-1).lastPhoto < settled[0].lastPhoto - 500, 'the complete formation releases together')
+      assert.ok(motion.filter(sample=>sample.phase==='moments').length>2,'Moments has a settled pause before the ending')
       const wheelTravel = await frame.locator('.scene').evaluate(scene => {
         const home = scene.querySelector('.topbar [data-go="0"]')
         return [[480], [120, 120, 120, 120]].map(deltas => {

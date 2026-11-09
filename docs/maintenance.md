@@ -38,6 +38,7 @@ Browser scripts require Playwright and Microsoft Edge. `PLAYWRIGHT_PACKAGE` can 
 
 - `node scripts/qa-components.mjs` — gallery, deferred demos/source, copy/download, and study interactions.
 - `node scripts/qa-reverie.mjs` — six reversible formations, photo inspection, input, reduced motion, and standalone/source integration.
+- `node scripts/qa-emulsion.mjs` — curated prints, fixed Worlds wall, magnetic Moments card sequence with denser game copy, responsive reachability, wind interactions, and source/viewer integration.
 - `node scripts/qa-resume.mjs` — responsive preview, focus, zoom, and PDF links.
 - `node scripts/qa-music.mjs` — audio and turntable; `MUSIC_QA_URL` can target a running dev server instead.
 - `node scripts/qa-infrastructure.mjs` — architecture inspections, flow, keyboard, themes, and reduced motion.

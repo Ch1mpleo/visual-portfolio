@@ -31,7 +31,7 @@ try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, permissions: ['clipboard-read', 'clipboard-write'] })
   const page = await context.newPage(), errors = []
   const demoRequests = [], highlightRequests = []
-  page.on('request', request => { const path = new URL(request.url()).pathname; if (/\/components\/(cutout|emulsion)\.html$/.test(path)) demoRequests.push(path); if (path.includes('/component-source/')) highlightRequests.push(path) })
+  page.on('request', request => { const path = new URL(request.url()).pathname; if (/\/components\/(cutout|emulsion|reverie)\.html$/.test(path)) demoRequests.push(path); if (path.includes('/component-source/')) highlightRequests.push(path) })
   page.setDefaultTimeout(15000)
   page.on('pageerror', error => { errors.push(error.message); console.log('Runtime:',error.message) })
   console.log('Opening production build…')
@@ -63,7 +63,7 @@ try {
     assert.equal(await page.locator('#components').evaluate(el => el.scrollWidth <= el.clientWidth), true, `gallery fits ${width}`)
     if (width>767) assert.equal(await page.locator('#components .component-card__image').evaluateAll(images=>Math.abs(images[0].getBoundingClientRect().top-images[1].getBoundingClientRect().top)<1),true,'gallery images align at their top edge')
     await page.locator('#components').screenshot({ path: resolve(out, `gallery-${width}.png`) })
-    for (const id of ['cutout', 'emulsion']) {
+    for (const id of ['cutout', 'emulsion', 'reverie']) {
       const trigger = page.locator(`[data-component-open="${id}"][data-component-view="preview"]`)
       await trigger.click()
       assert.equal(await dialog.evaluate(el => el.open), true)

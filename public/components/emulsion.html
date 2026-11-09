@@ -501,14 +501,16 @@
           height = scene.clientHeight,
           contactX = 0,
           travel = width * 2.6,
-          openingSpan = width * 0.3656,
-          holdEnd = width * 0.7312,
+          openingSpan = width,
+          holdEnd = width * 1.9,
+          typeScale = 1,
           worldsStart = width * 3,
           releaseStart = width * 6.4,
           worldsScale = 1,
           worldsCenter = 0
         const trailingRate = 2 / 2.285
         const trailBlend = 0.16
+        const typeInset = 0.04
         const clamp = (n, min, max) => Math.max(min, Math.min(max, n))
         function canRun() {
           return visible && !document.hidden
@@ -542,8 +544,8 @@
           const afterHold = Math.max(0, distance - holdEnd)
           const blend = width * trailBlend
           const trail = afterHold < blend ? afterHold * afterHold / (2 * blend) : afterHold - blend / 2
-          const typeX = -width * 0.36 + opening * width * 0.28 - trail * trailingRate
-          headline.style.transform = `translate3d(${typeX}px,${-opening * width * 0.035}px,0) scale(${1 - opening * 0.16})`
+          const typeX = mix(-width * 0.36, width * typeInset, opening) - trail * trailingRate
+          headline.style.transform = `translate3d(${typeX}px,${-opening * width * 0.035}px,0) scale(${mix(1, typeScale, opening)})`
           intro.style.transform = `translate3d(${-distance}px,0,0)`
           const release = Math.max(0, distance - releaseStart)
           const wordArrival = smooth(clamp((distance - worldsStart) / (width * 0.9), 0, 1))
@@ -732,11 +734,13 @@
               })
             })
           }
-          openingSpan = width * 0.3656
-          holdEnd = width * 0.7312
+          // Pull the complete word into view; keep it readable after the photos pass.
+          openingSpan = width
+          typeScale = Math.min(1, width * (1 - 2 * typeInset) / headlineWidth)
           const firstFramesEdge = Math.max(...prints.slice(0, 4).map(p => p.x + p.width))
+          holdEnd = Math.max(openingSpan + width * 0.9, firstFramesEdge + width * 0.65)
           const typeClearPan = holdEnd + width * trailBlend / 2
-            + (headlineWidth * 0.84 + width * 0.16) / trailingRate
+            + (headlineWidth * typeScale + width * (typeInset + 0.24)) / trailingRate
           worldsStart = Math.max(firstFramesEdge + width * 0.3, typeClearPan)
           worldsScale = Math.min(1, width * 0.88 / worldsWidth)
           worldsCenter = (width - worldsWidth * worldsScale) / 2

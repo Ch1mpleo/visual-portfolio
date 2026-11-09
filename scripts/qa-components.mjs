@@ -195,6 +195,8 @@ try {
             phase: scene.dataset.phase,
             photo: new DOMMatrix(getComputedStyle(scene.querySelector('.print')).transform).e,
             photographer: scene.querySelector('.headline--photographer').getBoundingClientRect().left,
+            photographerRight: scene.querySelector('.headline--photographer').getBoundingClientRect().right,
+            viewport: scene.clientWidth,
             lastPhoto: new DOMMatrix(getComputedStyle(scene.querySelectorAll('.print')[12]).transform).e,
             worlds: scene.querySelector('.headline--worlds').getBoundingClientRect().left,
           })
@@ -204,6 +206,7 @@ try {
       })
       const opening = motion.filter(sample => sample.phase === 'photographer')
       assert.ok(opening.some(sample => sample.photographer > opening[0].photographer + 50), 'photographer retains the opening counter-pan')
+      assert.ok(opening.filter(sample => sample.photographer >= 0 && sample.photographerRight <= sample.viewport).length >= 3, 'the complete photographer word has a readable pause inside the viewport')
       assert.ok(opening.slice(1).every((sample, i) => sample.photo < opening[i].photo), 'opening photos travel continuously')
       const assembling = motion.filter(sample => sample.phase === 'assembling')
       assert.ok(assembling.at(-1).lastPhoto < assembling[0].lastPhoto - 50, 'gallery photos arrive from right to left')

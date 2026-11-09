@@ -39,7 +39,7 @@
         position: relative;
         height: 100svh;
         min-height: 300px;
-        overflow: hidden;
+        overflow: clip;
         isolation: isolate;
       }
       .scene:after {
@@ -47,7 +47,7 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        z-index: 8;
+        z-index: 250;
         opacity: 0.1;
         filter: grayscale(1);
         mix-blend-mode: multiply;
@@ -56,7 +56,7 @@
       .topbar {
         position: absolute;
         inset: 22px 26px auto;
-        z-index: 9;
+        z-index: 300;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
@@ -138,6 +138,26 @@
         letter-spacing: -0.045em;
         text-transform: uppercase;
       }
+      .dimension-surface { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 45%, #bda48a25, transparent 62%), #f0ede6; opacity: 0; pointer-events: none; }
+      .dimension-plane { position: absolute; inset: 0; z-index: 3; perspective: 1100px; transform-style: preserve-3d; pointer-events: none; }
+      .dimension-threads { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+      .dimension-threads path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .dimension-threads .thread-glow { stroke-width: 12; opacity: .48; filter: blur(4px); }
+      .dimension-threads .thread-core { stroke-width: 4; opacity: 1; }
+      .dimension-threads .thread-sheen { stroke: #fff8ee; stroke-width: .8; opacity: .6; }
+      .moment-captions { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+      .moments-copy { position: absolute; left: 4.5%; top: 45%; width: 26%; z-index: 4; pointer-events: none; display: grid; gap: 10px; }
+      .moments-copy .eyebrow { margin: 0; color: var(--red); font: 10px/1.4 Arial,sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+      .moments-copy h2 { margin: 0; font: 600 clamp(20px,2.1vw,32px)/1.12 Arial,sans-serif; letter-spacing: -.045em; }
+      .moments-copy .moment-beat { margin: 0; color: var(--muted); font: 400 clamp(12px,1.05vw,16px)/1.45 Georgia,serif; letter-spacing: -.01em; max-width: 18em; }
+      .moment-game { position: absolute; right: 4.5%; top: 45%; width: 22%; margin: 0; z-index: 4; display: grid; gap: 8px; justify-items: end; text-align: right; pointer-events: none; }
+      .moment-game .eyebrow { margin: 0; color: var(--muted); font: 10px/1.4 monospace; letter-spacing: .14em; text-transform: uppercase; }
+      .moment-game .moment-title-game { margin: 0; font: 600 clamp(14px,1.4vw,22px)/1.2 Arial,sans-serif; letter-spacing: -.025em; }
+      .moment-game .moment-detail { margin: 0; color: var(--muted); font: 400 clamp(11px,.95vw,14px)/1.45 Georgia,serif; max-width: 16em; }
+      .dimension-index { position: absolute; top: 78px; right: 4.5%; z-index: 5; display: grid; justify-items: end; gap: 4px; }
+      .dimension-index button { border: 0; padding: 3px 0 3px 12px; background: none; color: var(--ink); font: 10px/1.3 Arial,sans-serif; opacity: .35; transition: opacity .3s; }
+      .dimension-index button:hover, .dimension-index button[aria-current='true'] { opacity: 1; }
+      @media (max-width: 1100px), (max-height: 650px) { .dimension-index { display: none; } }
       .print {
         --pin-size: clamp(6px, 0.55vw, 9px);
         position: absolute;
@@ -242,6 +262,25 @@
         cursor: grabbing;
         z-index: 7;
       }
+      .print--dimension { z-index: 3; padding: 0; border-radius: 20px; background: #c9bdab; transform-origin: center; box-shadow: 0 26px 55px -22px #30291e77; pointer-events: auto; cursor: pointer; backface-visibility: hidden; will-change: transform, opacity; }
+      .print--dimension::before { display: none; }
+      .print--dimension .print__image { border-radius: inherit; transition: transform .55s cubic-bezier(.22,1,.36,1); }
+      .print--dimension .print__image img { transition: transform .55s cubic-bezier(.22,1,.36,1); }
+      .print--dimension .print__caption { display: none; }
+      .print--dimension.is-current { cursor: default; box-shadow: 0 28px 60px -22px #30291e88; }
+      .print--dimension:hover, .print--dimension:focus-visible { box-shadow: 0 30px 64px -22px #30291e90; z-index: 8; }
+      .print--dimension:hover .print__image img,
+      .print--dimension:focus-visible .print__image img { transform: scale(1.06); }
+      .print--dimension.is-current:hover .print__image img,
+      .print--dimension.is-current:focus-visible .print__image img { transform: scale(1.08); }
+      @media (prefers-reduced-motion: reduce) {
+        .print--dimension .print__image,
+        .print--dimension .print__image img { transition: none; }
+        .print--dimension:hover .print__image img,
+        .print--dimension:focus-visible .print__image img,
+        .print--dimension.is-current:hover .print__image img,
+        .print--dimension.is-current:focus-visible .print__image img { transform: none; }
+      }
       .contact {
         position: absolute;
         top: 18%;
@@ -251,7 +290,7 @@
         background: var(--red);
         color: #f9edda;
         padding: clamp(12px, 3vmin, 48px);
-        z-index: 4;
+        z-index: 200;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -282,11 +321,10 @@
         .topbar {
           inset: 20px 18px auto;
         }
-        .topbar nav {
-          gap: 6px;
-        }
+        .topbar { gap: 8px; letter-spacing: .06em; }
+        .topbar nav { gap: 0; }
         .topbar button {
-          font-size: 8px;
+          font-size: 7.5px;
         }
         .intro {
           top: 15%;
@@ -304,6 +342,14 @@
         .gallery-copy { left: 6%; bottom: 5%; width: 85%; }
         .gallery-copy .eyebrow { font-size: 8px; margin-bottom: 8px; }
         .gallery-copy h2 { font-size: clamp(14px, 4vw, 20px); }
+        .moment-captions { inset: var(--moment-copy-top) 24% auto 6%; display: grid; gap: 14px; }
+        .moments-copy { position: relative; left: auto; top: auto; width: 100%; --moment-caption-shift: 0%; gap: 6px; }
+        .moments-copy h2 { font-size: clamp(21px,6vw,26px); }
+        .moments-copy .moment-beat { font-size: clamp(12px,3.4vw,15px); max-width: none; }
+        .moment-game { position: relative; left: auto; right: auto; top: auto; width: 100%; --moment-caption-shift: 0%; justify-items: start; text-align: left; gap: 4px; }
+        .moment-game .eyebrow { font-size: 9px; letter-spacing: .1em; }
+        .moment-game .moment-title-game { font: 9px/1.5 monospace; letter-spacing: .08em; text-transform: uppercase; }
+        .moment-game .moment-detail { font-size: 12px; max-width: none; }
         .contact {
           width: 80%;
           left: var(--contact-x, 260%);
@@ -328,6 +374,7 @@
         <button data-go="0" aria-current="true">Ch1mpleo / Emulsion</button>
         <nav aria-label="Wall chapters">
           <button data-go="0.5" data-worlds-link>Worlds</button>
+          <button data-go="0.75" data-moments-link>Moments</button>
           <button data-go="1">Last frame</button>
         </nav>
       </header>
@@ -342,6 +389,24 @@
         <p class="eyebrow">02 — Worlds</p>
         <h2>I pause the quest<br />to keep the view.</h2>
       </div>
+      <div class="dimension-surface" aria-hidden="true"></div>
+      <svg class="dimension-threads" aria-hidden="true">
+        <defs></defs>
+      </svg>
+      <div class="dimension-plane"></div>
+      <div class="moment-captions">
+        <div class="moments-copy">
+          <p class="eyebrow" data-moment-place></p>
+          <h2 data-moment-title></h2>
+          <p class="moment-beat" data-moment-beat></p>
+        </div>
+        <div class="moment-game">
+          <p class="eyebrow" data-moment-game></p>
+          <p class="moment-title-game" data-moment-region></p>
+          <p class="moment-detail" data-moment-detail></p>
+        </div>
+      </div>
+      <nav class="dimension-index" aria-label="Choose a moment"></nav>
       <div class="contact">
         <p>THE LAST FRAME</p>
         <h2>
@@ -357,75 +422,185 @@
       ;(() => {
         const scene = document.querySelector('.scene')
         const reduced = matchMedia('(prefers-reduced-motion: reduce)')
-        // Add each original Steam URL and a description here; no image service is required.
+        // Curated { src, alt, portrait, angle, game, ratio? } records; additions after Worlds join the dimension.
         const photoData = [
           {
             src: 'https://images.steamusercontent.com/ugc/15940571849885032379/04F2AF8316B6B6BD616A2A1586CF7DC4226FFA5B/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'An armored warrior overlooking a sunlit desert and river',
             portrait: false, angle: -6,
+            game: 'AC: Origin',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/13523765458018265274/6F6A40CDA55817EF7E0EF43DB191FDDDEBDDCD76/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A hooded assassin above sunlit rooftops',
             portrait: false, angle: 4,
+            game: 'AC: Origin',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/12808750164134147731/75620ADED96260F278D678FB8A2AF7BDC3196B79/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A torch illuminating the inside of an ancient tomb',
             portrait: false, angle: -3,
+            game: 'AC: Origin',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/13213530011163441005/F65FE8933995D3DD1CF2230E346F6FDDF9E663B9/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A lone rider silhouetted against the pyramids at dusk',
             portrait: false, angle: -5,
+            game: 'AC: Origin',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/14327425889210272698/DA39C7725D0AE81191F4A9B05864EF6406DDB2BB/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A warrior greeting the moonlight beside a quiet lake',
             portrait: false, angle: 3,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/12780697389099649544/5D90C92BFE3E9BFB9A7888C580E0764292B79D45/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A crew on a sailing ship in warm afternoon light',
             portrait: false, angle: -4,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/17685405136869445326/002A267F0CB94D23D222B2582EF518D8A62B50B6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A hooded assassin crouched beside a stone tower and palm trees',
             portrait: true, angle: -4,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/11704419977118154295/33DF82BDBB8E1AD479B16EF56869BA1055424E9C/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A white-hooded pirate framed by tropical cliffs',
             portrait: true, angle: 5,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/14629272092508208080/F05612C2D313E37F0DBD329A8A5A577C196C3938/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A cloaked warrior under blue moonlight and trees',
             portrait: true, angle: -3,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/10300254567982358463/8E2F6862C0AD6BC0140E6C9E5212E93C3088DCB3/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A carved wooden longship surrounded by fire and smoke',
             portrait: false, angle: -4,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/11987783913335236110/EFD77272D221272B9E687CE561BB9D25960CE205/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A close view of a hooded pirate crouching in the shade',
             portrait: true, angle: -5,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/13018202383332687089/75A775D14E3CEA946BFF0E26BECB2DD89B348B9E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A pirate overlooking clear tropical water and forested cliffs',
             portrait: false, angle: 4,
+            game: 'AC: Black Flag Resynced',
           },
           {
             src: 'https://images.steamusercontent.com/ugc/17926610918032462856/F67806D12C4F8D68208C6153A0A3A6C707680412/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
             alt: 'A tall sailing ship cutting through bright blue water',
             portrait: false, angle: -3,
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13419225778944239108/D12004E10D1EEE64453CE66AE3DA03D5C4326766/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded pirate walking along a path through a lush tropical forest',
+            portrait: false, angle: 3,
+            game: 'AC: Black Flag Resynced',
+            title: 'Into the green',
+            threadColor: '#63784d',
+            place: 'West Indies canopy',
+            region: 'Nassau wilds',
+            beat: 'Edward leaves the beach path and cuts inland through wet leaves and cicadas.',
+            detail: 'Assassin robes, red sash, no ships in sight — only the island swallowing him.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12309400201932848340/E89C7D8A2396D136B2BD03DA7BA46C632D7FF0F5/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate crossing blades with a red-coated soldier in a coastal settlement',
+            portrait: false, angle: -3,
+            game: 'AC: Black Flag Resynced',
+            title: 'Steel and salt',
+            threadColor: '#71768e',
+            place: 'Colonial quay',
+            region: 'Harbour fort',
+            beat: 'A boarding fight spills onto the settlement boards as redcoats push back.',
+            detail: 'Cutlass work at arm’s length; the sea still glittering behind the clash.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14866086704068834167/0DE45EA9E43B4AE9995E764C3DCB01D7FD4CBCA6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An armored warrior approaching a painted Egyptian temple between stone statues',
+            portrait: false, angle: 5,
+            game: 'AC: Origin',
+            title: 'At the temple gates',
+            threadColor: '#bb8e76',
+            place: 'Temple approach',
+            region: 'Ptolemaic Egypt',
+            beat: 'Bayek walks the avenue between guardian statues toward painted pylons.',
+            detail: 'Shield down, midday heat on stone, the quest held for one clean frame.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12467491500300879513/D62031585F3829F0F52DAFC34A8ECB6786BB2DF6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A blue-coated assassin walking through a busy Paris street in golden light',
+            portrait: false, angle: -4,
+            game: 'AC: Unity',
+            title: 'Paris in the morning',
+            threadColor: '#ad9455',
+            place: 'City street',
+            region: 'Revolutionary Paris',
+            beat: 'Arno keeps a measured pace through the crowd while gold light fills the lane.',
+            detail: 'Blue coat, soft haze, a city still waking before the next rooftop run.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14327590034332448783/86B827E5FAEC628DD06F6C3E5DA9F4F550A1376E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An assassin on a narrow Paris street beneath glowing lamps',
+            portrait: false, angle: 3,
+            game: 'AC: Unity',
+            title: 'After the lamps come on',
+            threadColor: '#4e706b',
+            place: 'Night alley',
+            region: 'Île de la Cité',
+            beat: 'Lantern glow pools on wet stone as the street narrows into silence.',
+            detail: 'Paris after curfew: warm lamps, cold walls, one assassin in the middle.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12926310644417301135/125B77B2557D868418536A8F7A7C20ADBD587C89/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cowboy raising a revolver from a rearing horse in the mist',
+            portrait: false, angle: -3,
+            game: 'Red Dead Redemption 2',
+            title: 'One last shot',
+            threadColor: '#938275',
+            place: 'Misty trail',
+            region: 'Heartlands',
+            beat: 'Arthur’s horse rears while the revolver finds a line through the fog.',
+            detail: 'Outlaw framing: mud, steam, and a single raised gun before the shot.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/18095479308264015340/D37E8505896D934526F0625AE09EFBB303AE485E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A rider and a loaded horse on a snowy mountain trail beneath the sun',
+            portrait: false, angle: 5,
+            game: 'Red Dead Redemption 2',
+            title: 'The long winter',
+            threadColor: '#829bb7',
+            place: 'Mountain pass',
+            region: 'Grizzlies',
+            beat: 'Pack horse and rider climb a bright snow trail under a hard white sun.',
+            detail: 'Cold country logistics: every crate tied down for the next camp.',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/18087614179587174712/793DB10F8E6607E981591E3B886459CF3EDBBB71/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'Kratos and Atreus standing together in a dark cavern',
+            portrait: false, angle: -4,
+            game: 'God Of War',
+            ratio: 1.6,
+            title: 'Fire in the dark',
+            threadColor: '#ae704c',
+            place: 'Cavern hush',
+            region: 'Midgard undercroft',
+            beat: 'Father and son pause in the ember light before the next descent.',
+            detail: 'Leviathan quiet at his side; Atreus watching the dark with him.',
           },
         ]
-        // Four opening frames; nine smaller prints build the second wall.
+        // Four opening frames, the original nine-photo Worlds wall, then eight dimension prints.
         const openingFrames = [
           { x: 0.34, y: 0.46, width: 0.25 },
           { x: 0.64, y: 0.16, width: 0.24 },
@@ -433,45 +608,97 @@
           { x: 1.24, y: 0.19, width: 0.26 },
         ]
         const galleryRows = [
-          { frames: [4, 6, 7, 9, 11], widths: [0.18, 0.115, 0.115, 0.18, 0.18], gap: 0.035, center: 0.22 },
-          { frames: [5, 8, 10, 12], widths: [0.20, 0.12, 0.12, 0.22], gap: 0.055, center: 0.60 },
+          { frames: [4, 6, 7, 9, 11], widths: [0.198, 0.127, 0.127, 0.198, 0.198], gap: 0.025, center: 0.22 },
+          { frames: [5, 8, 10, 12], widths: [0.22, 0.132, 0.132, 0.242], gap: 0.045, center: 0.60 },
         ]
         const brandLogos = {"origins": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABgCAYAAABVJY8fAAAACXBIWXMAAAPoAAAD6AG1e1JrAAACdklEQVR4nO2U247EMAhD+f+f9r7sSrOjpgmX4NBiiZdpg80JHQEgXVgqegAUKnoAFCp6ABQqegBcFw7I0LDwMFifYmdpWHgIrCuxMzUsNCy8Btad2NkaForCWhE7Y8NCw8JjYWnUsBR6NayRZs8a1ocaFtZgaZ6/BtZI2ncaFhoWLBCOAdaw8CxY8mZYI0WfaVhvgjXS7rMN61cNCy+HNVJ2j4aFF8ASEvSjYY3E7tWwUBjWSKf1bFh4ACw5uC8N1kin925YOBjWSNU8GhYaVk1YI5X2aljgwhpp18WkeZYNjgfAwmGwQn1L3jBI3uVuF0R/dlCLaMAYsCJVCtaKNIA826fJEwJL08yr3ZcU4f3v3VmIrJArygI3fL7D/FvZmxGp6X/WFiPsU9oMGZs104r3CdkosMTwCbEudQor639LFn0tZ7Zkzg6gHd4DtwQsUfRZ3TjGp5oOS8jbGtoz2kSc27HDN6xn1lZJMMDP93deTAqsCHijTFqPY2GNFA3q7vfXwvrULOMOYLewoiR3pk5QVzlTPkVt6BV9n/VAGp2fPbfmv+1lHWDHJ6eBoPFb1TSf99av5IU066H1mmk5Z8RgV/L0itq+lbyyG5ZMAszCeINbwbpAeWAJ4mT1TQXlhSUOaBF+llyuWSNgyY5gJ+ZZMaWHRJ7/7fuaAOIIzQBlOevaLA8wSYLm9Vg+Z2ksAUNFQ/L0WH7fE1IIg0YBN/VINcMZZc7O2A4hQzLnPSIEDocUCUu+AkVAi+oRepE7b/FPlc6nwpKb0FcDWKT1OB6WOIFYtXWWDFiSAC1lhkxYEgSQlpcNSyoVPQAKFT0AChU9AArVDy5huzbWPQdhAAAAAElFTkSuQmCC", "blackflag": "data:image/png;base64,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"}
-        const prints = photoData.map(({src, alt, portrait, angle}, i) => {
+        const dimensionPlane=document.querySelector('.dimension-plane')
+        const dimensionThreads=document.querySelector('.dimension-threads')
+        const dimensionIndex=document.querySelector('.dimension-index')
+        const momentPlace=document.querySelector('[data-moment-place]')
+        const momentTitle=document.querySelector('[data-moment-title]')
+        const momentBeat=document.querySelector('[data-moment-beat]')
+        const momentGame=document.querySelector('[data-moment-game]')
+        const momentRegion=document.querySelector('[data-moment-region]')
+        const momentDetail=document.querySelector('[data-moment-detail]')
+        const links=Array.from({length:photoData.length-14},(_,index)=>{
+          const gradient=document.createElementNS('http://www.w3.org/2000/svg','linearGradient')
+          gradient.id=`moment-thread-${index}`
+          gradient.setAttribute('gradientUnits','userSpaceOnUse')
+          for(let stop=0;stop<2;stop++){
+            const color=document.createElementNS('http://www.w3.org/2000/svg','stop')
+            color.setAttribute('offset',`${stop*100}%`)
+            color.setAttribute('stop-color',photoData[13+index+stop].threadColor||'#7e8b81')
+            gradient.append(color)
+          }
+          dimensionThreads.querySelector('defs').append(gradient)
+          const glow=document.createElementNS('http://www.w3.org/2000/svg','path')
+          const core=document.createElementNS('http://www.w3.org/2000/svg','path')
+          const sheen=document.createElementNS('http://www.w3.org/2000/svg','path')
+          glow.setAttribute('class','thread-glow')
+          core.setAttribute('class','thread-core')
+          sheen.setAttribute('class','thread-sheen')
+          glow.setAttribute('stroke',`url(#${gradient.id})`)
+          core.setAttribute('stroke',`url(#${gradient.id})`)
+          dimensionThreads.append(glow,core,sheen)
+          return {glow,core,sheen,gradient}
+        })
+        const prints = photoData.map(({src, alt, portrait, angle, game: gameName, ratio, title, place, region, beat, detail}, i) => {
           const el = document.createElement('button')
           el.className = portrait ? 'print print--portrait' : 'print'
-          el.dataset.game = i < 4 ? 'AC: Origin' : 'AC: Black Flag Resync'
+          const dimension=i>=13
+          if(dimension)el.classList.add('print--dimension')
+          el.dataset.game = gameName
           el.setAttribute(
             'aria-label',
-            `${alt}. ${el.dataset.game}. Drag to swing, or press Enter to nudge.`,
+            `${alt}. ${el.dataset.game}. ${dimension?'Select this moment.':'Drag to swing, or press Enter to nudge.'}`,
           )
-          el.style.cssText = `--image-ratio:${portrait ? "9 / 16" : "16 / 9"};--angle:${angle}deg;--pin:${i % 2 ? 42 : 61}%`
+          const imageRatio=ratio||(portrait?9/16:16/9)
+          el.style.cssText = `--image-ratio:${imageRatio};--angle:${angle}deg;--pin:${i % 2 ? 42 : 61}%`
           const img = document.createElement('img')
-          img.src = src
+          const thumbnail=new URL(src),size=devicePixelRatio>1?960:640
+          thumbnail.searchParams.set('imw',size);thumbnail.searchParams.set('imh',size)
+          img.src = thumbnail.href
           img.width = 1920
           img.height = 1080
           img.alt = alt
           img.draggable = false
-          img.loading = i < 4 ? 'eager' : 'lazy'
+          img.loading = 'eager'
+          img.fetchPriority = i < 4 ? 'high' : 'low'
           img.decoding = 'async'
           const caption = document.createElement('span')
           caption.className = 'print__caption'
           const logo = document.createElement('span')
           logo.className = 'print__logo'
           logo.setAttribute('aria-hidden', 'true')
-          logo.style.setProperty('--logo', `url("${i < 4 ? brandLogos.origins : brandLogos.blackflag}")`)
+          const logoSource=gameName==='AC: Origin'?brandLogos.origins:gameName==='AC: Black Flag Resynced'?brandLogos.blackflag:null
+          if(logoSource)logo.style.setProperty('--logo', `url("${logoSource}")`)
           const game = document.createElement('span')
           game.className = 'print__game'
           game.textContent = el.dataset.game
-          caption.append(logo, game)
+          if(logoSource)caption.append(logo)
+          caption.append(game)
           const image = document.createElement('span')
           image.className = 'print__image'
           image.append(img, caption)
           el.append(image)
-          scene.append(el)
+          ;(dimension?dimensionPlane:scene).append(el)
+          if(dimension){
+            const button=document.createElement('button');button.type='button';button.textContent=title||alt
+            button.addEventListener('click',()=>selectMoment(i-13));dimensionIndex.append(button)
+            el.addEventListener('click',()=>{if(!suppressMomentClick)selectMoment(i-13)})
+          }
           return {
             el,
-            ratio: portrait ? 9 / 16 : 16 / 9,
+            ratio: imageRatio,
+            dimension,
+            title: title||alt,
+            place: place||'',
+            region: region||'',
+            beat: beat||'',
+            detail: detail||'',
+            game: gameName,
+            height: 0,
             index: i,
             x: 0,
             y: 0,
@@ -489,9 +716,13 @@
         const headline = document.querySelector('.headline--photographer'),
           worlds = document.querySelector('.headline--worlds'),
           galleryCopy = document.querySelector('.gallery-copy'),
+          momentsCopy = document.querySelector('.moments-copy'),
+          momentGameBlock = document.querySelector('.moment-game'),
+          dimensionSurface = document.querySelector('.dimension-surface'),
           intro = document.querySelector('.intro'),
           contact = document.querySelector('.contact')
         const chapterLinks = [...document.querySelectorAll('.topbar [data-go]')]
+        const momentCaptionEls = [momentsCopy, momentGameBlock]
         let progress = 0,
           target = 0,
           raf = 0,
@@ -505,12 +736,25 @@
           holdEnd = width * 1.9,
           typeScale = 1,
           worldsStart = width * 3,
+          worldsRelease = width * 6.4,
+          dimensionStart = width * 7.1,
+          dimensionRevealStart = width * 8.2,
+          dimensionStep = width * .45,
+          dimensionPitch = height*.5,
+          currentMoment = -1,
+          suppressMomentClick = false,
           releaseStart = width * 6.4,
           worldsScale = 1,
-          worldsCenter = 0
+          worldsCenter = 0,
+          inputUntil = 0,
+          momentWheelUntil = 0,
+          momentWheelDirection = 0,
+          progressVelocity = 0,
+          swipe = null
         const trailingRate = 2 / 2.285
         const trailBlend = 0.16
         const typeInset = 0.04
+        const momentCount = () => prints.length - 13
         const clamp = (n, min, max) => Math.max(min, Math.min(max, n))
         function canRun() {
           return visible && !document.hidden
@@ -521,23 +765,62 @@
             raf = requestAnimationFrame(tick)
           }
         }
+        function noteInput(hold = 110) {
+          inputUntil = performance.now() + hold
+        }
         function setProgress(value) {
           target = clamp(value, 0, 1)
           updateNavigation()
           if (reduced.matches) {
             progress = target
+            progressVelocity = 0
             paint()
           }
           wake()
         }
         function updateNavigation() {
+          const distance=target*travel
+          const active=distance<worldsStart?'photographer':distance<dimensionStart?'worlds':distance<releaseStart?'moments':'closing'
           chapterLinks.forEach(el => {
-            const current = String(Math.abs(target - Number(el.dataset.go)) < 0.08)
+            const chapter=el.hasAttribute('data-worlds-link')?'worlds':el.hasAttribute('data-moments-link')?'moments':el.dataset.go==='1'?'closing':'photographer'
+            const current = String(chapter===active)
             if (el.getAttribute('aria-current') !== current) el.setAttribute('aria-current', current)
           })
         }
         const smooth = t => t * t * t * (t * (t * 6 - 15) + 10)
         const mix = (from, to, t) => from + (to - from) * t
+        function momentProgress(index) {
+          return (dimensionRevealStart + clamp(index, 0, momentCount() - 1) * dimensionStep) / travel
+        }
+        function selectMoment(index) {
+          noteInput(0)
+          setProgress(momentProgress(index))
+        }
+        function maybeMagnetize() {
+          if (swipe || performance.now() < inputUntil) return false
+          const distance = target * travel
+          const raw = (distance - dimensionRevealStart) / dimensionStep
+          const last = momentCount() - 1
+          if (raw < -0.12 || raw > last + 0.38) return false
+          const nearest = clamp(Math.round(raw), 0, last)
+          const locked = momentProgress(nearest)
+          const gap = Math.abs(target - locked) * travel
+          if (gap < 0.02) return false
+          // Capture changes only the destination; the ribbon keeps its velocity.
+          setProgress(locked)
+          return true
+        }
+        function projectEdge(p,side,pose) {
+          const radians=Math.PI/180,y=side*p.height*pose.scale/2
+          // On phones the ribbon follows the right corners, leaving a reading lane.
+          const localX=width/height<=.8?p.width*.48*pose.scale:0
+          const ax=pose.rx*radians,ay=pose.ry*radians,az=pose.rz*radians
+          const x=localX*Math.cos(az)-y*Math.sin(az),rotY=localX*Math.sin(az)+y*Math.cos(az),rotZ=-x*Math.sin(ay)
+          const worldX=pose.x+p.width/2+x*Math.cos(ay)
+          const worldY=pose.y+p.height/2+rotY*Math.cos(ax)-rotZ*Math.sin(ax)
+          const z=pose.z+rotY*Math.sin(ax)+rotZ*Math.cos(ax),factor=1100/(1100-z)
+          return {x:width/2+(worldX-width/2)*factor,y:height/2+(worldY-height/2)*factor}
+        }
         function paint() {
           const distance = progress * travel
           const opening = smooth(clamp(distance / openingSpan, 0, 1))
@@ -547,31 +830,86 @@
           const typeX = mix(-width * 0.36, width * typeInset, opening) - trail * trailingRate
           headline.style.transform = `translate3d(${typeX}px,${-opening * width * 0.035}px,0) scale(${mix(1, typeScale, opening)})`
           intro.style.transform = `translate3d(${-distance}px,0,0)`
-          const release = Math.max(0, distance - releaseStart)
+          const wallRelease = Math.max(0, distance - worldsRelease)
           const wordArrival = smooth(clamp((distance - worldsStart) / (width * 0.9), 0, 1))
-          worlds.style.transform = `translate3d(${mix(width * 1.12, worldsCenter, wordArrival) - release}px,0,0) scale(${worldsScale})`
+          worlds.style.transform = `translate3d(${mix(width * 1.12, worldsCenter, wordArrival) - wallRelease}px,0,0) scale(${worldsScale})`
           const copyArrival = smooth(clamp((distance - worldsStart - width * 0.4) / (width * 0.5), 0, 1))
-          galleryCopy.style.transform = `translate3d(${(1 - copyArrival) * width * 1.12 - release}px,0,0)`
-          galleryCopy.inert = distance < worldsStart || release > width
+          galleryCopy.style.transform = `translate3d(${(1 - copyArrival) * width * 1.12 - wallRelease}px,0,0)`
+          galleryCopy.inert = distance < worldsStart || wallRelease > width
+          const release = Math.max(0, distance - releaseStart)
+          const gather=smooth(clamp((distance-dimensionStart)/(width*.55),0,1))
+          const turn=clamp((distance-dimensionRevealStart)/dimensionStep,0,prints.length-14)
+          const exit=1-smooth(clamp(release/(width*.9),0,1)),active=Math.round(turn)
+          dimensionSurface.style.opacity=gather*exit
+          if(Number.isFinite(active)&&prints[13+active]&&active!==currentMoment){
+            currentMoment=active
+            const moment=prints[13+active]
+            momentPlace.textContent=moment.place
+            momentTitle.textContent=moment.title
+            momentBeat.textContent=moment.beat
+            momentGame.textContent=moment.game
+            momentRegion.textContent=moment.region
+            momentDetail.textContent=moment.detail
+            ;[...dimensionIndex.children].forEach((button,index)=>button.setAttribute('aria-current',String(index===active)))
+          }
+          const captionOpacity=gather*exit*(1-smooth(clamp((Math.abs(turn-active)-.06)/.38,0,1)))
+          const captionY=(turn-active)*12
+          momentCaptionEls.forEach(el=>{
+            el.style.opacity=captionOpacity
+            el.style.transform=`translate3d(${-release}px,var(--moment-caption-shift,-50%),0) translateY(${captionY}px)`
+          })
+          dimensionThreads.style.opacity=gather*exit
+          dimensionIndex.style.opacity=gather*exit
+          dimensionIndex.inert=distance<dimensionRevealStart||release>0
+          momentsCopy.inert=distance<dimensionStart||release>width
+          momentGameBlock.inert=distance<dimensionStart||release>width
           contact.style.transform = `translate3d(${-release}px,0,0)`
           const phase = distance < worldsStart ? 'photographer'
             : distance < worldsStart + width * 2.75 ? 'assembling'
-            : distance < releaseStart ? 'worlds' : 'closing'
+            : distance < worldsRelease ? 'worlds'
+            : distance < dimensionStart ? 'between-worlds'
+            : distance < dimensionRevealStart ? 'moments-entering'
+            : distance < releaseStart ? 'moments' : 'closing'
           if (scene.dataset.phase !== phase) scene.dataset.phase = phase
           prints.forEach(p => {
-            const arrival = smooth(clamp((distance - worldsStart - width * (0.25 + (p.index - 4) * 0.20)) / (width * 0.9), 0, 1))
-            const screenX = p.index < 4 ? p.x - distance : mix(width * 1.12, p.x, arrival) - release
-            const transform = `translate3d(${screenX - p.x}px,0,0) rotate(${p.angle}deg)`
+            let screenX,screenY=p.y,angle=p.angle,scale=1,opacity=1,z=0,rx=0,ry=0
+            if(p.dimension){
+              const slot=p.index-13,relative=slot-turn,depth=Math.min(Math.abs(relative),2)
+              screenX=p.x-release;screenY=p.y+relative*dimensionPitch
+              angle=-Math.min(Math.abs(relative),1)*10*(1+Math.sin(slot)*.08)
+              rx=clamp(relative,-1.5,1.5)*14;ry=-clamp(relative,-1,1)*4
+              z=-depth*95;scale=1-depth*.045
+              opacity=gather*exit*smooth(clamp(2.8-Math.abs(relative),0,1))
+              p.el.style.zIndex=String(Math.round(100-Math.abs(relative)*10))
+              p.el.style.opacity=opacity
+              p.el.classList.toggle('is-current',slot===active)
+              const pose={x:screenX,y:screenY,z,rx,ry,rz:angle,scale}
+              p.topEdge=projectEdge(p,-1,pose);p.bottomEdge=projectEdge(p,1,pose)
+            }else{
+              const arrival=smooth(clamp((distance-worldsStart-width*(.25+(p.index-4)*.20))/(width*.9),0,1))
+              screenX=p.index<4?p.x-distance:mix(width*1.12,p.x,arrival)-wallRelease
+            }
+            const transform = `translate3d(${screenX-p.x}px,${screenY-p.y}px,${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${angle}deg) scale(${scale})`
             if (p.transform !== transform) {
               p.el.style.transform = transform
               p.transform = transform
             }
-            const onScreen = screenX + p.width > -width * 0.1 && screenX < width * 1.05
+            const onScreen = screenX+p.width>-width*.1&&screenX<width*1.05&&opacity>.5&&(!p.dimension||(screenY+p.height>0&&screenY<height))
             if (p.onScreen !== onScreen) {
+              if(!onScreen&&document.activeElement===p.el)scene.focus({preventScroll:true})
               p.el.inert = !onScreen
               p.el.setAttribute('aria-hidden', String(!onScreen))
               p.onScreen = onScreen
             }
+          })
+          links.forEach(({glow,core,sheen,gradient},index)=>{
+            const a=prints[13+index].bottomEdge,b=prints[14+index].topEdge
+            if(!a||!b)return
+            const bend=Math.sin((index-turn)*.9)*Math.min(width*.04,54),mid=(a.y+b.y)/2
+            const path=`M ${a.x} ${a.y} C ${a.x+bend} ${mid}, ${b.x-bend} ${mid}, ${b.x} ${b.y}`
+            glow.setAttribute('d',path);core.setAttribute('d',path);sheen.setAttribute('d',path)
+            gradient.setAttribute('x1',a.x);gradient.setAttribute('y1',a.y)
+            gradient.setAttribute('x2',b.x);gradient.setAttribute('y2',b.y)
           })
           // Layout measures this once; reading offsetLeft here would flush every frame.
           const contactHidden = contactX - release >= width * 0.95
@@ -584,12 +922,23 @@
             ? Math.min((time - lastTime) / 1000, 0.05)
             : 1 / 60
           lastTime = time
-          progress = reduced.matches
-            ? target
-            : progress + (target - progress) * (1 - Math.exp(-10 * dt))
-          let moving = Math.abs(target - progress) * travel > 0.1
-          if (!moving) progress = target
+          maybeMagnetize()
+          if(reduced.matches){progress=target;progressVelocity=0}
+          else {
+            // Exact critically damped motion: continuous velocity across input,
+            // capture, and selection, with no extra card or caption impulses.
+            const response=8.5,offset=progress-target
+            const impulse=progressVelocity+response*offset,decay=Math.exp(-response*dt)
+            progress=target+(offset+impulse*dt)*decay
+            progressVelocity=(progressVelocity-response*impulse*dt)*decay
+          }
+          let moving = Math.abs(target-progress)*travel>.05||Math.abs(progressVelocity)*travel>.2
+          if (!moving) {
+            progress = target
+            progressVelocity = 0
+          }
           prints.forEach((p) => {
+            if(p.dimension){p.angle=p.rest;p.velocity=0;return}
             if (p.dragging) return
             if (reduced.matches) {
               p.angle = p.rest
@@ -617,11 +966,11 @@
             }
           })
           paint()
-          if (moving) raf = requestAnimationFrame(tick)
+          if (moving || performance.now() < inputUntil) raf = requestAnimationFrame(tick)
         }
         prints.forEach((p) => {
           const breeze = () => {
-            if (reduced.matches || p.dragging) return
+            if (p.dimension || reduced.matches || p.dragging) return
             p.velocity = clamp(p.velocity + (p.index % 2 ? -24 : 24), -48, 48)
             wake()
           }
@@ -629,10 +978,11 @@
             if (e.pointerType !== 'touch') breeze()
           })
           p.el.addEventListener('focus', () => {
+            if(p.dimension){if(p.el.matches(':focus-visible'))selectMoment(p.index-13);return}
             if (p.el.matches(':focus-visible')) breeze()
           })
           p.el.addEventListener('pointerdown', (e) => {
-            if (e.button !== 0 || reduced.matches) return
+            if (p.dimension || e.button !== 0 || reduced.matches) return
             p.dragging = true
             p.lastY = e.clientY
             p.lastTime = e.timeStamp
@@ -663,8 +1013,9 @@
           p.el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
+              if(p.dimension){selectMoment(p.index-13);return}
               if (!reduced.matches) {
-                p.velocity = 85
+              p.velocity = 85
                 wake()
               }
             }
@@ -682,8 +1033,6 @@
           (e) => {
             const delta =
               Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-            if ((target <= 0 && delta < 0) || (target >= 1 && delta > 0)) return
-            e.preventDefault()
             const pixels =
               delta *
               (e.deltaMode === 1
@@ -691,7 +1040,34 @@
                 : e.deltaMode === 2
                   ? height
                   : 1)
+            if(!pixels)return
+            const now=performance.now(),direction=Math.sign(pixels)
+            // Wheel detents and trackpad momentum form one gesture until quiet.
+            // Reversing direction can interrupt a selection immediately.
+            if(now<momentWheelUntil){
+              if(direction===momentWheelDirection){
+                e.preventDefault()
+                momentWheelUntil=now+220
+                return
+              }
+              if(Math.abs(pixels)<2){e.preventDefault();return}
+              momentWheelUntil=0
+            }
+            if ((target <= 0 && delta < 0) || (target >= 1 && delta > 0)) return
+            e.preventDefault()
+            const position=target*travel
+            if(position>=dimensionRevealStart-1&&position<releaseStart){
+              if(Math.abs(pixels)<2)return
+              momentWheelUntil=now+220
+              momentWheelDirection=direction
+              const next=Math.round((position-dimensionRevealStart)/dimensionStep)+direction
+              if(next<0){noteInput(220);setProgress((worldsStart+width*2.8)/travel)}
+              else if(next>=momentCount()){noteInput(220);setProgress(1)}
+              else selectMoment(next)
+              return
+            }
             // Preserve total travel regardless of how a wheel/trackpad batches events.
+            noteInput(160)
             setProgress(target + pixels / travel)
           },
           { passive: false },
@@ -699,12 +1075,14 @@
         function layout() {
           width = scene.clientWidth
           height = scene.clientHeight
+          if (width < 2 || height < 2) return
           const headlineWidth = headline.scrollWidth, worldsWidth = worlds.scrollWidth
           const narrow = width / height <= 0.8
           const padding = Math.min(4, Math.max(2, width * 0.0025))
           function place(p, x, centerY, desiredWidth, maxHeight) {
             p.width = Math.min(desiredWidth, (maxHeight - 2 * padding) * p.ratio + 2 * padding)
             const frameHeight = (p.width - 2 * padding) / p.ratio + 2 * padding
+            p.height=frameHeight
             p.x = x
             p.y = Math.max(54, Math.min(centerY - frameHeight / 2, height * 0.78 - frameHeight))
             p.el.style.setProperty('--x', `${p.x}px`)
@@ -717,11 +1095,11 @@
             place(prints[index], x, y, width * (narrow ? 0.62 : frame.width), height * 0.35)
           })
           if (narrow) {
-            for (let index = 4; index < prints.length; index++) {
+            for (let index = 4; index < 13; index++) {
               const slot = index - 4, column = slot % 3, row = Math.floor(slot / 3)
-              const p = prints[index], desired = width * (p.ratio < 1 ? 0.22 : 0.28)
+              const p = prints[index], desired = width * (p.ratio < 1 ? 0.24 : 0.31)
               place(p, width * ((column + 0.5) / 3) - desired / 2,
-                height * (0.26 + row * 0.21), desired, height * 0.185)
+                height * (0.26 + row * 0.21), desired, height * 0.205)
             }
           } else {
             galleryRows.forEach((row, rowIndex) => {
@@ -729,11 +1107,22 @@
               let cursor = width * (1 - total) / 2
               row.frames.forEach((index, slot) => {
                 const jitter = [0.015, -0.015, 0.02, -0.025, 0][slot]
-                place(prints[index], cursor, height * (row.center + jitter), width * row.widths[slot], height * (width / height > 2 ? 0.26 : 0.32))
+                place(prints[index], cursor, height * (row.center + jitter), width * row.widths[slot], height * (width / height > 2 ? 0.29 : 0.35))
                 cursor += width * (row.widths[slot] + row.gap)
               })
             })
           }
+          const momentPrints=prints.filter(p=>p.dimension)
+          const cardWidth=Math.min(width*(narrow?.84:.34),600,height*(narrow?.40:.43)*Math.min(...momentPrints.map(p=>p.ratio)))
+          momentPrints.forEach(p=>{
+            p.width=cardWidth;p.height=cardWidth/p.ratio
+            p.x=(width-p.width)/2;p.y=height*(narrow?.43:.45)-p.height/2
+            p.el.style.setProperty('--x',`${p.x}px`);p.el.style.setProperty('--y',`${p.y}px`);p.el.style.setProperty('--w',`${p.width}px`)
+          })
+          const tallest=Math.max(...momentPrints.map(p=>p.height))
+          dimensionPitch=Math.max(tallest+height*(narrow?.30:.16),height*(narrow?.60:.47))
+          scene.style.setProperty('--moment-copy-top',`${height*.43+tallest/2+18}px`)
+          if(dimensionIndex.contains(document.activeElement)&&getComputedStyle(dimensionIndex).display==='none')scene.focus({preventScroll:true})
           // Pull the complete word into view; keep it readable after the photos pass.
           openingSpan = width
           typeScale = Math.min(1, width * (1 - 2 * typeInset) / headlineWidth)
@@ -744,27 +1133,41 @@
           worldsStart = Math.max(firstFramesEdge + width * 0.3, typeClearPan)
           worldsScale = Math.min(1, width * 0.88 / worldsWidth)
           worldsCenter = (width - worldsWidth * worldsScale) / 2
-          releaseStart = worldsStart + width * 3.4
+          worldsRelease=worldsStart+width*3.4
+          dimensionStart=worldsRelease+width*.7
+          dimensionRevealStart=dimensionStart+width*.55
+          dimensionStep=Math.max(height*.75,width*.4,1)
+          releaseStart=dimensionRevealStart+(prints.length-14)*dimensionStep+width*.65
           travel = releaseStart + width * 1.6
           contactX = width * (narrow ? 1.68 : 1.83)
           scene.style.setProperty('--contact-x', `${contactX}px`)
           document.querySelector('[data-worlds-link]').dataset.go = String((worldsStart + width * 2.8) / travel)
+          document.querySelector('[data-moments-link]').dataset.go=String(dimensionRevealStart/travel)
           updateNavigation()
           wake()
         }
         // Background swipes pan the wall; touching a print keeps its pendulum interaction.
-        let swipe = null
         scene.addEventListener('pointerdown', e => {
-          if (e.button !== 0 || e.target.closest('button')) return
+          if (e.button !== 0 || (e.target.closest('button')&&!e.target.closest('.print--dimension'))) return
+          suppressMomentClick=false
+          noteInput(240)
           swipe = { id: e.pointerId, x: e.clientX, y: e.clientY, target }
           scene.setPointerCapture(e.pointerId)
         })
         scene.addEventListener('pointermove', e => {
           if (swipe?.id !== e.pointerId) return
           const dx = swipe.x - e.clientX, dy = swipe.y - e.clientY
+          if(Math.hypot(dx,dy)>6)suppressMomentClick=true
+          noteInput(240)
           setProgress(swipe.target + (Math.abs(dx) > Math.abs(dy) ? dx : dy) / travel)
         })
-        const endSwipe = () => { swipe = null }
+        const endSwipe = () => {
+          if (!swipe) return
+          swipe = null
+          inputUntil = 0
+          maybeMagnetize()
+          wake()
+        }
         scene.addEventListener('pointerup', endSwipe)
         scene.addEventListener('pointercancel', endSwipe)
         scene.addEventListener('lostpointercapture', endSwipe)
@@ -774,6 +1177,15 @@
           const steps = { ArrowRight: 0.12, ArrowDown: 0.12, ArrowLeft: -0.12, ArrowUp: -0.12 }
           if (e.key in steps || e.key === 'Home' || e.key === 'End') {
             e.preventDefault()
+            const position=target*travel
+            if(e.key in steps&&position>=dimensionRevealStart-1&&position<releaseStart){
+              const next=Math.round((Math.max(position,dimensionRevealStart)-dimensionRevealStart)/dimensionStep)+Math.sign(steps[e.key])
+              if(next<0)setProgress((worldsStart+width*2.8)/travel)
+              else if(next>=momentCount())setProgress(1)
+              else selectMoment(next)
+              return
+            }
+            noteInput(120)
             setProgress(e.key === 'Home' ? 0 : e.key === 'End' ? 1 : target + steps[e.key] * width * 3 / travel)
           }
         })

@@ -12,11 +12,14 @@ const ids = ['cutout', 'emulsion', 'reverie']
 const selected = process.env.COMPONENT_PREVIEW_IDS?.split(',').map(id => id.trim()) || ids
 if (selected.some(id => !ids.includes(id))) throw new Error('Unknown component preview ID')
 await mkdir(output, { recursive: true })
-const browser = await chromium.launch({channel:'msedge',headless:true})
+const browser = await chromium.launch({channel:'msedge',executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH,headless:true})
 try {
   const page = await browser.newPage({viewport:{width:1200,height:800},reducedMotion:'reduce'})
   for (const id of selected) {
-    await page.goto(new URL(`components/${id}.html`,origin).href,{waitUntil:'load'})
+    const url = new URL(`components/${id}.html`,origin).href
+    const response = await page.goto(url,{waitUntil:'load'})
+    if (!response?.ok()) throw new Error(`Cannot capture ${id}: HTTP ${response?.status()} at ${url}. Check COMPONENT_PREVIEW_ORIGIN and its base path.`)
+    await page.locator(id === 'cutout' ? '.desk' : '.scene').waitFor({state:'visible'})
     if (id === 'cutout') await page.locator('[data-sticker]').evaluateAll(images => Promise.all(images.map(img => img.decode())))
     if (id === 'emulsion') await page.locator('.print img').evaluateAll(images => Promise.all(images.slice(0,3).map(img => img.decode())))
     if (id === 'reverie') {

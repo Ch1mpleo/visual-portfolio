@@ -226,7 +226,9 @@ try {
   await touch.close()
   await page.goto(base)
   const trigger=page.locator('[data-component-open="emulsion"]'),playground=page.locator('#component-playground')
+  assert.equal(await trigger.getAttribute('aria-label'),'Explore Fieldnotes')
   await trigger.click()
+  assert.equal(await playground.locator('#playground-title').textContent(),'Fieldnotes')
   const frame=page.frameLocator('#component-playground iframe')
   await frame.getByRole('button',{name:'Moments',exact:true}).click()
   assert.equal(await frame.locator('.scene').getAttribute('data-phase'),'moments','the Dimension Moments sequence is reachable in the shared viewer')
@@ -242,6 +244,7 @@ try {
   const downloadPromise=page.waitForEvent('download')
   await playground.getByRole('link',{name:'Download complete demo'}).click()
   const download=await downloadPromise
+  assert.equal(download.suggestedFilename(),'fieldnotes.html')
   assert.equal(await readFile(await download.path(),'utf8'),source,'the complete download preserves the Dimension Moments sequence and fixed wall')
   await playground.getByRole('button',{name:'Close component playground'}).click()
   assert.deepEqual(errors,[],'no runtime errors')

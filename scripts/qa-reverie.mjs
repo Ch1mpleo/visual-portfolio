@@ -285,7 +285,7 @@ try {
   // The same standalone file is copied and split by the host's existing Code tab.
   const source = await readFile('public/components/reverie.html', 'utf8')
   const files = splitComponentSource(source, 'reverie')
-  assert.ok(files.html.includes('./reverie.css') && files.html.includes('./reverie.js'))
+  assert.ok(files.html.includes('./daydream.css') && files.html.includes('./daydream.js'))
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(url)
   const trigger = page.locator('[data-component-open="reverie"]')

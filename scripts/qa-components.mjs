@@ -26,7 +26,7 @@ const server = createServer(async (request, response) => {
 })
 await new Promise(done => server.listen(0, '127.0.0.1', done))
 const url = `http://127.0.0.1:${server.address().port}/visual-portfolio/`
-const browser = await chromium.launch({ channel: 'msedge', headless: true })
+const browser = await chromium.launch({ channel: 'msedge', executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH, headless: true })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, permissions: ['clipboard-read', 'clipboard-write'] })
   const page = await context.newPage(), errors = []
@@ -64,8 +64,12 @@ try {
     if (width>767) assert.equal(await page.locator('#components .component-card__image').evaluateAll(images=>Math.abs(images[0].getBoundingClientRect().top-images[1].getBoundingClientRect().top)<1),true,'gallery images align at their top edge')
     await page.locator('#components').screenshot({ path: resolve(out, `gallery-${width}.png`) })
     for (const id of ['cutout', 'emulsion', 'reverie']) {
+      const name={cutout:'Scraps',emulsion:'Fieldnotes',reverie:'Daydream'}[id]
       const trigger = page.locator(`[data-component-open="${id}"][data-component-view="preview"]`)
+      assert.equal(await trigger.getAttribute('aria-label'),`Explore ${name}`)
       await trigger.click()
+      assert.equal(await dialog.locator('#playground-title').textContent(),name)
+      assert.equal(await dialog.locator('iframe').getAttribute('title'),`${name} expanded interactive preview`)
       assert.equal(await dialog.evaluate(el => el.open), true)
       assert.equal(await page.evaluate(() => window.lenis.isStopped), true)
       const bounds = await dialog.boundingBox()
@@ -106,6 +110,7 @@ try {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   for (const id of ['cutout', 'emulsion']) {
+    const filename={cutout:'scraps',emulsion:'fieldnotes'}[id]
     await page.locator(`[data-component-open="${id}"]`).click()
     await dialog.getByRole('tab',{name:'Code',exact:true}).click()
     const source = await readFile(`public/components/${id}.html`, 'utf8')
@@ -126,20 +131,20 @@ try {
       const result=page.waitForEvent('download')
       await pane.locator('[data-code-download]').click()
       const file=await result
-      assert.equal(file.suggestedFilename(),`${id}.${language}`)
+      assert.equal(file.suggestedFilename(),`${filename}.${language}`)
       const bytes=await readFile(await file.path())
       assert.equal(bytes.toString(),files[language],'download preserves exact file contents')
-      downloadedFiles.set(`/components-split/${id}.${language}`,bytes)
+      downloadedFiles.set(`/components-split/${filename}.${language}`,bytes)
     }
     const downloadPromise = page.waitForEvent('download')
     await dialog.getByRole('link', { name: 'Download complete demo' }).click()
     const download = await downloadPromise
-    assert.equal(download.suggestedFilename(), `${id}.html`)
+    assert.equal(download.suggestedFilename(), `${filename}.html`)
     assert.equal(await download.failure(), null)
     assert.equal(await readFile(await download.path(),'utf8'),source,'complete demo remains self-contained')
     const exported=await context.newPage()
     exported.on('pageerror',error=>errors.push(error.message))
-    await exported.goto(new URL(`components-split/${id}.html`,url).href,{waitUntil:'load'})
+    await exported.goto(new URL(`components-split/${filename}.html`,url).href,{waitUntil:'load'})
     assert.ok(await exported.locator(id==='cutout'?'.board':'.scene').evaluate(el=>getComputedStyle(el).position==='relative'),'downloaded CSS loads from its sibling file')
     if(id==='cutout') await exported.locator('[data-mood="soft"]').click()
     else await exported.getByRole('button',{name:'Last frame',exact:true}).click()

@@ -1,5 +1,7 @@
 ---
 import LucideIcon from './LucideIcon.astro'
+import { componentNames } from '../../data/component-names.mjs'
+const initialFilename = componentNames.cutout.toLowerCase()
 const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
 const languages = [
   { id: 'html', name: 'HTML' },
@@ -8,22 +10,22 @@ const languages = [
 ]
 ---
 <dialog id="component-playground" class="playground" aria-labelledby="playground-title" data-base={base}>
-  <div class="playground__head"><div><span class="playground__eyebrow">Component study</span><h2 id="playground-title">Cutout</h2></div><button type="button" data-playground-close aria-label="Close component playground">Close <LucideIcon name="x" class="playground__close-icon" /></button></div>
+  <div class="playground__head"><div><span class="playground__eyebrow">Component study</span><h2 id="playground-title">{componentNames.cutout}</h2></div><button type="button" data-playground-close aria-label="Close component playground">Close <LucideIcon name="x" class="playground__close-icon" /></button></div>
   <div class="playground__toolbar"><div role="tablist" aria-label="Component view"><button id="playground-preview-tab" type="button" role="tab" aria-selected="true" aria-controls="playground-preview" tabindex="0" data-playground-tab="preview">Preview</button><button id="playground-code-tab" type="button" role="tab" aria-selected="false" aria-controls="playground-code" tabindex="-1" data-playground-tab="code">Code</button></div></div>
   <div id="playground-preview" role="tabpanel" aria-labelledby="playground-preview-tab" class="playground__preview"><iframe title="Expanded component preview" sandbox="allow-scripts allow-same-origin" /></div>
   <div id="playground-code" role="tabpanel" aria-labelledby="playground-code-tab" class="playground__code" hidden>
     <div class="code-workbench" data-lenis-prevent>
       <aside class="code-sidebar">
-        <div class="code-sidebar__heading" data-code-component>Cutout</div>
+        <div class="code-sidebar__heading" data-code-component>{componentNames.cutout}</div>
         <div role="tablist" aria-label="Source files" aria-orientation="vertical">
-          {languages.map(language => <button type="button" role="tab" id={`source-file-${language.id}`} aria-controls={`code-pane-${language.id}`} aria-selected={language.id === 'html' ? 'true' : 'false'} tabindex={language.id === 'html' ? 0 : -1} data-source-file={language.id} title={`cutout.${language.id}`} aria-label={`cutout.${language.id}`}>
-            <LucideIcon name="file-code" class="code-sidebar__icon" /><span data-code-filename={language.id}>cutout.{language.id}</span><span class="code-sidebar__short" aria-hidden="true">{language.id.toUpperCase()}</span>
+          {languages.map(language => <button type="button" role="tab" id={`source-file-${language.id}`} aria-controls={`code-pane-${language.id}`} aria-selected={language.id === 'html' ? 'true' : 'false'} tabindex={language.id === 'html' ? 0 : -1} data-source-file={language.id} title={`${initialFilename}.${language.id}`} aria-label={`${initialFilename}.${language.id}`}>
+            <LucideIcon name="file-code" class="code-sidebar__icon" /><span data-code-filename={language.id}>{initialFilename}.{language.id}</span><span class="code-sidebar__short" aria-hidden="true">{language.id.toUpperCase()}</span>
           </button>)}
         </div>
       </aside>
       {languages.map(language => <section class="code-editor" id={`code-pane-${language.id}`} role="tabpanel" aria-labelledby={`source-file-${language.id}`} hidden={language.id !== 'html'} data-code-pane={language.id}>
         <div class="code-editor__bar">
-          <div class="code-editor__file"><span data-code-filename={language.id}>cutout.{language.id}</span></div>
+          <div class="code-editor__file"><span data-code-filename={language.id}>{initialFilename}.{language.id}</span></div>
           <div class="code-editor__actions">
             <button type="button" class="code-action" data-code-copy={language.id} disabled aria-label={`Copy ${language.name}`} title={`Copy ${language.name}`}>
               <span class="copy-icon"><LucideIcon name="copy" class="copy-icon__image" /><LucideIcon name="check" class="copy-icon__check" /></span>
@@ -42,6 +44,7 @@ const languages = [
 </dialog>
 
 <script>
+  import { componentNames } from '../../data/component-names.mjs'
   type ComponentId = 'cutout' | 'emulsion' | 'reverie'
   type Language = 'html' | 'css' | 'js'
   type SourceFiles = Record<Language, string>
@@ -113,15 +116,15 @@ const languages = [
     if (id !== 'cutout' && id !== 'emulsion' && id !== 'reverie') return
     current = id; trigger = button; status.textContent = ''; session++; copyVersion++
     resetCode()
-    const name = id[0].toUpperCase() + id.slice(1)
+    const name = componentNames[id], filename = name.toLowerCase()
     dialog.querySelector('#playground-title')!.textContent = name
     dialog.querySelector('[data-code-component]')!.textContent = name
     const url = `${dialog.dataset.base}components/${id}.html`
     frame.title = `${name} expanded interactive preview`; frame.src = url
-    dialog.querySelectorAll<HTMLElement>('[data-code-filename]').forEach(label => { label.textContent = `${id}.${label.dataset.codeFilename}` })
-    fileTabs.forEach(tab => { tab.title = `${id}.${tab.dataset.sourceFile}`; tab.setAttribute('aria-label', tab.title) })
+    dialog.querySelectorAll<HTMLElement>('[data-code-filename]').forEach(label => { label.textContent = `${filename}.${label.dataset.codeFilename}` })
+    fileTabs.forEach(tab => { tab.title = `${filename}.${tab.dataset.sourceFile}`; tab.setAttribute('aria-label', tab.title) })
     const download = dialog.querySelector<HTMLAnchorElement>('[data-playground-download]')!
-    download.href = url; download.download = `${id}.html`
+    download.href = url; download.download = `${filename}.html`
     const lenis = (window as any).lenis
     resumeScroll = Boolean(lenis && !lenis.isStopped)
     lenis?.stop(); dialog.showModal()
@@ -162,7 +165,7 @@ const languages = [
         if (version !== copyVersion) return
         pane.parentElement!.querySelectorAll<HTMLElement>('[data-copied]').forEach(button => { delete button.dataset.copied })
         copy.dataset.copied = 'true'
-        status.textContent = `Copied ${current}.${language}.`
+        status.textContent = `Copied ${componentNames[current].toLowerCase()}.${language}.`
       } catch {
         if (version !== copyVersion) return
         const code = pane.querySelector('code')!
@@ -176,10 +179,11 @@ const languages = [
       const type = { html: 'text/html', css: 'text/css', js: 'text/javascript' }[language]
       const url = URL.createObjectURL(new Blob([files[language]], { type: `${type};charset=utf-8` }))
       const link = document.createElement('a')
-      link.href = url; link.download = `${current}.${language}`
+      const filename = componentNames[current].toLowerCase()
+      link.href = url; link.download = `${filename}.${language}`
       document.body.append(link); link.click(); link.remove()
       setTimeout(() => URL.revokeObjectURL(url), 1000)
-      status.textContent = `Downloaded ${current}.${language}.`
+      status.textContent = `Downloaded ${filename}.${language}.`
     })
   })
 </script>

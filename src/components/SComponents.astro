@@ -1,11 +1,12 @@
 ---
 import previews from '../../public/components/previews/manifest.json'
+import { componentNames } from '../data/component-names.mjs'
 
 const base = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
 const experiments = [
-  { id: 'cutout', name: 'Cutout', description: 'Pick a mood. Watch the letters become a roll of photographs.' },
-  { id: 'emulsion', name: 'Emulsion', description: 'Ch1mpleo — my eye for video game worlds.' },
-  { id: 'reverie', name: 'Reverie', description: 'A moment becomes a memory. Wander through the worlds I keep.' },
+  { id: 'cutout', name: componentNames.cutout, description: 'Pick a mood. Watch the letters become a roll of photographs.' },
+  { id: 'emulsion', name: componentNames.emulsion, description: 'Ch1mpleo — my eye for video game worlds.' },
+  { id: 'reverie', name: componentNames.reverie, description: 'A moment becomes a memory. Wander through the worlds I keep.' },
 ] as const
 ---
 

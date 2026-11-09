@@ -476,6 +476,8 @@
             x: 0,
             y: 0,
             width: 0,
+            transform: '',
+            onScreen: null,
             rest: angle,
             angle,
             velocity: 0,
@@ -489,12 +491,15 @@
           galleryCopy = document.querySelector('.gallery-copy'),
           intro = document.querySelector('.intro'),
           contact = document.querySelector('.contact')
+        const chapterLinks = [...document.querySelectorAll('.topbar [data-go]')]
         let progress = 0,
           target = 0,
           raf = 0,
           lastTime = 0,
           visible = true,
           width = scene.clientWidth,
+          height = scene.clientHeight,
+          contactX = 0,
           travel = width * 2.6,
           openingSpan = width * 0.3656,
           holdEnd = width * 0.7312,
@@ -516,11 +521,18 @@
         }
         function setProgress(value) {
           target = clamp(value, 0, 1)
+          updateNavigation()
           if (reduced.matches) {
             progress = target
             paint()
           }
           wake()
+        }
+        function updateNavigation() {
+          chapterLinks.forEach(el => {
+            const current = String(Math.abs(target - Number(el.dataset.go)) < 0.08)
+            if (el.getAttribute('aria-current') !== current) el.setAttribute('aria-current', current)
+          })
         }
         const smooth = t => t * t * t * (t * (t * 6 - 15) + 10)
         const mix = (from, to, t) => from + (to - from) * t
@@ -540,26 +552,28 @@
           galleryCopy.style.transform = `translate3d(${(1 - copyArrival) * width * 1.12 - release}px,0,0)`
           galleryCopy.inert = distance < worldsStart || release > width
           contact.style.transform = `translate3d(${-release}px,0,0)`
-          scene.dataset.phase = distance < worldsStart ? 'photographer'
+          const phase = distance < worldsStart ? 'photographer'
             : distance < worldsStart + width * 2.75 ? 'assembling'
             : distance < releaseStart ? 'worlds' : 'closing'
+          if (scene.dataset.phase !== phase) scene.dataset.phase = phase
           prints.forEach(p => {
             const arrival = smooth(clamp((distance - worldsStart - width * (0.25 + (p.index - 4) * 0.20)) / (width * 0.9), 0, 1))
             const screenX = p.index < 4 ? p.x - distance : mix(width * 1.12, p.x, arrival) - release
-            p.el.style.transform = `translate3d(${screenX - p.x}px,0,0) rotate(${p.angle}deg)`
+            const transform = `translate3d(${screenX - p.x}px,0,0) rotate(${p.angle}deg)`
+            if (p.transform !== transform) {
+              p.el.style.transform = transform
+              p.transform = transform
+            }
             const onScreen = screenX + p.width > -width * 0.1 && screenX < width * 1.05
-            p.el.inert = !onScreen
-            p.el.setAttribute('aria-hidden', String(!onScreen))
+            if (p.onScreen !== onScreen) {
+              p.el.inert = !onScreen
+              p.el.setAttribute('aria-hidden', String(!onScreen))
+              p.onScreen = onScreen
+            }
           })
-          contact.inert = contact.offsetLeft - release >= width * 0.95
-          document
-            .querySelectorAll('.topbar [data-go]')
-            .forEach((el) =>
-              el.setAttribute(
-                'aria-current',
-                String(Math.abs(target - Number(el.dataset.go)) < 0.08),
-              ),
-            )
+          // Layout measures this once; reading offsetLeft here would flush every frame.
+          const contactHidden = contactX - release >= width * 0.95
+          if (contact.inert !== contactHidden) contact.inert = contactHidden
         }
         function tick(time) {
           raf = 0
@@ -673,15 +687,17 @@
               (e.deltaMode === 1
                 ? 16
                 : e.deltaMode === 2
-                  ? scene.clientHeight
+                  ? height
                   : 1)
-            setProgress(target + clamp(pixels, -240, 240) / travel)
+            // Preserve total travel regardless of how a wheel/trackpad batches events.
+            setProgress(target + pixels / travel)
           },
           { passive: false },
         )
         function layout() {
           width = scene.clientWidth
-          const height = scene.clientHeight
+          height = scene.clientHeight
+          const headlineWidth = headline.scrollWidth, worldsWidth = worlds.scrollWidth
           const narrow = width / height <= 0.8
           const padding = Math.min(4, Math.max(2, width * 0.0025))
           function place(p, x, centerY, desiredWidth, maxHeight) {
@@ -720,14 +736,16 @@
           holdEnd = width * 0.7312
           const firstFramesEdge = Math.max(...prints.slice(0, 4).map(p => p.x + p.width))
           const typeClearPan = holdEnd + width * trailBlend / 2
-            + (headline.scrollWidth * 0.84 + width * 0.16) / trailingRate
+            + (headlineWidth * 0.84 + width * 0.16) / trailingRate
           worldsStart = Math.max(firstFramesEdge + width * 0.3, typeClearPan)
-          worldsScale = Math.min(1, width * 0.88 / worlds.scrollWidth)
-          worldsCenter = (width - worlds.scrollWidth * worldsScale) / 2
+          worldsScale = Math.min(1, width * 0.88 / worldsWidth)
+          worldsCenter = (width - worldsWidth * worldsScale) / 2
           releaseStart = worldsStart + width * 3.4
           travel = releaseStart + width * 1.6
-          scene.style.setProperty('--contact-x', `${width * (narrow ? 1.68 : 1.83)}px`)
+          contactX = width * (narrow ? 1.68 : 1.83)
+          scene.style.setProperty('--contact-x', `${contactX}px`)
           document.querySelector('[data-worlds-link]').dataset.go = String((worldsStart + width * 2.8) / travel)
+          updateNavigation()
           wake()
         }
         // Background swipes pan the wall; touching a print keeps its pendulum interaction.

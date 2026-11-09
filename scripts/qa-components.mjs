@@ -211,6 +211,17 @@ try {
       assert.ok(settled.length > 2 && settled.every(sample => Math.abs(sample.lastPhoto - settled[0].lastPhoto) < 0.01 && Math.abs(sample.worlds - settled[0].worlds) < 0.01), 'photos stick around worlds for the settled wall')
       const closing = motion.filter(sample => sample.phase === 'closing')
       assert.ok(closing.at(-1).lastPhoto < settled[0].lastPhoto - 500, 'the complete formation releases together')
+      const wheelTravel = await frame.locator('.scene').evaluate(scene => {
+        const home = scene.querySelector('.topbar [data-go="0"]')
+        return [[480], [120, 120, 120, 120]].map(deltas => {
+          home.click()
+          deltas.forEach(deltaY => scene.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true })))
+          const x = new DOMMatrix(getComputedStyle(scene.querySelector('.intro')).transform).e
+          home.click()
+          return x
+        })
+      })
+      assert.ok(Math.abs(wheelTravel[0] - wheelTravel[1]) < 0.1 && Math.abs(wheelTravel[0]) > 400, 'wheel travel is independent of event batching')
       assert.ok(await frame.locator('.print img').evaluateAll(images => images.every(img => img.src.startsWith('https://images.steamusercontent.com/'))))
       await frame.locator('.print img').first().evaluate(img => img.decode())
     }

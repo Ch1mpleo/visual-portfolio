@@ -1,0 +1,772 @@
+<!doctype html>
+<!-- Reverie: an independent interaction study by Ch1mpleo.
+     No dependencies. Original Steam photographs require an internet connection. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reverie — worlds remembered by Ch1mpleo</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      :root { color-scheme: light; --paper: #eae2d4; --ink: #28232c; --soft: #7d746c; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, sans-serif; }
+      button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+      button:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+      .scene { position: relative; height: 100svh; overflow: clip; isolation: isolate; touch-action: none; background: radial-gradient(ellipse at 50% 42%, #f1eade 0%, #e8dfd0 65%, #ded0bc 100%); }
+      .scene:focus-visible { outline: 2px solid #756957; outline-offset: -4px; }
+      .grain { position: absolute; inset: -18px; z-index: 20; opacity: .075; mix-blend-mode: multiply; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23808080' filter='url(%23n)' d='M0 0h150v150H0z'/%3E%3C/svg%3E"); }
+      .topbar { position: absolute; inset: 24px 30px auto; z-index: 25; display: flex; justify-content: space-between; align-items: center; gap: 20px; color: var(--chrome, #f7f1e8); font: 10px/1.4 monospace; text-transform: uppercase; letter-spacing: .12em; transition: color .45s; }
+      .topbar p { margin: 0; }
+      .topbar button { border: 0; padding: 12px 0 12px 12px; background: none; cursor: pointer; font: inherit; text-transform: inherit; letter-spacing: inherit; }
+      .perspective { position: absolute; inset: 0; perspective: 1100px; }
+      .rv-world { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+      .rv-world::after { content: ''; position: absolute; inset: -100vmax; z-index: 100; background: #181422; opacity: var(--shade, 0); transform: translateZ(1px); pointer-events: none; }
+      .rv-card { position: absolute; left: 50%; top: 50%; width: var(--card-w); height: var(--card-h); margin: calc(var(--card-h) / -2) 0 0 calc(var(--card-w) / -2); padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; backface-visibility: hidden; transform-style: preserve-3d; will-change: transform, opacity; }
+      .card-face { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: #b8aa96; box-shadow: 0 6px 20px -14px #0009, inset 0 0 0 1px #fff1; transition: box-shadow .45s cubic-bezier(.22,.65,.22,1); pointer-events: auto; }
+      .rv-media { position: absolute; inset: 0; overflow: hidden; }
+      .rv-media img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+      .is-portrait .rv-media img { position: absolute; left: 50%; top: 50%; width: var(--media-h); height: var(--media-w); transform: translate(-50%, -50%) rotate(-90deg); }
+      .rv-card .rv-media { --media-w: var(--card-w); --media-h: var(--card-h); }
+      .caption { position: absolute; inset: auto 0 0; padding: 35px 12px 13px; color: #fffaf1; background: linear-gradient(transparent, #17100bd9); opacity: 0; transform: translateY(5px); transition: opacity .38s, transform .5s cubic-bezier(.22,.65,.22,1); text-align: left; pointer-events: none; }
+      .caption em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic clamp(11px,.9vw,14px)/1.2 Georgia, serif; }
+      .scene[data-explorable='false'] .rv-card { pointer-events: none; }
+      .scene[data-explorable='false'] .card-face { pointer-events: none; }
+      .scene[data-explorable='true'] .rv-card.is-active { z-index: 140 !important; }
+      .scene[data-explorable='true'] .rv-card.is-active .caption { opacity: 1; transform: none; }
+      .scene[data-explorable='true'] .rv-card.is-active .card-face { box-shadow: 0 25px 48px -18px #0009, 0 5px 16px #0003; }
+      .rv-card.is-inspected .card-face { visibility: hidden; }
+      .hero { position: absolute; inset: 0; z-index: 15; overflow: hidden; background: #74624d; pointer-events: none; will-change: transform, clip-path, opacity; }
+      .hero img { height: 100%; width: 100%; display: block; object-fit: cover; }
+      .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 45%, #140d0860); }
+      .poem { position: absolute; left: 6%; right: 6%; bottom: 13%; z-index: 17; color: #fff8ec; pointer-events: none; text-shadow: 0 1px 12px #0008; }
+      .poem-row { display: flex; justify-content: space-between; gap: 24px; margin-top: 13px; font: 500 clamp(8px,.85vw,12px)/1.1 Arial,sans-serif; letter-spacing: .15em; text-transform: uppercase; }
+      .poem-row span:last-child { text-align: right; }
+      .title-group { position: absolute; left: 50%; top: 50%; width: 85%; transform: translate(-50%,-50%); text-align: center; z-index: 4; pointer-events: none; }
+      .title-group p { margin: 0 0 12px; font: 9px/1.5 monospace; letter-spacing: .24em; text-transform: uppercase; }
+      .title-group h1 { margin: 0; font: 600 clamp(34px,4.3vw,74px)/1 Arial,sans-serif; letter-spacing: -.065em; }
+      .title-group em { display: block; margin-top: 15px; font: italic clamp(16px,1.8vw,27px)/1.2 Georgia,serif; color: #83786c; }
+      .scene-foot { position: absolute; left: 30px; right: 30px; bottom: 18px; z-index: 25; display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--chrome, #f7f1e8); font: 9px/1.4 monospace; letter-spacing: .07em; }
+      .scene-foot p { margin: 0; }
+      .photo-dialog { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; overflow: auto; background: transparent; color: var(--ink); }
+      .photo-dialog::backdrop { background: transparent; }
+      .photo-dialog[open] { display: grid; place-items: center; }
+      .photo-scrim { position: fixed; inset: 0; z-index: 0; background: #eee6d6c4; backdrop-filter: blur(9px); pointer-events: none; }
+      .detail-panel { position: relative; z-index: 1; width: 100%; min-height: 100%; padding: 65px 20px 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; pointer-events: none; }
+      .detail-frame { position: relative; flex: 0 0 auto; width: min(86vw, calc(64svh * var(--ratio, 1.777778)), 1100px); aspect-ratio: var(--ratio, 1.777778); overflow: hidden; border-radius: 10px; background: #b4a58e; box-shadow: 0 14px 40px -22px #0007; pointer-events: auto; }
+      .detail-copy { width: min(86vw,900px); text-align: center; pointer-events: auto; }
+      .detail-copy p { margin: 0; font: 9px/1.4 monospace; letter-spacing: .1em; text-transform: uppercase; }
+      .detail-copy h2 { margin: 0 0 10px; font: italic clamp(21px,2vw,32px)/1.1 Georgia,serif; }
+      .detail-actions { display: flex; justify-content: center; gap: 16px; margin-top: 14px; }
+      .detail-actions button, .detail-close { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer; transition: opacity .25s; }
+      .detail-actions button:hover, .detail-close:hover { opacity: .55; }
+      .detail-actions svg { width: 26px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.25; }
+      .detail-close { position: fixed; right: 24px; top: 22px; z-index: 6; font-size: 27px; pointer-events: auto; }
+      .photo-flight { position: fixed; z-index: 4; flex: none; margin: 0; max-width: none; aspect-ratio: auto; pointer-events: none; transform-origin: center; will-change: transform, clip-path; }
+      .scene[data-explorable='true'] .topbar p,
+      .scene[data-explorable='true'] .topbar button,
+      .scene[data-explorable='true'] .scene-foot > p { padding: 9px 12px; border-radius: 30px; background: #f1e9dbef; }
+      @media (max-width: 600px) {
+        .topbar { inset: 15px 18px auto; font-size: 8px; letter-spacing: .06em; }
+        .scene-foot { left: 18px; right: 18px; bottom: 13px; font-size: 8px; }
+        .scene-foot > p { max-width: 17ch; }
+        .poem { left: 6%; right: 6%; bottom: 17%; }
+        .poem-row { margin-top: 13px; letter-spacing: .08em; gap: 18px; font-size: 8px; }
+        .title-group p { font-size: 8px; letter-spacing: .12em; }
+        .title-group h1 { font-size: clamp(29px,8vw,46px); }
+        .title-group em { max-width: 24ch; margin: 12px auto 0; }
+        .detail-panel { padding: 64px 15px 20px; gap: 19px; }
+        .detail-close { right: 15px; top: 15px; }
+      }
+      @media (max-height: 500px) and (min-width: 601px) {
+        .detail-panel { padding: 20px 70px; flex-direction: row; gap: 30px; }
+        .detail-frame { width: min(46vw,calc(82svh * var(--ratio))); }
+        .detail-copy { width: 30vw; min-width: 0; }
+        .detail-copy h2 { font-size: 23px; }
+        .detail-close { top: 14px; right: 14px; }
+        .poem { bottom: 16%; }
+        .poem-row { margin-top: 8px; font-size: 8px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition: none !important; animation: none !important; }
+        .scene .rv-card .card-face { transform: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scene" tabindex="0" data-stage="immersive" data-explorable="false" aria-label="Reverie. Scroll, swipe, or use arrow keys to explore game photography.">
+      <header class="topbar"><p>Ch1mpleo / Reverie</p><button type="button" data-gallery>Skip to gallery ↗</button></header>
+      <div class="title-group"><p>In-game photography — Ch1mpleo</p><h1>Worlds, remembered.</h1><em>quiet moments from places I've never been.</em></div>
+      <div class="perspective"><div class="rv-world"></div></div>
+      <div class="hero" aria-hidden="true"><img alt="" /></div>
+      <div class="poem" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+      <footer class="scene-foot"><p data-scene-label>Scroll to remember</p></footer>
+    </main>
+    <dialog id="reverie-photo" class="photo-dialog" aria-labelledby="photo-title">
+      <div class="photo-scrim" aria-hidden="true"></div>
+      <button type="button" class="detail-close" aria-label="Close photograph" autofocus>×</button>
+      <div class="detail-panel">
+        <div class="detail-frame"><div class="rv-media"><img alt="" /></div></div>
+        <div class="detail-copy">
+          <h2 id="photo-title"></h2>
+          <p data-photo-game></p>
+          <div class="detail-actions">
+            <button type="button" data-previous aria-label="Previous photograph"><svg viewBox="0 0 26 20" aria-hidden="true"><path d="M23 10H3m7-7-7 7 7 7" /></svg></button>
+            <button type="button" data-next aria-label="Next photograph"><svg viewBox="0 0 26 20" aria-hidden="true"><path d="M3 10h20m-7-7 7 7-7 7" /></svg></button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+    <script>
+      ;(() => {
+        const scene = document.querySelector('.scene')
+        const world = scene.querySelector('.rv-world'), hero = scene.querySelector('.hero')
+        const title = scene.querySelector('.title-group'), poem = scene.querySelector('.poem')
+        const grain = scene.querySelector('.grain'), galleryButton = scene.querySelector('[data-gallery]')
+        const label = scene.querySelector('[data-scene-label]')
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+        // Add { src, alt, portrait, title, game, ratio? } entries here; portrait captures rotate upright.
+        const photoData = [
+          {
+            src: 'https://images.steamusercontent.com/ugc/15940571849885032379/04F2AF8316B6B6BD616A2A1586CF7DC4226FFA5B/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An armored warrior overlooking a sunlit desert and river',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13523765458018265274/6F6A40CDA55817EF7E0EF43DB191FDDDEBDDCD76/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded assassin above sunlit rooftops',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12808750164134147731/75620ADED96260F278D678FB8A2AF7BDC3196B79/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A torch illuminating the inside of an ancient tomb',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13213530011163441005/F65FE8933995D3DD1CF2230E346F6FDDF9E663B9/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A lone rider silhouetted against the pyramids at dusk',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14327425889210272698/DA39C7725D0AE81191F4A9B05864EF6406DDB2BB/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A warrior greeting the moonlight beside a quiet lake',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12780697389099649544/5D90C92BFE3E9BFB9A7888C580E0764292B79D45/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A crew on a sailing ship in warm afternoon light',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/17685405136869445326/002A267F0CB94D23D222B2582EF518D8A62B50B6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded assassin crouched beside a stone tower and palm trees',
+            portrait: true,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11704419977118154295/33DF82BDBB8E1AD479B16EF56869BA1055424E9C/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A white-hooded pirate framed by tropical cliffs',
+            portrait: true,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14629272092508208080/F05612C2D313E37F0DBD329A8A5A577C196C3938/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cloaked warrior under blue moonlight and trees',
+            portrait: true,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/10300254567982358463/8E2F6862C0AD6BC0140E6C9E5212E93C3088DCB3/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A carved wooden longship surrounded by fire and smoke',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11987783913335236110/EFD77272D221272B9E687CE561BB9D25960CE205/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A close view of a hooded pirate crouching in the shade',
+            portrait: true,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13018202383332687089/75A775D14E3CEA946BFF0E26BECB2DD89B348B9E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate overlooking clear tropical water and forested cliffs',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/17926610918032462856/F67806D12C4F8D68208C6153A0A3A6C707680412/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A tall sailing ship cutting through bright blue water',
+            portrait: false,
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/15358754567809937914/B9EC7435D04ED181779D0B84159D4C7A067C648A/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A ship crew beneath sunlit sails with green islands beyond the deck',
+            portrait: false,
+            title: 'Sails in the sun',
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13419225778944239108/D12004E10D1EEE64453CE66AE3DA03D5C4326766/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A hooded pirate walking along a path through a lush tropical forest',
+            portrait: false,
+            title: 'Into the green',
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12742599078811241329/3979737B2AB23B038CD595EA65A3ABEF2DEFBAA9/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate on a wooden rooftop above palm trees and the coast',
+            portrait: false,
+            title: 'A quiet watch',
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12309400201932848340/E89C7D8A2396D136B2BD03DA7BA46C632D7FF0F5/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate crossing blades with a red-coated soldier in a coastal settlement',
+            portrait: false,
+            title: 'Steel and salt',
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14833359913726765184/562F51B7CB24496AC0CBE3217A3C136F01B3F850/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A pirate on a ship mast above a quiet harbour in pink evening light',
+            portrait: false,
+            title: 'Above the harbour',
+            game: 'AC: Black Flag Resynced',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14866086704068834167/0DE45EA9E43B4AE9995E764C3DCB01D7FD4CBCA6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An armored warrior approaching a painted Egyptian temple between stone statues',
+            portrait: false,
+            title: 'At the temple gates',
+            game: 'AC: Origin',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12467491500300879513/D62031585F3829F0F52DAFC34A8ECB6786BB2DF6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A blue-coated assassin walking through a busy Paris street in golden light',
+            portrait: false,
+            title: 'Paris in the morning',
+            game: 'AC: Unity',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14006432979757963555/88BA703F8FA450A37C773F1EDAF749B2AE7A3AAA/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An assassin with outstretched arms overlooking the rooftops of Paris',
+            portrait: false,
+            title: 'A city held in light',
+            game: 'AC: Unity',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/14327590034332448783/86B827E5FAEC628DD06F6C3E5DA9F4F550A1376E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'An assassin on a narrow Paris street beneath glowing lamps',
+            portrait: false,
+            title: 'After the lamps come on',
+            game: 'AC: Unity',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11803831041014631752/A82AF4ED143601B4F188440D8ABE963AE2028C65/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A gunslinger walking past a fallen horse beneath a stormy sky',
+            portrait: false,
+            title: 'What the storm leaves',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/12926310644417301135/125B77B2557D868418536A8F7A7C20ADBD587C89/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cowboy raising a revolver from a rearing horse in the mist',
+            portrait: false,
+            title: 'One last shot',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/9438800694099998988/3FE2B270A5FAD90EFCA1F5B9995A8D0C555616EC/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cowboy standing beside a tree and a wooden cross in a misty landscape',
+            portrait: false,
+            title: 'Where the light ends',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/13812804067091790376/CC6CE7976FF1071F75EFC51290281B492F9D69E7/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A mounted cowboy carrying a rifle beneath heavy storm clouds',
+            portrait: false,
+            title: 'Under a restless sky',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11579010412881511643/6C10DA5954B3C5829E169A78016647BE3444758E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A cowboy aiming a rifle across rocky hills',
+            portrait: false,
+            title: 'A breath before the shot',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/17797672520269746486/6FEB0105241B8D9CBE308B5CB396110B35DE3F11/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A mounted cowboy aiming a revolver into a pale grey sky',
+            portrait: false,
+            title: 'Riding into the grey',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/18095479308264015340/D37E8505896D934526F0625AE09EFBB303AE485E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'A rider and a loaded horse on a snowy mountain trail beneath the sun',
+            portrait: false,
+            title: 'The long winter',
+            game: 'Red Dead Redemption 2',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/18087614179587174712/793DB10F8E6607E981591E3B886459CF3EDBBB71/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'Kratos and Atreus standing together in a dark cavern',
+            portrait: false,
+            ratio: 8/5,
+            title: 'Fire in the dark',
+            game: 'God Of War',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/10075710006383844785/03E2A1DE236BF5ACA17F92EC51D3E3B3DF060597/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'Kratos amid rushing water, rock and fallen timber',
+            portrait: false,
+            ratio: 8/5,
+            title: 'Through the torrent',
+            game: 'God Of War',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/11467613921964408528/45726F61079159C213044FBEB8D122644919DBA3/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'Kratos overlooking snow-covered mountains rising through the clouds',
+            portrait: false,
+            ratio: 8/5,
+            title: 'Beyond the clouds',
+            game: 'God Of War',
+          },
+          {
+            src: 'https://images.steamusercontent.com/ugc/15280395481599379501/5551C736B7E103557FDA831D61EB58B0BA963A02/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false',
+            alt: 'Kratos walking through snow toward stone ruins on a mountain ridge',
+            portrait: false,
+            title: 'Footsteps into myth',
+            game: 'God Of War',
+          },
+        ]
+        const names = ['Along the river', 'Above the rooftops', 'A little borrowed light', 'The last light of Giza', 'When the world goes quiet', 'Between the waves', 'A pause in the pursuit', 'Beyond the cliffs', 'Under a blue moon', 'Fire on the water', 'In the shade', 'The long way home', 'Into the blue']
+        photoData.forEach((photo, i) => { photo.title ||= names[i] || `Another world, ${i + 1}`; photo.game ||= i < 4 ? 'AC: Origin' : i < 13 ? 'AC: Black Flag Resynced' : 'In-game photography' })
+        const order = [3, ...photoData.map((_, i) => i).filter(i => i !== 3)]
+        const phases = ['immersive', 'stack', 'ribbon', 'diptych', 'opening', 'gallery']
+        const verses = [
+          ['I paused the quest', 'to follow the light'], ['The map kept going', 'I stayed a little longer'],
+          ['Some worlds', 'ask you to hurry'], ['I learned', 'to look again'],
+          ['Not every frame', 'needs a victory'], ['Just a shadow', 'crossing the stone'],
+          ['A small sunrise', 'inside a made-up world'], ['I keep the moment', 'after the mission'],
+          ['A place I never lived', 'a memory I can keep'],
+        ]
+        verses.forEach(pair => { const row = document.createElement('div'); row.className = 'poem-row'; pair.forEach(text => { const span = document.createElement('span'); span.textContent = text; row.append(span) }); poem.append(row) })
+        const poemRows = [...poem.children]
+        function thumbnailSrc(source) {
+          const url = new URL(source)
+          const size = devicePixelRatio > 1 ? 960 : 640
+          url.searchParams.set('imw', size); url.searchParams.set('imh', size)
+          return url.href
+        }
+        photoData.forEach(photo => {
+          photo.preview = thumbnailSrc(photo.src)
+          const image = new Image(); image.decoding = 'async'; image.src = photo.preview
+          photo.ready = image.decode().catch(() => {})
+        })
+        const tileCount = Math.max(48, Math.ceil(photoData.length / 12) * 12)
+        const cards = Array.from({ length: tileCount }, (_, i) => {
+          const photoIndex = order[i % order.length], photo = photoData[photoIndex]
+          const el = document.createElement('button'); el.type = 'button'; el.className = `rv-card${photo.portrait ? ' is-portrait' : ''}`; el.tabIndex = -1
+          el.setAttribute('aria-hidden', 'true')
+          el.setAttribute('aria-label', `${photo.title}. ${photo.game}. Open photograph.`)
+          const face = document.createElement('span'); face.className = 'card-face'
+          const media = document.createElement('span'); media.className = 'rv-media'
+          const img = document.createElement('img'); img.src = photo.preview; img.alt = photo.alt; img.draggable = false; img.decoding = 'async'; img.loading = 'eager'; img.fetchPriority = i < 8 ? 'high' : 'low'
+          media.append(img)
+          const caption = document.createElement('span'); caption.className = 'caption'
+          const name = document.createElement('em'); name.textContent = photo.title
+          caption.append(name); face.append(media, caption); el.append(face); world.append(el)
+          const card = { el, face, photoIndex, poses: [], transform: '', opacity: -1, hover: 0, rx: 0, ry: 0, tx: 0, ty: 0, faceTransform: '', z: '' }
+          el.addEventListener('click', event => openFromInput(event,card))
+          el.addEventListener('focus', () => {
+            if (progress >= 4.8) {
+              focusIndex = i; cards.forEach((card,index) => {card.el.tabIndex=index===i?0:-1})
+              if (el.matches(':focus-visible')) setHover(card)
+            }
+          })
+          el.addEventListener('blur', () => { if (activeCard === card && !pointerDriven) setHover(null) })
+          return card
+        })
+        hero.querySelector('img').fetchPriority = 'high'
+        hero.querySelector('img').src = photoData[3].src
+        const dialog = document.querySelector('#reverie-photo'), frame = dialog.querySelector('.detail-frame')
+        const detailImage = frame.querySelector('img'), closeButton = dialog.querySelector('.detail-close')
+        const scrim = dialog.querySelector('.photo-scrim'), detailCopy = dialog.querySelector('.detail-copy')
+        const clamp = (n, a, b) => Math.max(a, Math.min(b, n))
+        const mix = (a, b, t) => a + (b - a) * t
+        const smooth = t => { t = clamp(t, 0, 1); return t * t * t * (t * (t * 6 - 15) + 10) }
+        let progress = 0, target = 0, raf = 0, lastTime = 0, visible = true, introAge = reduced.matches ? 1 : 0
+        let width = 1, height = 1, cardW = 1, cardH = 1, columns = 12, rows = 4, scrollSpan = 900, heroEndScale = 1
+        let panX = 0, panY = 0, targetPanX = 0, targetPanY = 0, limitX = 0, limitY = 0
+        let pointerDriven = false, mouseX = 0, mouseY = 0
+        let swipe = null, suppressClick = false, focusIndex = 30, selectedPhoto = 0, originalCard = null, photoVersion = 0, closing = false
+        let activeCard = null, shade = 0, flight = null, inspectedCard = null, openedCard = null, lastPoseProgress = NaN, lastIntroAge = NaN
+        const effects = new Set()
+        const canRun = () => visible && !document.hidden
+        function wake() { if (!raf && canRun()) { lastTime = 0; raf = requestAnimationFrame(tick) } }
+        function setProgress(value) {
+          target = clamp(value, 0, 5)
+          if (target < 4.8) {
+            pointerDriven=false;targetPanX = targetPanY = 0; setHover(null)
+            if(document.activeElement?.closest('.rv-card'))scene.focus({preventScroll:true})
+          }
+          if (reduced.matches) { progress = target; introAge = 1; panX = targetPanX; panY = targetPanY; paint() }
+          wake()
+        }
+        function syncCardAccess(explorable = progress >= 4.8) {
+          cards.forEach((card, i) => { card.el.tabIndex = explorable && i === focusIndex ? 0 : -1; card.el.setAttribute('aria-hidden', String(!explorable)) })
+        }
+        function nearestEntry() {
+          return cards.reduce((nearest,card,i)=>{
+            const a=card.poses[5],b=cards[nearest].poses[5]
+            return Math.hypot(a.x+targetPanX,a.y+targetPanY)<Math.hypot(b.x+targetPanX,b.y+targetPanY)?i:nearest
+          },0)
+        }
+        function setHover(card, x = 0, y = 0, fromFrame = false) {
+          if (activeCard !== card) {
+            activeCard?.el.classList.remove('is-active')
+            activeCard = card; activeCard?.el.classList.add('is-active')
+          }
+          if (card) { card.tx = x; card.ty = y }
+          if (reduced.matches) advanceHover(1)
+          if(!fromFrame)wake()
+        }
+        function followPointer() {
+          if(!pointerDriven || progress<4.8 || dialog.open)return
+          const x=mouseX-width/2-panX,y=mouseY-height/2-panY
+          // Logical slots stay stable while their visible faces swell and tilt over neighbours.
+          const contains=(card,scale)=>{const pose=card.poses[5];return Math.abs(x-pose.x)<cardW*scale/2&&Math.abs(y-pose.y+8*card.hover)<cardH*scale/2}
+          const card=activeCard&&contains(activeCard,1.38)?activeCard:cards.find(card=>contains(card,1))
+          if(!card){setHover(null,0,0,true);return}
+          const pose=card.poses[5],scale=1+card.hover*.36
+          const dx=x-pose.x,dy=y-pose.y+card.hover*8
+          // One radius preserves the pointer's direction instead of aiming at a box corner.
+          const radius=Math.max(cardW*scale/2,Math.hypot(dx,dy))
+          setHover(card,dx/radius,dy/radius,true)
+        }
+        function advanceHover(ease, tiltEase = ease) {
+          let moving = false
+          shade = mix(shade,activeCard && !dialog.open ? .36 : 0,ease)
+          if (Math.abs(shade-(activeCard && !dialog.open ? .36 : 0))<.001) shade = activeCard && !dialog.open ? .36 : 0
+          else moving = true
+          world.style.setProperty('--shade',shade)
+          cards.forEach(card => {
+            const selected = card === activeCard && !dialog.open
+            const hover = selected ? 1 : 0, rx = selected && !reduced.matches ? card.ty*20 : 0, ry = selected && !reduced.matches ? -card.tx*20 : 0
+            card.hover = mix(card.hover,hover,ease); card.rx = mix(card.rx,rx,tiltEase); card.ry = mix(card.ry,ry,tiltEase)
+            if (Math.abs(card.hover-hover)<.001) card.hover=hover; else moving=true
+            if (Math.abs(card.rx-rx)<.015) card.rx=rx; else moving=true
+            if (Math.abs(card.ry-ry)<.015) card.ry=ry; else moving=true
+            const h = reduced.matches ? 0 : card.hover
+            const transform = h || card.rx || card.ry ? `translate3d(0,${-h*8}px,${h*90}px) rotateX(${card.rx}deg) rotateY(${card.ry}deg) scale(${1+h*.36})` : 'none'
+            if (transform !== card.faceTransform) {
+              card.face.style.transform=transform; card.faceTransform=transform
+            }
+          })
+          return moving
+        }
+        function paint() {
+          const stage = Math.round(progress), explorable = progress >= 4.8
+          const geometryChanged = progress !== lastPoseProgress || introAge !== lastIntroAge
+          if (scene.dataset.stage !== phases[stage]) scene.dataset.stage = phases[stage]
+          const progressText = progress.toFixed(4)
+          if (scene.dataset.progress !== progressText) scene.dataset.progress = progressText
+          if (scene.dataset.explorable !== String(explorable)) {
+            if(explorable&&!document.activeElement?.closest('.rv-card'))focusIndex=nearestEntry()
+            scene.dataset.explorable=String(explorable);syncCardAccess(explorable)
+          }
+          const camera = smooth(progress-4)
+          world.style.transform = `translate3d(${panX*camera}px,${panY*camera}px,0)`
+          if (!geometryChanged) return
+          lastPoseProgress=progress; lastIntroAge=introAge
+          const segment = Math.min(4,Math.floor(progress)), blend = smooth(progress-segment)
+          hero.hidden = progress >= 1
+          if (!hero.hidden) {
+            const zoom = smooth(progress)
+            hero.style.transform=`scale(${mix(1.04,heroEndScale,zoom)})`
+            const ix=(width-cardW*1.25/heroEndScale)*zoom/2, iy=(height-cardH*1.25/heroEndScale)*zoom/2
+            hero.style.clipPath=`inset(${Math.max(0,iy)}px ${Math.max(0,ix)}px round ${zoom*10/heroEndScale}px)`
+            hero.style.opacity=1-smooth((progress-.9)/.1)
+          }
+          poem.hidden=progress>=.65
+          if (!poem.hidden) {
+            const fade=1-smooth((progress-.12)/.5)
+            poemRows.forEach((row,i)=>{const opacity=smooth((introAge-i*.055)/.5)*fade;row.style.opacity=opacity;row.style.transform=`translateY(${(1-opacity)*6}px)`;row.style.filter=opacity>.999?'none':`blur(${(1-opacity)*4}px)`})
+          }
+          const opacity=smooth((progress-2.35)/.5)*(1-smooth((progress-3.75)/.85))
+          title.hidden=opacity===0
+          if (!title.hidden) { title.style.opacity=opacity;title.style.filter=opacity>.999?'none':`blur(${(1-opacity)*5}px)` }
+          cards.forEach((card,i)=>{
+            const a=card.poses[segment],b=card.poses[segment+1]
+            if (!a || !b) return
+            const transform=`translate3d(${mix(a.x,b.x,blend)}px,${mix(a.y,b.y,blend)}px,${mix(a.z,b.z,blend)}px) rotateZ(${mix(a.r,b.r,blend)}deg) scale(${mix(a.s,b.s,blend)})`
+            if (card.transform!==transform) {card.el.style.transform=transform;card.transform=transform}
+            let opacity=mix(a.o,b.o,blend)
+            if (!i) opacity*=smooth((progress-.88)/.12)
+            // Spread the first raster/upload work across the opening, rather than one frame.
+            if (i>=8) opacity*=smooth((progress-3-(i%columns)*.025-Math.floor(i/columns)*.015)/.65)
+            if (card.opacity!==opacity) {card.el.style.opacity=opacity;card.opacity=opacity}
+            const z=String(progress<2.4?100-i:i+1)
+            if(card.z!==z){card.el.style.zIndex=z;card.z=z}
+          })
+          scene.style.setProperty('--chrome',progress<.55?'#f7f1e8':'#5c534a')
+          const text=explorable?(matchMedia('(hover: hover)').matches?'Move to wander':'Swipe to wander'):'Scroll to remember'
+          if(label.textContent!==text)label.textContent=text
+          const action=explorable?'Replay ↗':'Skip to gallery ↗'
+          if(galleryButton.textContent!==action)galleryButton.textContent=action
+        }
+        function tick(time) {
+          raf=0;if(!canRun())return
+          const dt=lastTime?Math.min((time-lastTime)/1000,.05):1/60;lastTime=time
+          const ease=reduced.matches?1:1-Math.exp(-9.5*dt)
+          const cameraEase=reduced.matches?1:1-Math.exp(-8*dt)
+          // Let the lift breathe while the surface stays close to the pointer.
+          const hoverEase=reduced.matches?1:1-Math.exp(-8.5*dt)
+          const tiltEase=reduced.matches?1:1-Math.exp(-10.5*dt)
+          progress=mix(progress,target,ease);panX=mix(panX,targetPanX,cameraEase);panY=mix(panY,targetPanY,cameraEase)
+          if(introAge<1)introAge=Math.min(1,introAge+dt*.8)
+          followPointer()
+          const hovering=advanceHover(hoverEase,tiltEase)
+          const moving=Math.abs(progress-target)>.00005||Math.abs(panX-targetPanX)>.05||Math.abs(panY-targetPanY)>.05||introAge<1||hovering
+          if(!moving){progress=target;panX=targetPanX;panY=targetPanY}
+          if(moving&&!reduced.matches&&progress!==lastPoseProgress){const step=Math.floor(time/110);grain.style.transform=`translate(${step%3*5-5}px,${step%5*3-6}px)`}
+          paint();if(moving)raf=requestAnimationFrame(tick)
+        }
+        function layout() {
+          const nextWidth = scene.clientWidth, nextHeight = scene.clientHeight
+          if (!nextWidth || !nextHeight) return
+          width = nextWidth; height = nextHeight
+          cardW = width < 600 ? Math.min(width*.28,130) : clamp(width*.11,100,164); cardH = cardW*1.65
+          cardH = Math.min(cardH,height*.48); cardW = cardH/1.65
+          columns = width < 600 ? 6 : 12; rows = tileCount/columns
+          const gap = width < 600 ? 17 : 28, stepX = cardW+gap, stepY = cardH+gap
+          limitX = Math.max(0,(columns*stepX-gap-width)/2); limitY = Math.max(0,(rows*stepY-gap-height)/2)
+          targetPanX = clamp(targetPanX,-limitX,limitX); targetPanY = clamp(targetPanY,-limitY,limitY)
+          scrollSpan = Math.max(640,height*.95); heroEndScale = Math.max(cardW*1.25/width,cardH*1.25/height)
+          scene.style.setProperty('--card-w', `${cardW}px`); scene.style.setProperty('--card-h', `${cardH}px`)
+          const activeElement = document.activeElement, activeCard = cards.findIndex(card => card.el === activeElement)
+          cards.forEach((card, i) => {
+            const gx = (i%columns-(columns-1)/2)*stepX, gy = (Math.floor(i/columns)-(rows-1)/2)*stepY
+            const p = (x,y,s=1,o=1,z=0,r=0) => ({x,y,s,o,z,r})
+            const stack = p((i-3.5)*.8,(i-3.5)*.6,1.25-Math.min(i,7)*.016,i<8?1:0,-i*.5,i<8?i*.35:0)
+            const diagonal = p((i-3.5)*Math.max(cardW*.95,width*.105),(i-3.5)*height*.15,1.15-i*.04,i<8?1:0,0,0)
+            const side = i<4?-1:1, slot = i%4
+            const diptych = p(side*width*.31+slot*4,side*height*.28+slot*5,width<600?.78:1.05,i<8?1:0,slot*2,0)
+            let ox = gx, oy = gy
+            if (Math.abs(gx)<width*.3 && Math.abs(gy)<height*.24) ox = (gx<0?-1:1)*(width*.44+cardW*.4)
+            card.poses = [p(0,0,1.25,0),stack,diagonal,diptych,p(ox,oy,1,1),p(gx,gy)]
+          })
+          if (activeCard >= 0) {
+            focusIndex = activeCard
+            if (progress >= 4.8) {
+              const pose = cards[focusIndex].poses[5]
+              panX = targetPanX = clamp(-pose.x,-limitX,limitX); panY = targetPanY = clamp(-pose.y,-limitY,limitY)
+            }
+          } else {
+            focusIndex = nearestEntry()
+          }
+          syncCardAccess()
+          lastPoseProgress = NaN
+          if (dialog.open) { settlePhoto(); sizeDetail() }
+          paint(); wake()
+        }
+        function finishEffects() { effects.forEach(animation=>animation.cancel());effects.clear() }
+        function animate(el,frames,duration=400,delay=0) {
+          if(reduced.matches)return Promise.resolve()
+          const animation=el.animate(frames,{duration,delay,fill:'backwards',easing:'cubic-bezier(.22,.65,.22,1)'})
+          effects.add(animation)
+          return animation.finished.catch(()=>{}).then(()=>effects.delete(animation))
+        }
+        function sizeDetail() {
+          frame.style.setProperty('--media-w',`${frame.clientWidth}px`);frame.style.setProperty('--media-h',`${frame.clientHeight}px`)
+        }
+        function showDetail() {
+          const index=selectedPhoto,photo=photoData[index]
+          frame.classList.toggle('is-portrait',photo.portrait);frame.style.setProperty('--ratio',photo.ratio||(photo.portrait?9/16:16/9))
+          detailImage.src=photo.preview;detailImage.alt=photo.alt
+          // The small, decoded preview is immediate; the original replaces it without a flash.
+          if(!photo.originalReady){
+            const original=new Image();original.decoding='async';original.src=photo.src
+            photo.originalReady=original.decode().then(()=>original.src).catch(()=>{photo.originalReady=null;return null})
+          }
+          photo.originalReady.then(source=>{if(source&&dialog.open&&selectedPhoto===index)detailImage.src=source})
+          dialog.querySelector('[data-photo-game]').textContent=photo.game
+          dialog.querySelector('#photo-title').textContent=photo.title
+          sizeDetail()
+        }
+        function inspectCard(card) {
+          inspectedCard?.el.classList.remove('is-inspected')
+          inspectedCard=card;originalCard=card.el;card.el.classList.add('is-inspected')
+        }
+        function matchingCard(index) {
+          if(openedCard?.photoIndex===index)return openedCard
+          if(inspectedCard?.photoIndex===index)return inspectedCard
+          return cards.filter(card=>card.photoIndex===index).reduce((nearest,card)=>{
+            const a=card.el.getBoundingClientRect(),b=nearest.el.getBoundingClientRect()
+            const score=r=>Math.hypot(r.x+r.width/2-width/2,r.y+r.height/2-height/2)+(r.right<0||r.left>width||r.bottom<0||r.top>height?10000:0)
+            return score(a)<score(b)?card:nearest
+          })
+        }
+        function returnBounds() {
+          const card=inspectedCard,pose=card.poses[5]
+          let rect=card.el.getBoundingClientRect()
+          if(rect.right<20||rect.left>width-20||rect.bottom<50||rect.top>height-30){
+            panX=targetPanX=clamp(-pose.x,-limitX,limitX);panY=targetPanY=clamp(-pose.y,-limitY,limitY)
+            paint();rect=card.el.getBoundingClientRect()
+          }
+          return rect
+        }
+        function makeFlight() {
+          if(flight)return flight
+          const bounds=frame.getBoundingClientRect()
+          flight=frame.cloneNode(true);flight.classList.add('photo-flight');flight.setAttribute('aria-hidden','true')
+          Object.assign(flight.style,{left:`${bounds.left}px`,top:`${bounds.top}px`,width:`${bounds.width}px`,height:`${bounds.height}px`,opacity:getComputedStyle(frame).opacity,visibility:'visible',transform:'none',clipPath:'inset(0px round 10px)'})
+          dialog.append(flight);frame.style.visibility='hidden'
+          return flight
+        }
+        function cardPose(bounds) {
+          const w=parseFloat(flight.style.width),h=parseFloat(flight.style.height)
+          const scale=Math.max(bounds.width/w,bounds.height/h)
+          const dx=bounds.x+bounds.width/2-parseFloat(flight.style.left)-w/2
+          const dy=bounds.y+bounds.height/2-parseFloat(flight.style.top)-h/2
+          const ix=Math.max(0,(w-bounds.width/scale)/2),iy=Math.max(0,(h-bounds.height/scale)/2)
+          return {transform:`translate3d(${dx}px,${dy}px,0) scale(${scale})`,clipPath:`inset(${iy}px ${ix}px round ${8/scale}px)`,opacity:1}
+        }
+        function removeFlight() {flight?.remove();flight=null;frame.style.visibility='visible'}
+        function completeClose() {
+          photoVersion++;finishEffects();removeFlight();inspectedCard?.el.classList.remove('is-inspected')
+          inspectedCard=null;openedCard=null;closing=false;dialog.close();scrim.style.opacity=detailCopy.style.opacity='1'
+          const index=cards.findIndex(card=>card.el===originalCard)
+          if(index>=0){focusIndex=index;syncCardAccess()}
+          originalCard?.focus({preventScroll:true})
+        }
+        function settlePhoto() {
+          if(closing){completeClose();return}
+          photoVersion++;finishEffects();removeFlight();scrim.style.opacity=detailCopy.style.opacity='1'
+        }
+        function openFromInput(event,card=null) {
+          if(progress<4.8 || (event.detail&&suppressClick))return
+          if(event.detail&&pointerDriven){
+            // A move and click can arrive before RAF has updated the visible hover.
+            mouseX=event.clientX;mouseY=event.clientY;followPointer()
+            card=activeCard||card
+          }
+          if(card)openPhoto(card)
+        }
+        async function openPhoto(card) {
+          if(dialog.open)return
+          pointerDriven=false
+          targetPanX=panX;targetPanY=panY
+          const from=card.face.getBoundingClientRect(),version=++photoVersion
+          selectedPhoto=card.photoIndex;openedCard=card;closing=false;inspectCard(card);setHover(null)
+          dialog.showModal();dialog.scrollTop=0;showDetail()
+          if(reduced.matches)return
+          makeFlight();const start=cardPose(from)
+          scrim.style.opacity=detailCopy.style.opacity='1'
+          animate(scrim,[{opacity:0},{opacity:1}],640)
+          animate(detailCopy,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],460,180)
+          await animate(flight,[start,{transform:'none',clipPath:'inset(0px round 10px)',opacity:1}],740)
+          if(version===photoVersion&&!closing)removeFlight()
+        }
+        async function closePhoto() {
+          if(!dialog.open||closing)return
+          closing=true;const version=++photoVersion
+          if(reduced.matches){completeClose();return}
+          makeFlight()
+          // Preserve an interrupted opening at its current crop and position before reversing.
+          const current=getComputedStyle(flight),start={transform:current.transform,clipPath:current.clipPath,opacity:Number(current.opacity)}
+          const scrimOpacity=Number(getComputedStyle(scrim).opacity),copyOpacity=Number(getComputedStyle(detailCopy).opacity)
+          finishEffects();Object.assign(flight.style,start)
+          const destination=cardPose(returnBounds())
+          scrim.style.opacity=detailCopy.style.opacity='0'
+          animate(scrim,[{opacity:scrimOpacity},{opacity:0}],560)
+          animate(detailCopy,[{opacity:copyOpacity},{opacity:0}],220)
+          await animate(flight,[start,destination],620)
+          if(version===photoVersion)completeClose()
+        }
+        function changePhoto(direction) {
+          if(closing)return
+          photoVersion++;finishEffects();removeFlight();selectedPhoto=(selectedPhoto+direction+photoData.length)%photoData.length
+          inspectCard(matchingCard(selectedPhoto));showDetail();scrim.style.opacity=detailCopy.style.opacity='1'
+          animate(frame,[{opacity:.45,transform:`translateX(${direction*14}px)`},{opacity:1,transform:'none'}],340)
+        }
+        closeButton.addEventListener('click',closePhoto)
+        dialog.addEventListener('cancel',e=>{e.preventDefault();closePhoto()})
+        dialog.addEventListener('click',e=>{if(e.target===dialog || e.target.classList.contains('detail-panel'))closePhoto()})
+        dialog.querySelector('[data-previous]').addEventListener('click',()=>changePhoto(-1))
+        dialog.querySelector('[data-next]').addEventListener('click',()=>changePhoto(1))
+        galleryButton.addEventListener('click',()=>{if(progress>=4.8)introAge=reduced.matches?1:0;setProgress(progress>=4.8?0:5)})
+        scene.addEventListener('wheel',e=>{
+          if(e.ctrlKey || dialog.open)return
+          e.preventDefault()
+          const delta = Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY
+          setProgress(target+delta*(e.deltaMode===1?16:e.deltaMode===2?height:1)/scrollSpan)
+        },{passive:false})
+        scene.addEventListener('pointerdown',e=>{
+          if(e.button!==0 || !e.isPrimary || e.target.closest('.topbar'))return
+          suppressClick=false
+          if(e.pointerType!=='mouse'){pointerDriven=false;setHover(null);swipe={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0,progress:target,gallery:progress>=4.8}}
+        })
+        scene.addEventListener('pointermove',e=>{
+          if(swipe?.id===e.pointerId){
+            swipe.dx=e.clientX-swipe.x;swipe.dy=e.clientY-swipe.y
+            if(Math.hypot(swipe.dx,swipe.dy)>10){
+              suppressClick=true;scene.setPointerCapture(e.pointerId)
+              if(!swipe.gallery)setProgress(swipe.progress-(Math.abs(swipe.dy)>Math.abs(swipe.dx)?swipe.dy:swipe.dx)/scrollSpan)
+            }
+          }else if(e.pointerType==='mouse'&&progress>=4.8&&!dialog.open){
+            if(e.target.closest('.topbar')){pointerDriven=false;setHover(null);return}
+            pointerDriven=true;mouseX=e.clientX;mouseY=e.clientY
+            // Absolute targets and a quiet centre keep the finite field from drifting.
+            const reach=n=>{n=clamp(n,-1,1);return Math.sign(n)*smooth((Math.abs(n)-.18)/.82)}
+            targetPanX=-reach(e.clientX/width*2-1)*limitX
+            targetPanY=-reach(e.clientY/height*2-1)*limitY
+            if(reduced.matches){panX=targetPanX;panY=targetPanY;paint()}
+            wake()
+          }
+        })
+        const endSwipe=e=>{
+          if(swipe?.id!==e.pointerId)return
+          const gesture=swipe;swipe=null
+          if(e.type==='pointerup'&&gesture.gallery&&Math.hypot(gesture.dx,gesture.dy)>32){
+            setHover(null)
+            if(Math.abs(gesture.dx)>Math.abs(gesture.dy))targetPanX=clamp(targetPanX+Math.sign(gesture.dx)*width*.65,-limitX,limitX)
+            else targetPanY=clamp(targetPanY+Math.sign(gesture.dy)*height*.65,-limitY,limitY)
+            if(reduced.matches){panX=targetPanX;panY=targetPanY;paint()}wake()
+          }
+        }
+        scene.addEventListener('pointerup',endSwipe);scene.addEventListener('pointercancel',endSwipe)
+        scene.addEventListener('lostpointercapture',e=>{if(e.target===scene)endSwipe(e)})
+        scene.addEventListener('pointerleave',()=>{if(!swipe){pointerDriven=false;setHover(null)}})
+        scene.addEventListener('click',e=>{if(pointerDriven&&!e.target.closest('button'))openFromInput(e)})
+        scene.addEventListener('keydown',e=>{
+          if(e.altKey||e.ctrlKey||e.metaKey)return
+          pointerDriven=false
+          const card=e.target.closest('.rv-card')
+          const directions={ArrowRight:1,ArrowLeft:-1,ArrowDown:columns,ArrowUp:-columns}
+          if(card && e.key in directions && progress>=4.8){
+            e.preventDefault();e.stopPropagation();focusIndex=clamp(cards.findIndex(c=>c.el===card)+directions[e.key],0,cards.length-1)
+            cards.forEach((c,i)=>{c.el.tabIndex=i===focusIndex?0:-1})
+            const pose=cards[focusIndex].poses[5];targetPanX=clamp(-pose.x,-limitX,limitX);targetPanY=clamp(-pose.y,-limitY,limitY)
+            cards[focusIndex].el.focus({preventScroll:true});if(reduced.matches){panX=targetPanX;panY=targetPanY;paint()}wake();return
+          }
+          if(e.key==='Home'||e.key==='End'||e.key==='PageDown'||e.key==='PageUp'||(!e.target.closest('button')&&e.key in directions)){
+            e.preventDefault();setProgress(e.key==='Home'?0:e.key==='End'?5:e.key==='PageDown'?target+1:e.key==='PageUp'?target-1:target+(e.key==='ArrowLeft'||e.key==='ArrowUp'?-.18:.18))
+          }
+        })
+        document.addEventListener('keydown',e=>{
+          if(e.key==='Escape'){
+            if(dialog.open){e.preventDefault();e.stopImmediatePropagation();closePhoto()}
+            else if(parent!==window){e.preventDefault();parent.postMessage({type:'component-escape'},location.origin)}
+          }else if(dialog.open&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){e.preventDefault();changePhoto(e.key==='ArrowRight'?1:-1)}
+        },true)
+        reduced.addEventListener('change',()=>{
+          if(dialog.open)settlePhoto()
+          progress=target;introAge=1;panX=targetPanX;panY=targetPanY
+          advanceHover(1);paint();wake()
+        })
+        new ResizeObserver(layout).observe(scene)
+        new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)wake();else{cancelAnimationFrame(raf);raf=0}}).observe(scene)
+        document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else wake()})
+        layout()
+      })()
+    </script>
+  </body>
+</html>

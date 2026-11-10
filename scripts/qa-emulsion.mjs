@@ -13,7 +13,7 @@ await mkdir(out,{recursive:true})
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.woff':'font/woff','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'}
 const server=createServer(async(request,response)=>{
   try {
-    const path=decodeURIComponent(new URL(request.url,'http://local').pathname).replace(/^\/visual-portfolio/,'')
+    const path=decodeURIComponent(new URL(request.url,'http://local').pathname)
     const file=resolve('dist','.'+(path.endsWith('/')?`${path}index.html`:path))
     if(!file.startsWith(resolve('dist')+sep))throw new Error('outside dist')
     response.setHeader('Content-Type',mime[extname(file)]||'application/octet-stream')
@@ -21,7 +21,7 @@ const server=createServer(async(request,response)=>{
   }catch{response.statusCode=404;response.end('Not found')}
 })
 await new Promise(done=>server.listen(0,'127.0.0.1',done))
-const base=process.env.EMULSION_QA_URL||`http://127.0.0.1:${server.address().port}/visual-portfolio/`
+const base=process.env.EMULSION_QA_URL||`http://127.0.0.1:${server.address().port}/`
 const browser=await chromium.launch({channel:'msedge',executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH,headless:true})
 const errors=[]
 try {

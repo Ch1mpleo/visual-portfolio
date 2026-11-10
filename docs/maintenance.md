@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-The dev server binds to localhost. Use `npm run dev -- --host` for another device on a trusted network. After `npm run build`, `npm run preview` serves the production `/visual-portfolio/` base.
+The dev server binds to localhost. Use `npm run dev -- --host` for another device on a trusted network. After `npm run build`, `npm run preview` serves the production build at `/`, matching `https://ch1mple.id.vn/` on GitHub Pages. The custom domain is configured in the repository's Pages settings; this GitHub Actions deployment does not require a `public/CNAME` file.
 
 ## Update assets
 

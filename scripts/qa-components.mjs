@@ -13,7 +13,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const downloadedFiles = new Map()
 const server = createServer(async (request, response) => {
   try {
-    const path = decodeURIComponent(new URL(request.url, 'http://local').pathname).replace(/^\/visual-portfolio/, '')
+    const path = decodeURIComponent(new URL(request.url, 'http://local').pathname)
     if (downloadedFiles.has(path)) {
       response.setHeader('Content-Type', mime[extname(path)])
       response.end(downloadedFiles.get(path)); return
@@ -25,7 +25,7 @@ const server = createServer(async (request, response) => {
   } catch { response.statusCode = 404; response.end('Not found') }
 })
 await new Promise(done => server.listen(0, '127.0.0.1', done))
-const url = `http://127.0.0.1:${server.address().port}/visual-portfolio/`
+const url = `http://127.0.0.1:${server.address().port}/`
 const browser = await chromium.launch({ channel: 'msedge', executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH, headless: true })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, permissions: ['clipboard-read', 'clipboard-write'] })

@@ -8,4 +8,4 @@ The original idea came from Wodniack, remixed and made my own.
 
 Built with Astro, GSAP, Lenis, and SCSS.
 
-[Visit the portfolio](https://ch1mpleo.github.io/visual-portfolio/) · [Development and maintenance](docs/maintenance.md)
+[Visit the portfolio](https://ch1mple.id.vn/) · [Development and maintenance](docs/maintenance.md)

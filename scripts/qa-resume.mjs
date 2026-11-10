@@ -10,7 +10,7 @@ await mkdir(out, { recursive: true })
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.mp4': 'video/mp4', '.pdf': 'application/pdf' }
 const server = createServer(async (request, response) => {
   try {
-    const path = decodeURIComponent(new URL(request.url, 'http://local').pathname).replace(/^\/visual-portfolio/, '')
+    const path = decodeURIComponent(new URL(request.url, 'http://local').pathname)
     const file = resolve('dist', '.' + (path === '/' ? '/index.html' : path))
     if (!file.startsWith(resolve('dist') + sep)) throw new Error('outside dist')
     response.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream')
@@ -18,7 +18,7 @@ const server = createServer(async (request, response) => {
   } catch { response.statusCode = 404; response.end('Not found') }
 })
 await new Promise(done => server.listen(0, '127.0.0.1', done))
-const url = `http://127.0.0.1:${server.address().port}/visual-portfolio/`
+const url = `http://127.0.0.1:${server.address().port}/`
 const browser = await chromium.launch({ channel: 'msedge', headless: true })
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
@@ -65,7 +65,7 @@ try {
   const popupPromise = page.waitForEvent('popup')
   await dialog.getByRole('link', { name: 'Open resume PDF in a new tab' }).click()
   const popup = await popupPromise
-  assert.ok(popup.url().includes('/visual-portfolio/documents/resume.pdf'))
+  assert.equal(popup.url(), new URL('documents/resume.pdf', url).href)
   await popup.close()
   await dialog.getByRole('button', { name: 'Close resume' }).click()
   await trigger.click()

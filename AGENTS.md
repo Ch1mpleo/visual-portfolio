@@ -34,7 +34,7 @@ The current implementation is a design baseline, open to evolution. The user's l
 - Keep demo documents and highlighted source loading on demand. Standalone demo HTML is the source for preview, copying, and downloads; split/highlight it at build time.
 - Keep GOAT's lightweight silent card videos separate from original popup media. Preserve pause/resume behavior and request music audio after user input.
 - Ground project claims in the data and linked source. Preserve contribution attribution and implemented-versus-intended distinctions; add metrics or capability claims only with supporting evidence.
-- Development uses `/`; production uses `/visual-portfolio/`. Respect `import.meta.env.BASE_URL` for public paths. The `compressHTML` setting preserves whitespace behavior after the Astro migration.
+- Development and production use `/`; production is hosted at `https://ch1mple.id.vn/` on GitHub Pages. Respect `import.meta.env.BASE_URL` for public paths. The `compressHTML` setting preserves whitespace behavior after the Astro migration.
 
 ## Verify proportionately
 

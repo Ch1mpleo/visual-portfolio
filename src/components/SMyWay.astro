@@ -3,7 +3,7 @@ import { Image } from 'astro:assets'
 
 import uyImg from '/src/assets/frames/uy.png'
 
-const base = import.meta.env.BASE_URL
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 const spriteVanishUrl = `url('${base}/images/sprite-vanish.png')`
 const assetStarUrl = `url('${base}/images/asset-star.svg')`
 

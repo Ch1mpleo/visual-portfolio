@@ -7,9 +7,8 @@ const __dirname = dirname(__filename);
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://ch1mpleo.github.io',
-  // Only prefix with /visual-portfolio in production; dev server serves public/ from root
-  base: process.env.NODE_ENV === 'production' ? '/visual-portfolio' : '/',
+  site: 'https://ch1mple.id.vn',
+  base: '/',
 
   scopedStyleStrategy: 'class',
   // Preserve HTML whitespace behavior from Astro 5 (Astro 7 defaults to JSX rules).

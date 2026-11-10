@@ -20,17 +20,19 @@
       .topbar button { border: 0; padding: 12px 0 12px 12px; background: none; cursor: pointer; font: inherit; text-transform: inherit; letter-spacing: inherit; }
       .perspective { position: absolute; inset: 0; perspective: 1100px; }
       .rv-world { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
-      .rv-world::after { content: ''; position: absolute; inset: -100vmax; z-index: 100; background: #181422; opacity: var(--shade, 0); transform: translateZ(1px); pointer-events: none; }
+      /* Shade the paper behind the wall; each photograph controls its own focus. */
+      .rv-world::after { content: ''; position: absolute; inset: -100vmax; z-index: 0; background: #181422; opacity: var(--shade, 0); transform: translateZ(-1px); pointer-events: none; }
       .rv-card { position: absolute; left: 50%; top: 50%; width: var(--card-w); height: var(--card-h); margin: calc(var(--card-h) / -2) 0 0 calc(var(--card-w) / -2); padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; backface-visibility: hidden; transform-style: preserve-3d; will-change: transform, opacity; }
       .card-face { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: #b8aa96; box-shadow: 0 6px 20px -14px #0009, inset 0 0 0 1px #fff1; transition: box-shadow .45s cubic-bezier(.22,.65,.22,1); pointer-events: auto; }
       .rv-media { position: absolute; inset: 0; overflow: hidden; }
       .rv-media img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
       .is-portrait .rv-media img { position: absolute; left: 50%; top: 50%; width: var(--media-h); height: var(--media-w); transform: translate(-50%, -50%) rotate(-90deg); }
-      .rv-card .rv-media { --media-w: var(--card-w); --media-h: var(--card-h); }
+      .rv-card .rv-media { --media-w: var(--card-w); --media-h: var(--card-h); transition: filter .38s cubic-bezier(.22,.65,.22,1); }
       .caption { position: absolute; inset: auto 0 0; padding: 35px 12px 13px; color: #fffaf1; background: linear-gradient(transparent, #17100bd9); opacity: 0; transform: translateY(5px); transition: opacity .38s, transform .5s cubic-bezier(.22,.65,.22,1); text-align: left; pointer-events: none; }
       .caption em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic clamp(11px,.9vw,14px)/1.2 Georgia, serif; }
       .scene[data-explorable='false'] .rv-card { pointer-events: none; }
       .scene[data-explorable='false'] .card-face { pointer-events: none; }
+      .scene[data-explorable='true'] .rv-world:has(.is-active) .rv-card:not(.is-active) .rv-media { filter: blur(3px) brightness(.48) saturate(.65); }
       .scene[data-explorable='true'] .rv-card.is-active { z-index: 140 !important; }
       .scene[data-explorable='true'] .rv-card.is-active .caption { opacity: 1; transform: none; }
       .scene[data-explorable='true'] .rv-card.is-active .card-face { box-shadow: 0 25px 48px -18px #0009, 0 5px 16px #0003; }
@@ -62,9 +64,8 @@
       .detail-actions svg { width: 26px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.25; }
       .detail-close { position: fixed; right: 24px; top: 22px; z-index: 6; font-size: 27px; pointer-events: auto; }
       .photo-flight { position: fixed; z-index: 4; flex: none; margin: 0; max-width: none; aspect-ratio: auto; pointer-events: none; transform-origin: center; will-change: transform, clip-path; }
-      .scene[data-explorable='true'] .topbar p,
-      .scene[data-explorable='true'] .topbar button,
-      .scene[data-explorable='true'] .scene-foot > p { padding: 9px 12px; border-radius: 30px; background: #f1e9dbef; }
+      .scene[data-explorable='true'] .topbar,
+      .scene[data-explorable='true'] .scene-foot { display: none; }
       @media (max-width: 600px) {
         .topbar { inset: 15px 18px auto; font-size: 8px; letter-spacing: .06em; }
         .scene-foot { left: 18px; right: 18px; bottom: 13px; font-size: 8px; }
@@ -470,6 +471,7 @@
           if (scene.dataset.progress !== progressText) scene.dataset.progress = progressText
           if (scene.dataset.explorable !== String(explorable)) {
             if(explorable&&!document.activeElement?.closest('.rv-card'))focusIndex=nearestEntry()
+            if(explorable&&document.activeElement===galleryButton)scene.focus({preventScroll:true})
             scene.dataset.explorable=String(explorable);syncCardAccess(explorable)
           }
           const camera = smooth(progress-4)

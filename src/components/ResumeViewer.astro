@@ -1,6 +1,6 @@
 ---
 const resumeUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/documents/resume.pdf`
-const pages = [1, 2].map((page) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/documents/resume-page-${page}.webp`)
+const pages = [1].map((page) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/documents/resume-page-${page}.webp`)
 ---
 
 <dialog id="resume-viewer" class="resume-viewer" aria-labelledby="resume-title" data-lenis-prevent>
@@ -17,7 +17,7 @@ const pages = [1, 2].map((page) => `${import.meta.env.BASE_URL.replace(/\/$/, ''
   <div class="resume-viewer__toolbar">
     <span class="resume-viewer__file">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5Zm0 0v5h5M8 12h8M8 16h6" /></svg>
-      Resume <span class="resume-viewer__format">/ 02 pages</span>
+      Resume <span class="resume-viewer__format">/ 01 page</span>
     </span>
     <div class="resume-viewer__actions">
       <button class="resume-viewer__zoom" type="button" aria-label="Zoom in on resume" aria-pressed="false">
@@ -32,12 +32,12 @@ const pages = [1, 2].map((page) => `${import.meta.env.BASE_URL.replace(/\/$/, ''
     </div>
   </div>
 
-  <div class="resume-viewer__document" tabindex="0" role="region" aria-label="Resume preview, two pages. Use the zoom button for a closer look." data-lenis-prevent>
+  <div class="resume-viewer__document" tabindex="0" role="region" aria-label="Resume preview, one page. Use the zoom button for a closer look." data-lenis-prevent>
     <div class="resume-viewer__pages">
       {pages.map((src, index) => (
         <figure>
-          <img data-src={src} width="1192" height="1686" alt={`Viet Anh's resume, page ${index + 1} of 2. Open the PDF for selectable, accessible text.`} decoding="async" />
-          <figcaption>Viet Anh / Resume <span>0{index + 1} / 02</span></figcaption>
+          <img data-src={src} width="1192" height="1686" alt={`Viet Anh's resume, page ${index + 1} of 1. Open the PDF for selectable, accessible text.`} decoding="async" />
+          <figcaption>Viet Anh / Resume <span>0{index + 1} / 01</span></figcaption>
         </figure>
       ))}
     </div>

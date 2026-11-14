@@ -35,7 +35,7 @@ try {
     assert.equal(await dialog.evaluate(el => el.open), true)
     assert.equal(await page.evaluate(() => window.lenis.isStopped), true)
     await dialog.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())))
-    assert.equal(await dialog.locator('img').count(), 2)
+    assert.equal(await dialog.locator('img').count(), 1)
     const bounds = await dialog.boundingBox()
     assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width, `dialog fits ${width}`)
     const controls = await page.locator('.site-head a:visible, .site-head button:visible').evaluateAll(items => items.map(el => ({ text: el.textContent.trim(), x: el.getBoundingClientRect().x, right: el.getBoundingClientRect().right })))
@@ -75,7 +75,7 @@ try {
   assert.equal(pdf.status(), 200)
   assert.deepEqual(await pdf.body(), await readFile('public/documents/resume.pdf'))
   assert.deepEqual(errors, [])
-  console.log('Resume QA passed: 7 widths, light/dark, two-page preview, zoom, Escape, focus/scroll restoration, close/backdrop, original PDF, new tab and download.')
+  console.log('Resume QA passed: 7 widths, light/dark, one-page preview, zoom, Escape, focus/scroll restoration, close/backdrop, original PDF, new tab and download.')
 } finally {
   await browser.close()
   server.close()

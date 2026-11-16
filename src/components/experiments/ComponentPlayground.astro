@@ -45,6 +45,7 @@ const languages = [
 
 <script>
   import { componentNames } from '../../data/component-names.mjs'
+  import { trackEvent } from '../../utils/analytics'
   type ComponentId = 'cutout' | 'emulsion' | 'reverie'
   type Language = 'html' | 'css' | 'js'
   type SourceFiles = Record<Language, string>
@@ -106,14 +107,17 @@ const languages = [
     }
   }
   function selectView(view: string) {
+    const changed = tabs.some(tab => tab.dataset.playgroundTab === view && tab.getAttribute('aria-selected') !== 'true')
     tabs.forEach(tab => { const selected = tab.dataset.playgroundTab === view; tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1 })
     dialog.querySelector<HTMLElement>('#playground-preview')!.hidden = view !== 'preview'
     dialog.querySelector<HTMLElement>('#playground-code')!.hidden = view !== 'code'
     if (view === 'code') void loadCode()
+    if (changed && dialog.open) trackEvent('component_view', { section_id: 'components', content_id: current, action: view })
   }
   document.querySelectorAll<HTMLButtonElement>('[data-component-open]').forEach(button => button.addEventListener('click', () => {
     const id = button.dataset.componentOpen as ComponentId
     if (id !== 'cutout' && id !== 'emulsion' && id !== 'reverie') return
+    if (dialog.open) return
     current = id; trigger = button; status.textContent = ''; session++; copyVersion++
     resetCode()
     const name = componentNames[id], filename = name.toLowerCase()
@@ -128,6 +132,7 @@ const languages = [
     const lenis = (window as any).lenis
     resumeScroll = Boolean(lenis && !lenis.isStopped)
     lenis?.stop(); dialog.showModal()
+    trackEvent('component_open', { section_id: 'components', content_id: current })
     selectView(button.dataset.componentView || 'preview')
     tabs.find(tab => tab.getAttribute('aria-selected') === 'true')?.focus({ preventScroll: true })
   }))
@@ -150,6 +155,9 @@ const languages = [
     })
   })
   dialog.querySelector('[data-playground-close]')!.addEventListener('click', () => dialog.close())
+  dialog.querySelector('[data-playground-download]')!.addEventListener('click', () => {
+    trackEvent('component_download', { section_id: 'components', content_id: current, language: 'complete' })
+  })
   // Escape originating inside a preview's browsing context does not bubble to the dialog.
   window.addEventListener('message', e => { if (e.origin === location.origin && e.source === frame.contentWindow && e.data?.type === 'component-escape' && dialog.open) dialog.close() })
   dialog.addEventListener('click', e => { if (e.target !== dialog) return; const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close() })
@@ -166,6 +174,7 @@ const languages = [
         pane.parentElement!.querySelectorAll<HTMLElement>('[data-copied]').forEach(button => { delete button.dataset.copied })
         copy.dataset.copied = 'true'
         status.textContent = `Copied ${componentNames[current].toLowerCase()}.${language}.`
+        trackEvent('component_copy', { section_id: 'components', content_id: current, language })
       } catch {
         if (version !== copyVersion) return
         const code = pane.querySelector('code')!
@@ -184,6 +193,7 @@ const languages = [
       document.body.append(link); link.click(); link.remove()
       setTimeout(() => URL.revokeObjectURL(url), 1000)
       status.textContent = `Downloaded ${filename}.${language}.`
+      trackEvent('component_download', { section_id: 'components', content_id: current, language })
     })
   })
 </script>

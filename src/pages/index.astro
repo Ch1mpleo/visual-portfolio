@@ -15,6 +15,7 @@ import SMyWay from '../components/SMyWay.astro'
 import SCTA from '../components/SCTA.astro'
 import ASeparator from '../components/ASeparator.astro'
 import MusicPlayer from '../components/MusicPlayer.astro'
+import Analytics from '../components/Analytics.astro'
 
 import '../styles/global.scss'
 
@@ -135,17 +136,6 @@ const publicBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
       type="font/woff2"
       crossorigin="anonymous"
     />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH2J4YXLP3"
-    ></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || []
-      function gtag() {
-        dataLayer.push(arguments)
-      }
-      gtag('js', new Date())
-      gtag('config', 'G-RH2J4YXLP3')
-    </script>
   </head>
 
   <body>
@@ -186,6 +176,7 @@ const publicBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`
     <ComponentPlayground />
 
     <MusicPlayer />
+    <Analytics />
 
     <div
       class="site-intro js-intro"

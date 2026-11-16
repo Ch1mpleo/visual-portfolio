@@ -1,0 +1,47 @@
+---
+const clarityId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID || ''
+---
+
+<aside class="recording-preferences" data-recording-preferences data-clarity-id={clarityId} data-production={String(import.meta.env.PROD)} hidden aria-label="Session recording preferences">
+  <div class="recording-preferences__panel" id="recording-preferences-panel" data-recording-panel data-lenis-prevent hidden>
+    <p class="recording-preferences__eyebrow">A better playground</p>
+    <h2>Mind if I learn from your visit?</h2>
+    <p>Optional Microsoft Clarity heatmaps and session recordings help me see what works here. Input fields are masked. Basic Google Analytics counts and click events are separate.</p>
+    <p><a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener noreferrer">Microsoft privacy statement ↗</a></p>
+    <p class="recording-preferences__status" data-recording-status aria-live="polite"></p>
+    <div class="recording-preferences__actions">
+      <button type="button" data-recording-allow>Allow recording</button>
+      <button type="button" data-recording-deny>No recording</button>
+    </div>
+  </div>
+  <button class="recording-preferences__toggle" type="button" data-recording-toggle aria-controls="recording-preferences-panel" aria-expanded="false">Recording preferences</button>
+</aside>
+
+<script>
+  import { startAnalytics, installInteractionTracking } from '../utils/analytics'
+  import { installRecordingPreferences } from '../utils/recording-consent'
+  const root = document.querySelector<HTMLElement>('[data-recording-preferences]')!
+  const enabled = startAnalytics(root.dataset.production === 'true', 'G-RH2J4YXLP3')
+  if (enabled) installInteractionTracking()
+  installRecordingPreferences(root, enabled)
+</script>
+
+<style lang="scss">
+  .recording-preferences {
+    position: fixed; z-index: 40; left: max(1rem, env(safe-area-inset-left)); bottom: max(1rem, env(safe-area-inset-bottom));
+    color: color(secondary); font: 400 14px / 1.5 font-family(editorial);
+    &[hidden], [hidden] { display: none !important; }
+    button, a { color: inherit; }
+    button { min-height: 44px; padding: .65rem .9rem; border: 1px solid color(line); background: color(primary); cursor: pointer; font: 400 11px / 1.4 font-family(fraktion); }
+    button:focus-visible, a:focus-visible { outline: 2px solid color(accent); outline-offset: 3px; }
+    &__toggle { box-shadow: 0 2px 12px rgb(0 0 0 / .08); }
+    &__panel { width: min(380px, calc(100vw - 2rem)); max-height: calc(100dvh - 7rem); overflow-y: auto; overscroll-behavior: contain; margin-bottom: .5rem; padding: 1.25rem; border: 1px solid color(line); background: color(primary); box-shadow: 0 10px 40px rgb(0 0 0 / .12); }
+    h2 { margin: .5rem 0 .8rem; font: 400 1.65rem / 1.1 font-family(editorial); letter-spacing: -.03em; }
+    p { margin: .75rem 0; }
+    &__eyebrow { font: 400 10px / 1.4 font-family(fraktion); text-transform: uppercase; letter-spacing: .06em; }
+    &__status { color: color(muted); }
+    &__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+    [data-recording-allow] { color: color(primary); background: color(secondary); }
+  }
+  :global(html.is-project-viewer-open) .recording-preferences { visibility: hidden; }
+</style>

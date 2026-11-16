@@ -1,5 +1,5 @@
 ---
-const { caption, cssClass, index, src, cardSrc, poster, total, popup } = Astro.props
+const { caption, cssClass, index, src, cardSrc, poster, total, popup, analyticsId } = Astro.props
 
 // A random string with the syntax '[a-z][0-9]{3}-index-total'
 const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
@@ -10,6 +10,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
   data-src={src}
   data-card-src={cardSrc}
   data-caption={caption}
+  data-analytics-id={analyticsId}
   data-popup={popup ? 'true' : 'false'}
 >
   <div class="a__inner">
@@ -126,6 +127,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
             detail: {
               src: this.dataset.src,
               caption: this.dataset.caption,
+              contentId: this.dataset.analyticsId,
             },
           }),
         )

@@ -36,6 +36,7 @@
 
 <script>
   import { gsap } from 'gsap'
+  import { trackEvent } from '../utils/analytics'
 
   class VideoPopup {
     el: HTMLElement
@@ -70,7 +71,7 @@
 
     bindEvents() {
       document.addEventListener('open-video-popup', (e: any) => {
-        this.open(e.detail.src, e.detail.caption)
+        this.open(e.detail.src, e.detail.caption, e.detail.contentId)
       })
 
       this.closeBtn.addEventListener('click', () => this.close())
@@ -89,7 +90,7 @@
       })
     }
 
-    open(src: string, captionText: string) {
+    open(src: string, captionText: string, contentId?: string) {
       if (this.isOpen) return
       this.isOpen = true
       this.lastFocus = document.activeElement as HTMLElement
@@ -107,6 +108,7 @@
       this.status.textContent = ''
       this.status.hidden = true
       this.el.setAttribute('aria-hidden', 'false')
+      trackEvent('goat_video_open', { section_id: 'work', content_id: contentId })
       this.closeBtn.focus()
 
       // Kill any running tween

@@ -16,6 +16,7 @@ function dataModule(path) {
 const projectData = dataModule('../src/data/projects.ts')
 
 function setup(projectId = 'oboxsteam') {
+  const analytics = []
   const frames = []
   const locks = new Set()
   const pageScrolls = []
@@ -55,6 +56,7 @@ function setup(projectId = 'oboxsteam') {
     window: { scrollX: 0, scrollY: 1200, scrollTo: (x, y) => pageScrolls.push([x, y]), lenis },
     matchMedia: () => ({ matches: true }),
     require(name) {
+      if (name.endsWith('/analytics')) return { trackEvent: (...args) => analytics.push(args) }
       if (name.endsWith('/projects')) return projectData
       if (name === './ProjectViewerMotion') return { ProjectViewerMotion: Motion }
       if (name === './OboxDetailController') return { OboxDetailController: Obox }
@@ -68,8 +70,17 @@ function setup(projectId = 'oboxsteam') {
   viewer.open(projectId, trigger)
   const flushFrames = () => { while (frames.length) frames.shift()() }
   flushFrames()
-  return { viewer, panels, chapters, story: stories[0], nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames }
+  return { viewer, panels, chapters, story: stories[0], nodes, dialog, document, trigger, locks, lenis, pageScrolls, flushFrames, analytics }
 }
+
+test('analytics counts successful project opens and switches, ignoring repeated opens', () => {
+  const s = setup()
+  assert.deepEqual(JSON.parse(JSON.stringify(s.analytics)), [['project_open', { section_id: 'builds', content_id: 'oboxsteam', action: 'open' }]])
+  s.viewer.open('graphpaper', s.trigger)
+  assert.equal(s.analytics.length, 1)
+  s.viewer.switchProject(1)
+  assert.deepEqual(JSON.parse(JSON.stringify(s.analytics.at(-1))), ['project_open', { section_id: 'builds', content_id: 'graphpaper', action: 'next' }])
+})
 
 test('project switches expose one complete story and reset its shared scroll position', () => {
   const s = setup()

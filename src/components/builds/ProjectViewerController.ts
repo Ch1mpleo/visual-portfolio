@@ -3,6 +3,7 @@ import { OPEN_PROJECT } from './viewerEvents'
 import { ProjectViewerMotion } from './ProjectViewerMotion'
 import { OboxDetailController } from './OboxDetailController'
 import { ScrollStory } from './ScrollStory'
+import { trackEvent } from '../../utils/analytics'
 
 type ViewerState = 'closed' | 'opening' | 'open' | 'closing'
 
@@ -78,6 +79,7 @@ export class ProjectViewerController {
     window.lenis?.stop()
     document.documentElement.classList.add('is-project-viewer-open')
     this.dialog.showModal()
+    trackEvent('project_open', { section_id: 'builds', content_id: projectId, action: 'open' })
     // A closed dialog has no layout, so reset its scroller after showModal.
     this.scroller.scrollTop = 0
     this.syncFilm()
@@ -121,6 +123,7 @@ export class ProjectViewerController {
     this.projectId = projects[(index + direction + projects.length) % projects.length].id
     this.resetProject()
     this.fadeActivePanel()
+    trackEvent('project_open', { section_id: 'builds', content_id: this.projectId, action: direction > 0 ? 'next' : 'previous' })
   }
 
   private resetProject() {

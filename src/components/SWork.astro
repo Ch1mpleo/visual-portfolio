@@ -48,6 +48,7 @@ const originals = {
   TheCuriosityGene: `${base}goats/full/TheCuriosityGene.mp4`,
 }
 const works = videoNames.map((filename) => ({
+  analyticsId: filename,
   caption: filename.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Za-z])(\d)/g, '$1 $2'),
   src: originals[filename],
   cardSrc: `${base}goats/full/${filename}.mp4`,
@@ -55,7 +56,7 @@ const works = videoNames.map((filename) => ({
 }))
 ---
 
-<section id="work" class="s-work" data-intersect>
+<section id="work" class="s-work" data-intersect data-analytics-section="work">
   <div class="s__outer">
     <div class="s__inner js-container">
       <h2 class="s__title">
@@ -73,6 +74,7 @@ const works = videoNames.map((filename) => ({
             <AWork
               cssClass="s__scene__work s__scene__work--video js-work"
               caption={work.caption}
+              analyticsId={work.analyticsId}
               src={work.src}
               cardSrc={work.cardSrc}
               poster={work.poster}

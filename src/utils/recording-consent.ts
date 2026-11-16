@@ -30,6 +30,7 @@ export function installRecordingPreferences(root: HTMLElement, enabled: boolean)
   const id = root.dataset.clarityId || ''
   if (!enabled || !/^[a-z0-9]{5,24}$/.test(id)) return
   const toggle = root.querySelector<HTMLButtonElement>('[data-recording-toggle]')!
+  const toggleState = root.querySelector<HTMLElement>('[data-recording-toggle-state]')!
   const panel = root.querySelector<HTMLElement>('[data-recording-panel]')!
   const status = root.querySelector<HTMLElement>('[data-recording-status]')!
   let script: HTMLScriptElement | undefined
@@ -81,11 +82,16 @@ export function installRecordingPreferences(root: HTMLElement, enabled: boolean)
     root.hidden = false
     panel.hidden = !expanded
     toggle.setAttribute('aria-expanded', String(expanded))
-    toggle.textContent = `Recording: ${consent.choice === 'granted' ? 'allowed' : 'off'}`
-    status.textContent = consent.choice === 'granted' ? 'You have allowed session recording.' : 'Session recording is off.'
+    const allowed = consent.choice === 'granted'
+    root.dataset.recordingState = allowed ? 'allowed' : 'off'
+    toggleState.textContent = allowed ? 'Allowed' : 'Off'
+    toggle.setAttribute('aria-label', `Privacy preferences. Recording is ${allowed ? 'allowed' : 'off'}.`)
+    const statusText = allowed ? 'Recording allowed' : 'Recording off'
+    if (status.textContent !== statusText) status.textContent = statusText
   }
-  const close = () => { render(); if (panel.contains(document.activeElement)) toggle.focus({ preventScroll: true }) }
+  const close = () => { const returnFocus = panel.contains(document.activeElement); render(); if (returnFocus) toggle.focus({ preventScroll: true }) }
   toggle.addEventListener('click', () => render(panel.hidden))
+  root.querySelector('[data-recording-close]')!.addEventListener('click', close)
   root.querySelector('[data-recording-allow]')!.addEventListener('click', () => { consent.setChoice('granted'); close() })
   root.querySelector('[data-recording-deny]')!.addEventListener('click', () => { consent.setChoice('denied'); close() })
   panel.addEventListener('keydown', event => {

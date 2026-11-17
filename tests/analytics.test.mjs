@@ -99,34 +99,3 @@ test('section observation uses viewport height and rebuilds when the viewport ch
   listeners.resize()
   assert.equal(configurations[1].rootMargin, '-175px 0px -175px 0px')
 })
-
-function recording(storageValue = null, blockedStorage = false) {
-  const calls = [], values = new Map(storageValue ? [['portfolio-recordings', storageValue]] : [])
-  const storage = { getItem: key => { if (blockedStorage) throw Error('blocked'); return values.get(key) ?? null }, setItem: (key, value) => { if (blockedStorage) throw Error('blocked'); values.set(key, value) } }
-  const api = load('../src/utils/recording-consent.ts')
-  assert.equal(typeof api.createRecordingConsent, 'function')
-  const consent = api.createRecordingConsent({ storage, load: () => calls.push('load'), stop: () => calls.push('stop') })
-  return { consent, calls, values }
-}
-test('recording is off until explicitly granted; stored grants resume and denial stops', () => {
-  const s = recording()
-  assert.deepEqual(s.calls, [])
-  assert.equal(s.consent.choice, null)
-  s.consent.setChoice('granted')
-  s.consent.setChoice('granted')
-  assert.deepEqual(s.calls, ['load'])
-  s.consent.setChoice('denied')
-  assert.deepEqual(s.calls, ['load', 'stop'])
-  assert.equal(s.values.get('portfolio-recordings'), 'denied')
-  assert.deepEqual(recording('granted').calls, ['load'])
-  assert.deepEqual(recording('denied').calls, [])
-  assert.deepEqual(recording('unexpected').calls, [])
-})
-test('recording honors cross-tab removal and works without persistent storage', () => {
-  const s = recording(null, true)
-  assert.doesNotThrow(() => s.consent.setChoice('granted'))
-  assert.deepEqual(s.calls, ['load'])
-  s.consent.syncChoice(null)
-  assert.deepEqual(s.calls, ['load', 'stop'])
-  assert.equal(s.consent.choice, null)
-})

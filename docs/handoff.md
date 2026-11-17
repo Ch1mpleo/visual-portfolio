@@ -4,6 +4,5 @@
 - Property: Portfolio (526674478), account 386174792, stream 13695697883, measurement ID G-RH2J4YXLP3.
 - Update the stream's saved website URL from https://ch1mpleo.github.io/visual-portfolio/ to https://ch1mple.id.vn/. Reports already confirm traffic from the new domain.
 - Analytics MCP is authenticated with read-only tools. Account/report access is verified; use the Analytics dashboard for report-setting changes.
-- Clarity project zei2ztywey is configured through PUBLIC_CLARITY_PROJECT_ID in local .env and GitHub Actions. Reporting recipes/dashboard links are in docs/maintenance.md.
 - The Google OAuth app is in Testing; authorization expires after seven days and must be renewed using the local Desktop client file.
-- Previous browser configuration was stopped with Escape; report settings remain unfinished. Next: register the dimensions/update the stream URL and verify new events/consenting recordings on the deployed site.
+- Previous browser configuration was stopped with Escape; report settings remain unfinished. Next: register the dimensions/update the stream URL and verify new GA4 events on the deployed site.

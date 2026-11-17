@@ -26,47 +26,27 @@ const origin = 'https://qa.ch1mple.id.vn'
 const browser = await chromium.launch({ channel: 'msedge', headless: true })
 const errors = [], providerRequests = []
 
-async function context({ configured = true, clarityDelay = 0, ...options } = {}) {
+async function context(options = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', ...options })
   await ctx.route('**/*', async route => {
     const url = new URL(route.request().url())
     if (url.origin === origin) {
       const response = await ctx.request.get(local + url.pathname + url.search)
-      if (url.pathname === '/') {
-        let body = await response.text()
-        body = body.replace(/data-clarity-id(?:="[^"]*"|(?=\s))/, configured ? 'data-clarity-id="qa12345"' : 'data-clarity-id')
-        await route.fulfill({ response, body })
-      } else await route.fulfill({ response })
+      await route.fulfill({ response })
     } else if (url.origin === local) await route.continue()
     else {
       providerRequests.push(url.href)
-      if (url.hostname === 'www.clarity.ms' && url.pathname.startsWith('/tag/')) {
-        if (clarityDelay) await new Promise(done => setTimeout(done, clarityDelay))
-        // Emulate the SDK's stopped queue and denied-consent restart. No data leaves QA.
-        await route.fulfill({ contentType: 'application/javascript', body: `
-          setTimeout(() => {
-          window.__clarityCalls = []; window.__clarityActive = true; window.__clarityRestarts = 0;
-          document.cookie = '_clck=bootstrap; Path=/'; document.cookie = '_clsk=bootstrap; Domain=ch1mple.id.vn; Path=/';
-          function queue() { const queued = (...args) => { (queued.q ||= []).push(args); if (args[0] === 'start') { queued.q.unshift(queued.q.pop()); process(); } }; window.clarity = queued; }
-          function command(...args) {
-            window.__clarityCalls.push(args);
-            if (args[0] === 'metadata' && window.__clarityActive) args[1]();
-            if (args[0] === 'start') window.__clarityActive = true;
-            if (args[0] === 'stop' && window.__clarityActive) { window.__clarityActive = false; queue(); }
-            if (args[0] === 'consentv2' && args[1].analytics_Storage === 'denied' && window.__clarityActive) {
-              window.__clarityActive = false; queue(); setTimeout(() => { window.__clarityRestarts++; window.__clarityActive = true; process(); }, 50);
-            }
-          }
-          function process() { const calls = window.clarity.q || []; window.clarity = command; while (calls.length) window.clarity(...calls.shift()); }
-          process();
-          }, 25);
-        ` })
-      } else if (url.hostname === 'www.googletagmanager.com') await route.fulfill({ contentType: 'application/javascript', body: '/* offline GA provider */' })
+      if (url.hostname === 'www.googletagmanager.com') await route.fulfill({ contentType: 'application/javascript', body: '/* offline GA provider */' })
       else await route.abort()
     }
   })
   ctx.on('page', page => page.on('pageerror', error => errors.push(error.message)))
   return ctx
+}
+async function assertNoRecording(page) {
+  assert.equal(await page.locator('[data-recording-preferences], [data-recording-panel], [data-recording-toggle]').count(), 0, 'recording controls are removed from the page')
+  assert.equal(await page.evaluate(() => typeof window.clarity), 'undefined', 'no recording SDK is initialized')
+  assert.equal(providerRequests.some(url => new URL(url).hostname.endsWith('clarity.ms')), false, 'no Clarity requests')
 }
 async function open(ctx, url = origin) {
   const page = await ctx.newPage()
@@ -83,37 +63,12 @@ async function waitEvent(page, name, count = 1) {
 try {
   const ctx = await context()
   const page = await open(ctx)
-  const panel = page.locator('[data-recording-panel]')
-  assert.equal(await panel.isVisible(), true)
-  assert.equal(await page.locator('[data-recording-close]').count(), 1, 'privacy panel has an explicit close control')
-  assert.equal(providerRequests.filter(url => url.includes('clarity.ms')).length, 0, 'no recording script before opt-in')
-  await page.locator('[data-recording-close]').click()
-  assert.equal(await panel.isVisible(), false)
-  assert.equal(await page.evaluate(() => localStorage.getItem('portfolio-recordings')), null, 'closing never grants or denies consent')
-  assert.equal(await page.locator('[data-recording-toggle]').evaluate(el => document.activeElement === el), true)
-  await page.locator('[data-recording-toggle]').click()
-  await page.locator('[data-recording-deny]').click()
-  assert.equal(await panel.isVisible(), false)
-  assert.equal(await page.locator('[data-recording-toggle]').evaluate(el => document.activeElement === el), true, 'consent action returns focus')
+  await assertNoRecording(page)
+  assert.equal(providerRequests.filter(url => url.includes('googletagmanager.com/gtag/js?id=G-RH2J4YXLP3')).length, 1, 'GA4 still loads')
+  await page.evaluate(() => localStorage.setItem('portfolio-recordings', 'granted'))
   await page.reload({ waitUntil: 'load' })
   await page.locator('.site-intro').waitFor({ state: 'detached' })
-  assert.equal(await panel.isVisible(), false, 'decline persists')
-  assert.equal(providerRequests.filter(url => url.includes('clarity.ms')).length, 0)
-  await page.locator('[data-recording-toggle]').click()
-  await page.locator('[data-recording-allow]').click()
-  await page.waitForFunction(() => Array.isArray(window.__clarityCalls))
-  assert.equal(await page.evaluate(() => window.__clarityCalls[0][1].ad_Storage), 'denied', 'recording opt-in does not opt into ads')
-  const second = await open(ctx)
-  await second.waitForFunction(() => Array.isArray(window.__clarityCalls))
-  await page.locator('[data-recording-toggle]').click()
-  await page.locator('[data-recording-deny]').click()
-  await second.waitForFunction(() => window.__clarityCalls.some(call => call[0] === 'stop'))
-  await second.waitForTimeout(100)
-  assert.equal(await second.evaluate(() => window.__clarityActive), false, 'revocation must not restart cookieless recording')
-  assert.equal(await second.evaluate(() => window.__clarityRestarts), 0, 'revocation must not briefly restart recording before another stop')
-  assert.equal(await second.locator('[data-recording-toggle]').getAttribute('aria-label'), 'Privacy preferences. Recording is off.', 'cross-tab revocation updates the accessible state')
-  await second.close()
-  console.log('Consent QA passed: default off, persisted decline, explicit grant, ads denied, focus return and cross-tab revocation.')
+  await assertNoRecording(page)
 
   const trigger = page.locator('[data-open-project="oboxsteam"]')
   await trigger.click()
@@ -177,18 +132,11 @@ try {
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 })
-    await page.locator('[data-recording-toggle]').click()
     for (const theme of ['light', 'dark']) {
       await page.evaluate(dark => document.documentElement.classList.toggle('theme-dark', dark), theme === 'dark')
-      const box = await panel.boundingBox()
-      assert.ok(box && box.x >= 0 && box.x + box.width <= width && box.y >= 0, `preference panel fits ${width}/${theme}`)
-      assert.equal(await panel.evaluate(el => el.getAnimations({ subtree: true }).length), 0, 'reduced motion keeps privacy controls still')
-      await page.screenshot({ path: resolve(out, `preferences-${width}-${theme}.png`) })
+      await assertNoRecording(page)
+      await page.screenshot({ path: resolve(out, `ga-only-${width}-${theme}.png`) })
     }
-    await page.locator('[data-recording-deny]').focus()
-    await page.keyboard.press('Escape')
-    assert.equal(await panel.isVisible(), false)
-    assert.equal(await page.locator('[data-recording-toggle]').evaluate(el => document.activeElement === el), true)
   }
   await page.evaluate(() => { window.gtag = () => { throw Error('blocked provider') } })
   await page.locator('[data-open-resume]').click()
@@ -196,63 +144,19 @@ try {
   await page.keyboard.press('Escape')
   await ctx.close()
 
-  const slow = await context({ clarityDelay: 1000 })
-  const slowPage = await open(slow)
-  await slowPage.evaluate(() => {
-    const allow = document.querySelector('[data-recording-allow]'), deny = document.querySelector('[data-recording-deny]'), toggle = document.querySelector('[data-recording-toggle]')
-    allow.click(); toggle.click(); deny.click(); toggle.click(); allow.click(); toggle.click(); deny.click()
-  })
-  await slowPage.waitForFunction(() => Array.isArray(window.__clarityCalls))
-  assert.equal(await slowPage.evaluate(() => window.__clarityActive), false, 'late bootstrap honors rapid grant/revoke decisions')
-  assert.equal(await slowPage.evaluate(() => /_clck=|_clsk=/.test(document.cookie)), false, 'late runtime startup cannot leave cookies after revoke')
-  await slowPage.locator('[data-recording-toggle]').click()
-  await slowPage.locator('[data-recording-allow]').click()
-  await slowPage.waitForFunction(() => window.__clarityActive === true)
-  await slowPage.evaluate(() => { document.cookie = '_clck=qa; Path=/'; document.cookie = '_clsk=qa; Domain=ch1mple.id.vn; Path=/' })
-  await slowPage.locator('[data-recording-toggle]').click()
-  await slowPage.locator('[data-recording-deny]').click()
-  assert.equal(await slowPage.evaluate(() => /_clck=|_clsk=/.test(document.cookie)), false, 'revocation expires Clarity cookies at both domain scopes')
-  await slowPage.setViewportSize({ width: 1440, height: 340 })
-  await slowPage.locator('[data-recording-toggle]').click()
-  const shortPanel = slowPage.locator('[data-recording-panel]')
-  assert.equal(await shortPanel.evaluate(el => el.scrollHeight > el.clientHeight), true, 'short viewport exercises an overflowing panel')
-  await shortPanel.hover()
-  const backgroundPosition = await slowPage.evaluate(() => window.scrollY)
-  await slowPage.mouse.wheel(0, 500)
-  await slowPage.waitForFunction(() => document.querySelector('[data-recording-panel]').scrollTop > 0, null, { timeout: 5000 })
-  assert.equal(await slowPage.evaluate(() => window.scrollY), backgroundPosition, 'short consent panel scrolls independently of Lenis')
-  await slowPage.screenshot({ path: resolve(out, 'preferences-short-viewport.png') })
-  await slow.close()
-  console.log('Lifecycle QA passed: delayed bootstrap, rapid choices, regrant, full stop without restart, cookie cleanup and short-height panel scrolling.')
-
-  const noId = await context({ configured: false })
-  const withoutId = await open(noId)
-  assert.equal(await withoutId.locator('[data-recording-preferences]').isVisible(), false, 'missing Clarity ID disables recording UI')
-  await noId.close()
   const beforeLocal = providerRequests.length
   const localContext = await context()
   const localPage = await open(localContext, local)
-  assert.equal(await localPage.locator('[data-recording-preferences]').isVisible(), false)
+  await assertNoRecording(localPage)
   assert.equal(await localPage.evaluate(() => window.dataLayer), undefined)
   assert.equal(providerRequests.length, beforeLocal, 'local production preview sends no provider requests')
   await localContext.close()
   const motionContext = await context({ reducedMotion: 'no-preference' })
   const motionPage = await open(motionContext)
-  await motionPage.locator('[data-recording-close]').click()
-  await motionPage.locator('[data-recording-toggle]').click()
-  assert.equal(await motionPage.locator('[data-recording-panel]').evaluate(el => el.getAnimations().some(animation => animation.playState === 'running')), true, 'panel opens with a finite reveal')
-  await motionPage.emulateMedia({ reducedMotion: 'reduce' })
-  await motionPage.waitForFunction(() => document.querySelector('[data-recording-panel]').getAnimations().length === 0)
-  assert.equal(await motionPage.locator('[data-recording-panel]').evaluate(el => getComputedStyle(el).opacity), '1', 'changing motion preference leaves the panel fully visible')
-  await motionPage.evaluate(() => {
-    const toggle = document.querySelector('[data-recording-toggle]')
-    toggle.click(); toggle.click(); toggle.click()
-  })
-  assert.equal(await motionPage.locator('[data-recording-panel]').isVisible(), false, 'rapid toggles settle closed')
-  assert.equal(await motionPage.locator('[data-recording-toggle]').getAttribute('aria-expanded'), 'false')
+  await assertNoRecording(motionPage)
   await motionContext.close()
   assert.deepEqual(errors, [])
-  console.log('Analytics QA passed: desktop/phone, light/dark, reduced motion, Escape, blocked providers, missing ID and local preview; all external requests intercepted.')
+  console.log('Analytics QA passed: GA4 retained; recording UI and SDK absent for new and previously opted-in visitors; desktop/phone, light/dark, reduced motion, blocked providers and local isolation checked. All external requests intercepted.')
 } finally {
   await browser.close()
   server.close()

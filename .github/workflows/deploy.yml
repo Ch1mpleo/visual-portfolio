@@ -29,8 +29,6 @@ jobs:
           lfs: true
       - name: Install, build, and upload your site
         uses: withastro/action@v3
-        env:
-          PUBLIC_CLARITY_PROJECT_ID: ${{ vars.PUBLIC_CLARITY_PROJECT_ID }}
         with:
           node-version: '22.23.4'
 

@@ -100,7 +100,7 @@ export function installInteractionTracking(): void {
   const click = (event: MouseEvent) => {
     if (!(event.target instanceof Element)) return
     const element = event.target.closest<HTMLElement>('a[href], button, [data-arch-select]')
-    if (!element || element.matches(':disabled, [inert]') || element.closest('[inert], [data-recording-preferences]')) return
+    if (!element || element.matches(':disabled, [inert]') || element.closest('[inert]')) return
     const parameters = context(element)
     if (element.hasAttribute('data-arch-select')) {
       trackEvent('project_inspect', { ...parameters, action: element.dataset.archSelect })

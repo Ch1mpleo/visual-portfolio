@@ -1,0 +1,6 @@
+/**
+ * Declare cascade layers in precedence order so runtime behavior CSS from
+ * @ui-sdk/web and our editorial defaults always sit below unlayered section
+ * and component styles.
+ */
+@layer ui-sdk, ui-sdk-defaults;

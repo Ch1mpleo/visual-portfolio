@@ -2,6 +2,9 @@
  * Global style entry file
  */
 
+/* Cascade layer declaration for @ui-sdk/web runtime rules */
+@use 'site/layers';
+
 /* CSS variables */
 @use 'variables-css/colors';
 @use 'variables-css/fonts';
@@ -10,6 +13,7 @@
 @use 'site/base';
 @use 'site/text';
 @use 'site/theme-transition';
+@use 'components/ui-sdk';
 
 /* Utility classes */
 @use 'utilities/visibility';

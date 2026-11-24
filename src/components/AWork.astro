@@ -1,12 +1,14 @@
 ---
 const { caption, cssClass, index, src, cardSrc, poster, total, popup, analyticsId } = Astro.props
+const isLetter = Astro.slots.has('default')
+const Content = isLetter ? 'div' : 'button'
 
 // A random string with the syntax '[a-z][0-9]{3}-index-total'
-const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
+const key = isLetter ? undefined : Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 ---
 
 <a-work
-  class={cssClass}
+  class:list={[cssClass, { 'a-work--letter': isLetter }]}
   data-src={src}
   data-card-src={cardSrc}
   data-caption={caption}
@@ -14,29 +16,32 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
   data-popup={popup ? 'true' : 'false'}
 >
   <div class="a__inner">
-    <button class="a__btn" type="button" aria-label={`Watch ${caption} with sound`}>
-      <video
-        class="a__video js-video"
-        poster={poster}
-        preload="none"
-        loop
-        muted
-        playsinline
-        width="1082"
-        height="636"
-      >
-      </video>
+    <Content
+      class={isLetter ? undefined : 'a__btn'}
+      type={isLetter ? undefined : 'button'}
+      aria-label={isLetter ? undefined : `Watch ${caption} with sound`}
+    >
+      {isLetter ? <slot /> : (
+        <video
+          class="a__video js-video"
+          poster={poster}
+          preload="none"
+          loop
+          muted
+          playsinline
+          width="1082"
+          height="636"
+        ></video>
+      )}
 
       <div class="a__caption">
         <div class="a__caption__text">
           {caption}
         </div><!-- .a__caption__text -->
 
-        <div class="a__caption__key">
-          #{key}
-        </div><!-- .a__caption__key -->
+        {key && <div class="a__caption__key">#{key}</div>}
       </div><!-- .a__caption -->
-    </button>
+    </Content>
   </div><!-- .a__inner -->
 </a-work>
 
@@ -55,6 +60,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     connectedCallback() {
       // Elements
       this.video = this.querySelector('.js-video')
+      if (!this.video) return
       this.btn = this.querySelector('.a__btn')
 
       // Properties
@@ -74,6 +80,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'progress') {
         this.style.setProperty('--progress', newValue)
+
+        if (this.classList.contains('a-work--letter')) {
+          this.classList.toggle('is-inview', newValue !== '1' && newValue !== '-1')
+          return
+        }
 
         if (newValue === '1' || newValue === '-1') {
           if (this.isPlaying) {
@@ -212,6 +223,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       @include mq(phone) {
         display: none;
       }
+    }
+
+    &.a-work--letter .a__caption {
+      display: flex;
+      justify-content: flex-start;
     }
 
     &.is-inview {

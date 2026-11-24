@@ -1,5 +1,6 @@
 ---
 import AWork from './AWork.astro'
+import { vaMarkPaths } from '../utils/brand-marks'
 import ArcRaiderOriginal from '../assets/goats/ArcRaider.mp4'
 import ArthurOriginal from '../assets/goats/Arthur.mp4'
 import Arthur2Original from '../assets/goats/Arthur2.mp4'
@@ -69,6 +70,24 @@ const works = videoNames.map((filename) => ({
       </h2>
 
       <div class="s__scene js-scene">
+        <AWork
+          cssClass="s__scene__work s__scene__work--letter js-work"
+          caption="Prologue"
+        >
+          <div class="s__letter">
+            <span class="s__letter__quote" aria-hidden="true">“</span>
+            <p>
+              A collection of edits from stories that shaped me. I come back to them
+              for a little inspiration to keep pushing forward. And sometimes, just
+              to remember why I started this journey in the first place.
+            </p>
+            <p class="s__letter__signature">
+              <svg viewBox="0 0 280 280" role="img" aria-label="VA">
+                {vaMarkPaths.map((path) => <path d={path} fill="currentColor" />)}
+              </svg>
+            </p>
+          </div>
+        </AWork>
         {
           works.map((work, index) => (
             <AWork
@@ -99,21 +118,6 @@ const works = videoNames.map((filename) => ({
       </div><!-- .s__mask -->
     </div><!-- .s__mask-outer -->
 
-    <div class="s__intro js-reel-intro">
-      <div class="s__intro__copy">
-        <p class="s__intro__label">GOAT</p>
-        <p class="s__intro__description">
-          A collection of edits from stories that shaped me. I come back to them
-          for a little inspiration to keep pushing forward. And sometimes, just
-          to remember why I started this journey in the first place.
-        </p>
-        <span class="s__intro__track" aria-hidden="true">
-          <span class="s__intro__progress js-reel-progress"></span>
-        </span>
-        <p class="s__intro__hint">Scroll to play <span aria-hidden="true">↓</span></p>
-      </div>
-    </div>
-
     <div class="s__ruler js-ruler"></div>
   </div><!-- .s__outer -->
 </section>
@@ -135,7 +139,6 @@ const works = videoNames.map((filename) => ({
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     title: HTMLElement
-    intro: HTMLElement
 
     mask: {
       width: number
@@ -184,7 +187,6 @@ const works = videoNames.map((filename) => ({
       this.canvas = this.container.querySelector('.js-canvas')
       this.ctx = this.canvas.getContext('2d')
       this.title = this.container.querySelector('.js-title')
-      this.intro = this.el.querySelector('.js-reel-intro')
 
       // Properties
       this.mask = {
@@ -506,7 +508,8 @@ const works = videoNames.map((filename) => ({
     setWorks() {
       const { works } = this
 
-      works.forEach((work, i) => {
+      const videos = works.filter((work) => work.el.classList.contains('s__scene__work--video'))
+      videos.forEach((work, i) => {
         const el = work.el
 
         el.style.setProperty('--size', String(0.5 + Math.random() * 0.5))
@@ -521,12 +524,10 @@ const works = videoNames.map((filename) => ({
      * Set timeline
      */
     setTimeline() {
-      const { el, container, works, scene, mask, intro } = this
+      const { el, container, works, scene, mask } = this
 
       const worksEl = works.map((work) => work.el)
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      const introEnd = 0.55
-      const worksStart = introEnd + 0.75
+      const worksStart = 0.75
 
       let { tl } = this
 
@@ -550,25 +551,6 @@ const works = videoNames.map((filename) => ({
         },
       })
 
-      // The opening beat belongs to the collection's introduction. Only then
-      // do the mask, GOAT letters, and video cards begin their existing sequence.
-      tl.set(intro, { autoAlpha: 1 }, 0)
-      tl.fromTo(
-        intro.querySelector('.js-reel-progress'),
-        { scaleX: reducedMotion ? 1 : 0 },
-        { scaleX: 1, duration: 0.35, ease: 'none' },
-        0,
-      )
-      tl.to(
-        intro,
-        {
-          autoAlpha: 0,
-          duration: reducedMotion ? 0 : 0.2,
-          ease: 'power2.in',
-        },
-        reducedMotion ? introEnd : 0.35,
-      )
-
       tl.fromTo(
         mask.el,
         {
@@ -579,7 +561,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power4.in',
         },
-        introEnd,
+        0,
       )
 
       tl.fromTo(
@@ -592,7 +574,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power3.in',
         },
-        introEnd,
+        0,
       )
 
       tl.fromTo(
@@ -605,7 +587,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power3.in',
         },
-        introEnd,
+        0,
       )
 
       tl.fromTo(
@@ -618,7 +600,7 @@ const works = videoNames.map((filename) => ({
           duration: 1,
           ease: 'power4.inOut',
         },
-        introEnd,
+        0,
       )
 
       tl.fromTo(
@@ -631,7 +613,7 @@ const works = videoNames.map((filename) => ({
           duration: 0.75,
           ease: 'power4.in',
         },
-        introEnd,
+        0,
       )
 
       tl.fromTo(
@@ -666,7 +648,7 @@ const works = videoNames.map((filename) => ({
         },
         {
           animationProgress: 10000,
-          duration: totalDur - introEnd,
+          duration: totalDur,
           ease: 'power1.out',
         },
         worksStart,
@@ -993,63 +975,63 @@ const works = videoNames.map((filename) => ({
       }
     }
 
-    .s__intro {
-      position: fixed;
-      inset: 0;
-      z-index: 4;
+    .s__letter {
+      --paper: #{color(primary)};
+      --rule: color-mix(in srgb, #{color(accent)} 30%, transparent);
+
+      position: relative;
       display: grid;
-      place-items: center;
-      padding: clamp(1.5rem, 5vw, 4rem);
-      background: color(primary);
+      align-content: center;
+      gap: clamp(0.65rem, 2vh, 1.5rem);
+      box-sizing: border-box;
+      width: min(42rem, 80vw);
+      min-height: min(23rem, 52lvh);
+      padding: clamp(1.35rem, 3.7vw, 3.75rem);
+
+      background: var(--paper);
       color: color(secondary);
-      text-align: center;
-      pointer-events: none;
+      font: 400 clamp(1.125rem, 2.1vw, 1.875rem) / 1.35 font-family(editorial);
+      text-align: left;
+      text-transform: none;
+      text-wrap: pretty;
 
-      &__copy {
-        width: min(100%, 40rem);
+      :global(.theme-dark) & {
+        --paper: #{color(surface)};
       }
 
-      &__label,
-      &__hint {
+      &::before {
+        position: absolute;
+        inset: 0.75rem;
+        border: 1px solid var(--rule);
+        pointer-events: none;
+        content: '';
+      }
+
+      p {
         margin: 0;
-        font: 400 10px / 1.5 font-family(fraktion);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
       }
 
-      &__description {
-        margin: clamp(2rem, 4vw, 3rem) 0;
-        font: 200 clamp(1.25rem, 2.2vw, 2rem) / 1.5 font-family(editorial);
-        text-wrap: pretty;
+      &__quote {
+        position: absolute;
+        top: 0.5rem;
+        left: 1.25rem;
+        padding-inline: 0.3rem;
+        background: var(--paper);
+        color: color(accent);
+        font-size: clamp(2.75rem, 5vw, 4.75rem);
+        line-height: 0.55;
+        padding-top: 0.19em;
+      }
 
-        @media (max-height: 500px) {
-          margin: 1.25rem 0;
-          font-size: clamp(1.125rem, 2.2vw, 1.5rem);
-          line-height: 1.4;
+      &__signature {
+        justify-self: end;
+        color: color(accent);
+
+        svg {
+          display: block;
+          width: clamp(1.1rem, 3vw, 1.85rem);
+          height: auto;
         }
-      }
-
-      &__track {
-        display: block;
-        width: 6rem;
-        height: 1px;
-        margin: 0 auto 1rem;
-        background: color(line);
-      }
-
-      &__progress {
-        display: block;
-        width: 100%;
-        height: 2px;
-        background: currentColor;
-        transform: scaleX(0);
-        transform-origin: left center;
-      }
-
-      &__hint {
-        color: color(muted);
-
-        span { margin-left: 0.35rem; }
       }
     }
 
@@ -1193,6 +1175,14 @@ const works = videoNames.map((filename) => ({
               calc(var(--progress) * var(--progress) * -5rem)
             );
         }
+      }
+
+      :global(.s__scene__work--letter) {
+        --size: 1;
+        --y: 0;
+        --progress: 1;
+
+        z-index: 4;
       }
     }
 

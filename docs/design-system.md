@@ -47,7 +47,7 @@ The current page proves how wide the playground range is under one theme:
 | **Components (`SComponents`, `ComponentPlayground`)** | Quiet editorial gallery launching completely independent standalone interactive studies (`public/components/`) + a dark IDE code viewer. |
 | **GOAT (`SWork`, `VideoPopup`)** | Scroll-scrubbed 3D video reel with masked framing and fullscreen media popup. |
 | **My Way & Contact (`SMyWay`, `SCTA`)** | Orbiting compass rose, floating frames, distorted type, and a pulsing circular `GO` orb over an elastic wave grid. |
-| **Music (`MusicPlayer`)** | Tactile floating vinyl turntable widget with draggable platter, ASCII visualizer, ambient gradient, and grain. |
+| **Music (`MusicPlayer`)** | Floating 3D vinyl turntable with hinged acrylic cover, spring levitation, 360° orbit inspection, 1:1 vinyl scratch, sculpted 3D tonearm, and 3D volume fader. |
 
 When adding a new section or visual feature, draw from this **range of invention** rather than flattening the new work into a clone of one existing section.
 

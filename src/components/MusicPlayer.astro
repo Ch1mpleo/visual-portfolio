@@ -1,6 +1,7 @@
 ---
 import localTrackUrl from '../assets/music/no-church-in-the-wild.mp3?url'
 import albumArtUrl from '../assets/music/watch-the-throne.jpg?url'
+import { vaMarkPaths } from '../utils/brand-marks'
 
 const armFacetLight = [88, 63, 38, 20, 13, 30, 53, 78]
 const fullTrackUrl = import.meta.env.PUBLIC_MUSIC_TRACK_URL?.trim()
@@ -250,17 +251,15 @@ const audioUrl = fullTrackUrl
           <div class="plinth-face plinth-face--left" aria-hidden="true"></div>
           <div class="plinth-face plinth-face--right" aria-hidden="true"></div>
 
-          <!-- Underside baseplate with 4 chunky isolation feet + engraved spec plate -->
+          <!-- Underside baseplate with isolation feet and the VA mark -->
           <div class="plinth-face plinth-face--bottom" aria-hidden="true">
             <span class="base-foot base-foot--tl"></span>
             <span class="base-foot base-foot--tr"></span>
             <span class="base-foot base-foot--bl"></span>
             <span class="base-foot base-foot--br"></span>
-            <div class="base-plate">
-              <span>CH1MPLEO AUDIO LAB</span>
-              <span>MODEL CH1-MK1 · DIRECT DRIVE</span>
-              <span>SIDE A · VIET NAM</span>
-            </div>
+            <svg class="base-mark" viewBox="0 0 280 280" fill="currentColor">
+              {vaMarkPaths.map((path) => <path d={path} />)}
+            </svg>
           </div>
         </div>
       </div>
@@ -1975,17 +1974,11 @@ const audioUrl = fullTrackUrl
     &--br { bottom: 14px; right: 16px; }
   }
 
-  .base-plate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 16px;
-    border: 1px solid var(--deck-border-soft);
-    color: var(--deck-muted);
-    font: 400 7px / 1.2 font-family(fraktion);
-    letter-spacing: 0.1em;
-    text-align: center;
+  .base-mark {
+    width: 70px;
+    height: 70px;
+    color: color-mix(in srgb, var(--deck-ink) 75%, var(--deck-brass));
+    filter: drop-shadow(0 1px 0 var(--deck-edge-light));
   }
 
   /* Pure floating text caption only — NO background box */

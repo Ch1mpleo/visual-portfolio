@@ -156,8 +156,8 @@ export function createTurntablePhysics(
     const dt = Math.min(Math.max((now - lastTick) / 1000, 0.001), 0.04)
     lastTick = now
 
-    // Hold the projected rail in place while the fader owns the pointer.
-    if (player.classList.contains('is-sliding-fader')) {
+    // Keep the measured rail or platter fixed while a gesture or animation targets it.
+    if (player.classList.contains('is-sliding-fader') || player.classList.contains('is-catching-record')) {
       const active = sampleAudio(dt)
       applyAudioVars()
       if (active) frame = requestAnimationFrame(tick)
@@ -369,9 +369,9 @@ export function createTurntablePhysics(
   applyVars()
 
   return {
-    setOpen(open: boolean) {
+    setOpen(open: boolean, immediate = false) {
       const next = open ? 1 : 0
-      if (targetOpen === next && !resettingOrbit) return
+      if (targetOpen === next && !resettingOrbit && !immediate) return
       targetOpen = next
       if (!open) {
         targetHoverZoom = 0
@@ -379,6 +379,13 @@ export function createTurntablePhysics(
         targetTiltX = 0
         targetTiltY = 0
         resetOrbit()
+      }
+      if (immediate) {
+        openSpring.value = next
+        openSpring.velocity = 0
+        hoverZoom.value = targetHoverZoom
+        hoverZoom.velocity = 0
+        applyVars()
       }
       schedule()
     },

@@ -254,15 +254,35 @@ try {
   assert.equal(await toggle.getAttribute('aria-expanded'), 'false')
 
   // Responsive viewport checks
-  for (const [width, height] of [[320, 640], [390, 844], [768, 1024], [1440, 960], [720, 450], [844, 390]]) {
+  const sleeve = page.getByRole('button', { name: 'Open turntable' })
+  const mobileDialog = page.getByRole('dialog', { name: 'Turntable' })
+  for (const [width, height] of [[320, 640], [390, 844], [767, 390], [768, 1024], [1440, 960], [720, 450], [844, 390]]) {
     await page.setViewportSize({ width, height })
-    await toggle.hover()
+    if (width <= 767) {
+      await sleeve.click()
+      await mobileDialog.waitFor()
+      await page.waitForFunction(() => !document.querySelector('#music-player-panel').inert)
+    } else {
+      await toggle.hover()
+    }
     await page.waitForTimeout(420)
     const bounds = await panel.boundingBox()
     assert.ok(bounds.x >= 0 && bounds.y >= 0 && bounds.x + bounds.width <= width && bounds.y + bounds.height <= height, `player fits ${width}x${height}`)
+    if (width <= 767) {
+      assert.ok(Math.abs(bounds.x + bounds.width / 2 - width / 2) < 1, 'the mobile stage is centered')
+      const face = await page.locator('.plinth-face--front').boundingBox()
+      const track = await caption.boundingBox()
+      assert.ok(face.y + face.height < track.y, `the front of the deck clears the caption at ${width}x${height}`)
+    }
     await page.screenshot({ path: resolve(out, `player-${width}x${height}.png`) })
-    await page.mouse.move(0, 200)
-    await page.waitForTimeout(380)
+    if (width <= 767) {
+      await page.keyboard.press('Escape')
+      await mobileDialog.waitFor({ state: 'hidden' })
+      assert.equal(await sleeve.evaluate(el => el === document.activeElement), true, 'Escape returns focus to the sleeve')
+    } else {
+      await page.mouse.move(0, 200)
+      await page.waitForTimeout(380)
+    }
   }
 
   // Dark theme & reduced motion
@@ -287,8 +307,35 @@ try {
   const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
   await touch.goto(url, { waitUntil: 'load' })
   await touch.locator('.site-intro').waitFor({ state: 'detached' })
-  await touch.locator('[data-music-toggle]').tap()
-  assert.equal(await touch.locator('[data-music-toggle]').getAttribute('aria-expanded'), 'true', 'tap expands 3D player')
+  const touchSleeve = touch.getByRole('button', { name: 'Open turntable' })
+  const touchDialog = touch.getByRole('dialog', { name: 'Turntable' })
+  const flyingRecord = touch.locator('.music-player__flight-record')
+  const touchAudio = touch.locator('[data-music-audio]')
+  const client = await touch.context().newCDPSession(touch)
+  async function dragTouch(points) {
+    const [start, ...moves] = points.map(([x, y]) => ({ x, y }))
+    await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [start] })
+    for (const point of moves) {
+      await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [point] })
+    }
+    await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+  }
+  await touch.waitForFunction(() => window.lenis && !window.lenis.isStopped)
+  const sleeveBounds = await touchSleeve.boundingBox()
+  assert.equal(sleeveBounds.width, 52)
+  assert.equal(sleeveBounds.height, 72)
+  assert.equal(sleeveBounds.x + sleeveBounds.width, 390)
+  await touch.screenshot({ path: resolve(out, 'mobile-light-sleeve.png') })
+  const scrollBefore = await touch.evaluate(() => scrollY)
+  await touchSleeve.tap()
+  await touchDialog.waitFor()
+  const scrim = touch.locator('ui-dialog-backdrop')
+  assert.match(await scrim.evaluate(el => getComputedStyle(el, '::before').animationName), /turntable-discovery/)
+  assert.equal(await touchAudio.getAttribute('src'), null, 'the sleeve opens without requesting playback')
+  assert.equal(await touch.evaluate(() => window.lenis.isStopped), true, 'the mobile dialog pauses Lenis')
+  await dragTouch([[20, 200], [20, 180], [20, 140], [20, 90]])
+  assert.equal(await touch.evaluate(() => scrollY), scrollBefore, 'swiping the scrim does not move the page')
+  await touchDialog.getByRole('button', { name: 'Start turntable' }).tap()
   await touch.waitForFunction(() => document.querySelector('[data-music-audio]').currentTime > .2)
   await touch.waitForTimeout(450)
   const touchFader = touch.getByRole('slider', { name: 'Music volume' })
@@ -297,9 +344,107 @@ try {
   await touch.waitForFunction(() =>
     Number(document.querySelector('[data-music-fader]').getAttribute('aria-valuenow')) > 75
   )
-  await touch.locator('[data-music-toggle]').tap()
-  await touch.locator('body').tap({ position: { x: 10, y: 250 } })
-  assert.equal(await touch.locator('[data-music-toggle]').getAttribute('aria-expanded'), 'false', 'outside tap collapses player')
+  const vinyl = await touchDialog.getByRole('slider', { name: 'Record position' }).boundingBox()
+  const vinylX = vinyl.x + vinyl.width / 2
+  const vinylY = vinyl.y + vinyl.height / 2
+  const vinylRadius = Math.min(vinyl.height, vinyl.width) * .32
+  await dragTouch([
+    [vinylX + vinylRadius, vinylY],
+    [vinylX + vinylRadius * .7, vinylY + vinylRadius * .7],
+    [vinylX, vinylY + vinylRadius],
+  ])
+  await touch.waitForFunction(() => document.querySelector('[data-music-audio]').currentTime > 5)
+  await touch.waitForFunction(() => !document.querySelector('[data-music-audio]').paused)
+  const touchStage = await touch.locator('[data-music-stage]').boundingBox()
+  const edgeX = touchStage.x + 2
+  const edgeY = touchStage.y + touchStage.height * .7
+  const closeFlashed = touch.evaluate(() => new Promise(resolve => {
+    const player = document.querySelector('[data-music-player]')
+    const layer = player.querySelector('.music-player__dialog')
+    const panel = player.querySelector('#music-player-panel')
+    let sawReturn = false
+    function sample() {
+      const returning = player.classList.contains('is-returning-record')
+      sawReturn ||= returning
+      if (sawReturn && !returning) {
+        if (!layer.matches(':popover-open')) return resolve(false)
+        const opacity = Number(getComputedStyle(layer).opacity) * Number(getComputedStyle(panel).opacity)
+        if (opacity > 0.15) return resolve(true)
+      }
+      requestAnimationFrame(sample)
+    }
+    requestAnimationFrame(sample)
+  }))
+  await touch.touchscreen.tap(edgeX, edgeY)
+  await touch.locator('.is-returning-record').waitFor()
+  assert.equal(await touch.evaluate(() => window.lenis.isStopped), true, 'the page stays still while the record returns')
+  await flyingRecord.waitFor()
+  await touch.waitForFunction(() => {
+    const record = document.querySelector('.music-player__flight-record')?.getBoundingClientRect()
+    const deck = document.querySelector('[data-music-stage]').getBoundingClientRect()
+    return record && record.right > innerWidth - 56 && deck.right < innerWidth / 2
+  })
+  await touch.screenshot({ path: resolve(out, 'mobile-record-return.png') })
+  await touchDialog.waitFor({ state: 'hidden' })
+  assert.equal(await closeFlashed, false, 'the deck never flashes back while the dialog exits')
+  assert.equal(await touch.evaluate(() => window.lenis.isStopped), false, 'a tap beside the deck restores Lenis')
+  assert.equal(await touchAudio.evaluate(el => el.paused), false, 'closing keeps the track playing')
+  await touch.evaluate(() => document.documentElement.classList.add('theme-dark'))
+  await touch.waitForTimeout(260)
+  await touch.screenshot({ path: resolve(out, 'mobile-dark-playing-sleeve.png') })
+  const x = sleeveBounds.x + sleeveBounds.width / 2
+  const y = sleeveBounds.y + sleeveBounds.height / 2
+  await dragTouch([0, 8, 16].map(distance => [x - distance, y]))
+  assert.equal(await touchDialog.isVisible(), false, 'an incomplete pull returns to the jacket')
+  await dragTouch([0, 8, 16, 32, 45].map(distance => [x - distance, y]))
+  await touchDialog.waitFor()
+  await flyingRecord.waitFor()
+  const origin = await flyingRecord.evaluate(el => parseFloat(el.style.left) + el.parentElement.getBoundingClientRect().left)
+  assert.ok(origin < x - 40, 'the flight starts from the pulled record instead of its tucked position')
+  assert.equal(await touch.locator('#music-player-panel').evaluate(el => el.inert), true, 'the deck cannot be operated mid-flight')
+  await touch.waitForFunction(() => {
+    const deck = document.querySelector('[data-music-stage]')
+    const transform = getComputedStyle(deck).transform
+    const bounds = deck.getBoundingClientRect()
+    return transform !== 'none' && new DOMMatrixReadOnly(transform).m41 < -35 && bounds.right > 25
+  })
+  await touch.screenshot({ path: resolve(out, 'mobile-record-catch-flight.png') })
+  await flyingRecord.waitFor({ state: 'detached' })
+  assert.equal(await touchAudio.evaluate(el => el.paused), false, 'pulling the sleeve open keeps the track playing')
+  await touch.waitForTimeout(450)
+  await touch.screenshot({ path: resolve(out, 'mobile-dark-stage.png') })
+  const arm = await touch.locator('[data-music-tonearm-handle]').boundingBox()
+  const armX = arm.x + arm.width / 2
+  const armY = arm.y + arm.height / 2
+  await dragTouch([[armX, armY], [armX - 12, armY], [armX - 24, armY - 2], [armX - 30, armY - 3]])
+  await touch.waitForFunction(() => document.querySelector('[data-music-audio]').currentTime > 30)
+  const deck = await touch.locator('[data-music-plinth]').boundingBox()
+  const deckX = deck.x + deck.width * .08
+  const deckY = deck.y + deck.height * .12
+  const deckAngle = await touch.evaluate(() => parseFloat(document.querySelector('[data-music-player]').style.getPropertyValue('--deck-ry')))
+  await dragTouch([[deckX, deckY], [deckX + 30, deckY - 6], [deckX + 70, deckY - 10], [deckX + 120, deckY - 20]])
+  await touch.waitForFunction(angle => Math.abs(parseFloat(document.querySelector('[data-music-player]').style.getPropertyValue('--deck-ry')) - angle) > 50, deckAngle)
+  await touch.touchscreen.tap(10, 100)
+  await touchDialog.waitFor({ state: 'hidden' })
+  assert.equal(await touchSleeve.evaluate(el => el === document.activeElement), true, 'scrim dismissal restores sleeve focus')
+  assert.equal(await touch.evaluate(() => window.lenis.isStopped), false, 'scrim dismissal restores Lenis')
+  await touch.emulateMedia({ reducedMotion: 'reduce' })
+  await touchSleeve.press('Enter')
+  await touchDialog.waitFor()
+  assert.equal(await scrim.evaluate(el => getComputedStyle(el, '::before').animationName), 'none', 'reduced motion keeps the glow still')
+  assert.equal(await flyingRecord.count(), 0, 'reduced motion opens the live deck without a flight')
+  await touch.keyboard.press('Escape')
+  await touchDialog.waitFor({ state: 'hidden' })
+  assert.equal(await flyingRecord.count(), 0, 'reduced motion returns to the sleeve without a flight')
+  await touch.emulateMedia({ reducedMotion: 'no-preference' })
+  await dragTouch([0, 8, 16, 32, 45].map(distance => [x - distance, y]))
+  await flyingRecord.waitFor()
+  await touch.keyboard.press('Escape')
+  await touch.waitForFunction(() => document.querySelector('.music-player__flight-record')
+    ?.getAnimations().some(animation => animation.effect.getTiming().duration === 160))
+  await touchDialog.waitFor({ state: 'hidden' })
+  assert.equal(await flyingRecord.count(), 0, 'closing during the catch removes the flying record')
+  assert.equal(await touchSleeve.evaluate(el => el === document.activeElement), true, 'interrupting the catch restores sleeve focus')
   await touch.close()
 
   // Error & retry recovery
@@ -318,7 +463,7 @@ try {
   assert.equal(await blocked.locator('[data-music-toggle]').getAttribute('aria-pressed'), 'true', 'retry recovers after connection failure')
   await blocked.close()
 
-  console.log(`PASS (${url}): realistic 3D turntable, hinged acrylic lid, hover zoom, borderless vinyl button, pure-text caption, 360 orbit, rotary knob, light/dark themes, keyboard, 6 viewports, reduced motion, touch, and retry.`)
+  console.log(`PASS (${url}): desktop turntable, mobile sleeve tap and swipe, centered dialog, Lenis and focus restoration, playback, fader, scratch, tonearm, orbit, 7 viewports, themes, reduced motion, and retry.`)
   console.log(`Screenshots: ${out}`)
 } finally {
   await browser.close()
